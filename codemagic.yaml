@@ -1,0 +1,75 @@
+workflows:
+  ios-simulator:
+    name: iOS simulator build and launch check
+    instance_type: mac_mini_m2
+    max_build_duration: 45
+    environment:
+      node: 22
+      xcode: latest
+      vars:
+        IOS_SIMULATOR_BUILD: "1"
+    scripts:
+      - name: Install dependencies and test purchase routing
+        script: |
+          set -euo pipefail
+          npm ci
+          npm run test:ios
+      - name: Prepare iOS
+        script: |
+          set -euo pipefail
+          npm run ios:sync
+          bash scripts/ios-assets.sh
+      - name: Compile simulator app
+        script: |
+          set -euo pipefail
+          xcodebuild -project ios/App/App.xcodeproj -scheme App -configuration Debug -sdk iphonesimulator -destination 'generic/platform=iOS Simulator' -derivedDataPath ios/DerivedData CODE_SIGNING_ALLOWED=NO build
+      - name: Launch on iPhone and iPad simulators
+        script: bash scripts/ios-simulator-smoke.sh
+    artifacts:
+      - ios/DerivedData/Build/Products/Debug-iphonesimulator/*.app
+      - ios/smoke-results/**
+
+  ios-testflight:
+    name: iOS signed build and App Store Connect upload
+    instance_type: mac_mini_m2
+    max_build_duration: 60
+    integrations:
+      app_store_connect: mnmoo-app-store-connect
+    environment:
+      node: 22
+      xcode: latest
+      groups:
+        - mnmoo_ios
+      ios_signing:
+        distribution_type: app_store
+        bundle_identifier: com.mnmoo.firstgradelearninggames
+    scripts:
+      - name: Install dependencies and test purchase routing
+        script: |
+          set -euo pipefail
+          npm ci
+          npm run test:ios
+      - name: Prepare iOS with Apple RevenueCat key
+        script: |
+          set -euo pipefail
+          npm run ios:sync
+          bash scripts/ios-assets.sh
+      - name: Configure signing and build number
+        script: |
+          set -euo pipefail
+          xcode-project use-profiles
+          cd ios/App
+          agvtool new-version -all "$((BUILD_NUMBER + 1))"
+      - name: Archive and export signed IPA
+        script: |
+          set -euo pipefail
+          xcode-project build-ipa --project ios/App/App.xcodeproj --scheme App
+    artifacts:
+      - build/ios/ipa/*.ipa
+      - /tmp/xcodebuild_logs/*.log
+      - ~/Library/Developer/Xcode/DerivedData/**/Build/**/*.dSYM
+    publishing:
+      app_store_connect:
+        auth: integration
+        submit_to_testflight: false
+        submit_to_app_store: false

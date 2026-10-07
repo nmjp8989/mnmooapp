@@ -7,7 +7,11 @@
     "build": "cp index.html www/index.html && rsync -av --delete --exclude='batchp3.py' --exclude='REDESIGN_PLAN.md' --exclude='readme' --exclude='fix_landscape_final.js' --exclude='output.m4a' --exclude='output1.m4a' --exclude='thumb.json' games/ www/games/",
     "android:sync": "npm run build && npx cap sync android",
     "android:open": "npx cap open android",
-    "android:run": "npm run build && npx cap run android"
+    "android:run": "npm run build && npx cap run android",
+    "ios:build": "node scripts/build-ios.mjs",
+    "ios:sync": "npm run ios:build && npx cap sync ios",
+    "ios:open": "npx cap open ios",
+    "test:ios": "node --test tests/ios.test.mjs"
   },
   "keywords": [],
   "author": "",
@@ -16,6 +20,7 @@
     "@capacitor/android": "^8.4.0",
     "@capacitor/cli": "^8.4.0",
     "@capacitor/core": "^8.4.0",
+    "@capacitor/ios": "8.4.0",
     "@revenuecat/purchases-capacitor": "^13.1.7"
   }
 }

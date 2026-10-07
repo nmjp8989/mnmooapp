@@ -759,6 +759,12 @@ function logDebug(msg) {
 }
 
 /* ═══ REVENUECAT SUBSCRIPTION ═══ */
+// Injected into the iOS build only; never use the Google key on Apple.
+const RC_APPLE_API_KEY = '';
+const RC_ENTITLEMENT = 'mnmoo_pro';
+function isApplePlatform() {
+  return typeof Capacitor !== 'undefined' && Capacitor.getPlatform?.() === 'ios';
+}
 const RC_GOOGLE_API_KEY = 'goog_OTYhKHoUiAMNkVUvsRCZAFwhwIH';
 const RC_AMAZON_API_KEY = 'amzn_biqRqADZZwCmtAMaFbjgPdjCnIM';
 let isPro = false;
@@ -794,7 +800,7 @@ function checkIsPro(customerInfo) {
 
   // Updated to look for the new entitlement ID: 'mnmoo_pro'
   const hasPro = activeEntitlements.some(
-    key => String(key).trim() === 'mnmoo_pro'
+    key => String(key).trim() === RC_ENTITLEMENT
   );
 
   if (hasPro) {
@@ -817,9 +823,9 @@ async function initRevenueCat() {
     }
     const P = Capacitor.Plugins.Purchases;
     const detector = Capacitor.Plugins.StoreDetector;
-    let store = 'google';
+    let store = isApplePlatform() ? 'apple' : 'google';
 
-    if (detector) {
+    if (store !== 'apple' && detector) {
       const storeResult = await detector.getStore();
       store = storeResult?.store === 'amazon' ? 'amazon' : 'google';
       logDebug(
@@ -828,9 +834,14 @@ async function initRevenueCat() {
       );
     }
 
+    if (store === 'apple' && !/^appl_[A-Za-z0-9]+$/.test(RC_APPLE_API_KEY)) {
+      throw new Error('Apple RevenueCat key is missing. Set RC_APPLE_API_KEY when building iOS.');
+    }
     logDebug('RC: Configuring for ' + store + '...');
     await P.configure(
-      store === 'amazon'
+      store === 'apple'
+        ? { apiKey: RC_APPLE_API_KEY }
+        : store === 'amazon'
         ? { apiKey: RC_AMAZON_API_KEY, useAmazon: true }
         : { apiKey: RC_GOOGLE_API_KEY }
     );
@@ -839,6 +850,13 @@ async function initRevenueCat() {
     
     await checkProStatus();
     await loadOfferings();
+    if (isApplePlatform()) {
+      // Direct Capacitor proxy uses options + callback (not the SDK wrapper signature).
+      await P.addCustomerInfoUpdateListener({}, (info) => {
+        isPro = checkIsPro(unwrap(info, 'customerInfo'));
+        updateProUI();
+      });
+    }
   } catch (e) { logDebug('RC init error: ' + JSON.stringify(e)); }
 }
 
@@ -898,7 +916,7 @@ function selectPlan(plan) {
   var el = document.getElementById(id);
   if (el) el.classList.add('selected');
   var cta = document.getElementById('paywallCta');
-  if (plan === 'monthly') cta.textContent = 'Start 3-Day Free Trial';
+  if (plan === 'monthly') cta.textContent = isApplePlatform() ? 'Subscribe Monthly' : 'Start 3-Day Free Trial';
   else if (plan === 'yearly') cta.textContent = 'Subscribe Yearly';
   else cta.textContent = 'Get Lifetime Access';
 }
@@ -1049,6 +1067,7 @@ function updateProUI() {
 var logoTapCount = 0;
 var logoTapTimer = null;
 function logoTap() {
+  if (isApplePlatform()) return; // Never bypass Apple purchases in release builds.
   logoTapCount++;
   clearTimeout(logoTapTimer);
   logoTapTimer = setTimeout(function(){ logoTapCount = 0; }, 2000);
@@ -1242,6 +1261,12 @@ function closeGame(){
 
 window.addEventListener('DOMContentLoaded',()=>{
   renderGames();
+  if (isApplePlatform()) {
+    document.querySelector('#planMonthly .plan-detail').textContent = 'Auto-renewing monthly';
+    document.querySelector('#planYearly .plan-detail').textContent = 'Auto-renewing yearly';
+    document.querySelector('#planLifetime .plan-detail').textContent = 'One-time purchase';
+    document.getElementById('paywallCta').textContent = 'Subscribe Monthly';
+  }
   initRevenueCat();
   startBackgroundMusic();
   var splashEl = document.getElementById('splash');
@@ -1256,6 +1281,9 @@ window.addEventListener('DOMContentLoaded',()=>{
     try{(document.documentElement.requestFullscreen||document.documentElement.webkitRequestFullscreen).call(document.documentElement)}catch(e){}
     document.removeEventListener('pointerdown',f);
   },{once:true});
+});
+document.addEventListener('visibilitychange', () => {
+  if (isApplePlatform() && !document.hidden && rcReady) checkProStatus();
 });
 document.addEventListener('backbutton',e=>{
   e.preventDefault();

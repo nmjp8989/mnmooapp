@@ -1,0 +1,8 @@
+node_modules/
+node_modules/*
+node_modules/@capacitor/android/capacitor/.gradle/9.2.0/fileHashes/fileHashes.bin
+node_modules/@capacitor/android/capacitor/.gradle/9.2.0/fileHashes/fileHashes.lock
+node_modules/@revenuecat/purchases-capacitor/android/.gradle/9.2.0/checksums/checksums.lock
+node_modules/@revenuecat/purchases-capacitor/android/.gradle/9.2.0/fileHashes/fileHashes.bin
+node_modules/@revenuecat/purchases-capacitor/android/.gradle/9.2.0/fileHashes/fileHashes.lock
+node_modules/@revenuecat/purchases-capacitor/android/.gradle/buildOutputCleanup/buildOutputCleanup.lock

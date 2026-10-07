@@ -1,5 +1,19 @@
 # AGENTS.md
 
+## iOS workflow
+
+- The current build source is `index.html` (not `code.html`).
+- `ios/` is the Capacitor 8 iOS project, using Swift Package Manager.
+- `npm run ios:sync` builds and syncs iOS. Set `RC_APPLE_API_KEY` to the
+  RevenueCat Apple public SDK key (`appl_...`). For unsigned simulator checks only,
+  use `IOS_SIMULATOR_BUILD=1 npm run ios:sync` without a purchase key.
+- The active entitlement in the current code is `mnmoo_pro`; the older setup
+  examples below are historical. All current games require Pro.
+- `npm run test:ios` checks platform routing and entitlement handling.
+- `codemagic.yaml` defines separate simulator and signed upload workflows.
+  Account setup and release requirements are in `docs/IOS_RELEASE.md`.
+- Android release commands and Google/Amazon keys remain independent of iOS.
+
 ## Project Overview
 
 mnmoo is a mobile-first educational quiz app for Math and Coding (Python) grades K–8. Built as a single-page HTML app deployed to Android via Capacitor.

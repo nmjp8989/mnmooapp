@@ -24,5 +24,9 @@
   },
   "server": {
     "androidScheme": "https"
+  },
+  "ios": {
+    "contentInset": "never",
+    "backgroundColor": "#000000"
   }
 }
