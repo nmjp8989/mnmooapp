@@ -1,0 +1,114 @@
+{
+  "welcome": {
+    "text": "Welcome to Traffic Light Patterns! Watch the lights and guess what comes next!",
+    "m4a": "trafficlights_audio/welcome.m4a"
+  },
+  "instructions": {
+    "text": "Look at the traffic lights. One is missing! Press the right color to fill in the pattern.",
+    "m4a": "trafficlights_audio/instructions.m4a"
+  },
+  "correct_1": {
+    "text": "That's the right light! Great job!",
+    "m4a": "trafficlights_audio/correct_1.m4a"
+  },
+  "correct_2": {
+    "text": "Perfect! You nailed it!",
+    "m4a": "trafficlights_audio/correct_2.m4a"
+  },
+  "correct_3": {
+    "text": "Awesome! You know your patterns!",
+    "m4a": "trafficlights_audio/correct_3.m4a"
+  },
+  "correct_4": {
+    "text": "Fantastic! Keep it going!",
+    "m4a": "trafficlights_audio/correct_4.m4a"
+  },
+  "correct_5": {
+    "text": "You're a pattern expert!",
+    "m4a": "trafficlights_audio/correct_5.m4a"
+  },
+  "wrong_1": {
+    "text": "Oops! That's not the right color.",
+    "m4a": "trafficlights_audio/wrong_1.m4a"
+  },
+  "wrong_2": {
+    "text": "Not quite! Look at the pattern again.",
+    "m4a": "trafficlights_audio/wrong_2.m4a"
+  },
+  "wrong_3": {
+    "text": "Try again! Which light comes next?",
+    "m4a": "trafficlights_audio/wrong_3.m4a"
+  },
+  "wrong_4": {
+    "text": "Almost! Check the sequence carefully.",
+    "m4a": "trafficlights_audio/wrong_4.m4a"
+  },
+  "round_done": {
+    "text": "On to the next pattern!",
+    "m4a": "trafficlights_audio/round_done.m4a"
+  },
+  "level_up": {
+    "text": "Level up! The patterns are getting trickier!",
+    "m4a": "trafficlights_audio/level_up.m4a"
+  },
+  "encouragement_1": {
+    "text": "You're doing amazing!",
+    "m4a": "trafficlights_audio/encouragement_1.m4a"
+  },
+  "encouragement_2": {
+    "text": "Keep it up, traffic expert!",
+    "m4a": "trafficlights_audio/encouragement_2.m4a"
+  },
+  "encouragement_3": {
+    "text": "You're a natural at patterns!",
+    "m4a": "trafficlights_audio/encouragement_3.m4a"
+  },
+  "encouragement_4": {
+    "text": "So close! You've got this!",
+    "m4a": "trafficlights_audio/encouragement_4.m4a"
+  },
+  "win": {
+    "text": "Time's up! What a great score!",
+    "m4a": "trafficlights_audio/win.m4a"
+  },
+  "try_again": {
+    "text": "Good effort! Want to try again?",
+    "m4a": "trafficlights_audio/try_again.m4a"
+  },
+  "teach_ab": {
+    "text": "The AB pattern has two colors that take turns! Red, yellow, red, yellow — see how they switch back and forth?",
+    "m4a": "trafficlights_audio/teach_ab.m4a"
+  },
+  "teach_abc": {
+    "text": "The ABC pattern uses all three colors in order! Red, yellow, green, then start over!",
+    "m4a": "trafficlights_audio/teach_abc.m4a"
+  },
+  "teach_abb": {
+    "text": "In the ABB pattern, one color comes once, then another color comes twice! Red, yellow, yellow, red, yellow, yellow!",
+    "m4a": "trafficlights_audio/teach_abb.m4a"
+  },
+  "teach_aabb": {
+    "text": "In the AABB pattern, we see two of each color! Red, red, yellow, yellow, then start over!",
+    "m4a": "trafficlights_audio/teach_aabb.m4a"
+  },
+  "teach_aab": {
+    "text": "The AAB pattern has a pair of one color, then a single of another! Red, red, yellow, red, red, yellow!",
+    "m4a": "trafficlights_audio/teach_aab.m4a"
+  },
+  "teach_abba": {
+    "text": "ABBA is a palindrome — it reads the same forwards and backwards! Red, yellow, yellow, red!",
+    "m4a": "trafficlights_audio/teach_abba.m4a"
+  },
+  "teach_aabc": {
+    "text": "The AABC pattern starts with a double, then two different singles! Red, red, yellow, green, then repeat!",
+    "m4a": "trafficlights_audio/teach_aabc.m4a"
+  },
+  "hint_used": {
+    "text": "Here's a hint! Look at the pattern carefully.",
+    "m4a": "trafficlights_audio/hint_used.m4a"
+  },
+  "pattern_master": {
+    "text": "You're a pattern master! You learned so many patterns today!",
+    "m4a": "trafficlights_audio/pattern_master.m4a"
+  }
+}

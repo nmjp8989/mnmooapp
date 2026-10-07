@@ -1,0 +1,31 @@
+{
+  "gameId": "senses_explorer",
+  "gameTitle": "Our Five Senses!",
+  "voiceGuide": "An interactive learning experience where children explore the five senses by identifying actions in a park scene.",
+  "phrases": {
+    "welcome": {
+      "text": "Welcome! Let's learn about our Five Senses. Click on a character to check which sense they are using.",
+      "m4a": "hover_audio/welcome.m4a"
+    },
+    "sense_touch": {
+      "text": "Touch! I feel the softness.",
+      "m4a": "hover_audio/sense_touch.m4a"
+    },
+    "sense_taste": {
+      "text": "Taste! I taste the yummy ice cream.",
+      "m4a": "hover_audio/sense_taste.m4a"
+    },
+    "sense_smell": {
+      "text": "Smell! I smell the beautiful flower.",
+      "m4a": "hover_audio/sense_smell.m4a"
+    },
+    "sense_hearing": {
+      "text": "Hearing! I hear the music.",
+      "m4a": "hover_audio/sense_hearing.m4a"
+    },
+    "sense_sight": {
+      "text": "Sight! I see the little bird.",
+      "m4a": "hover_audio/sense_sight.m4a"
+    }
+  }
+}

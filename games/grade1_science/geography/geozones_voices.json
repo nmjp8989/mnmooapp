@@ -1,0 +1,279 @@
+{
+  "gameId": "geozones_opus",
+  "gameTitle": "EcoQuest Junior: Animal Homes",
+  "voiceGuide": "Guide the child through four biomes: Forest, Desert, Ocean, and Arctic. Read every quiz question aloud, then read each answer choice aloud, and finally read the fun fact after a correct answer. Use an encouraging, adventurous tone.",
+  "phrases": {
+    "welcome": {
+      "text": "Welcome, explorer! Help animals find their home!",
+      "m4a": "geozones_audio/welcome.m4a"
+    },
+    "correct_1": {
+      "text": "Yes! That's right!",
+      "m4a": "geozones_audio/correct_1.m4a"
+    },
+    "correct_2": {
+      "text": "Great job! That's right!",
+      "m4a": "geozones_audio/correct_2.m4a"
+    },
+    "correct_3": {
+      "text": "Amazing! You found it!",
+      "m4a": "geozones_audio/correct_3.m4a"
+    },
+    "wrong_1": {
+      "text": "Hmm, try again! Think about where this animal lives.",
+      "m4a": "geozones_audio/wrong_1.m4a"
+    },
+    "wrong_2": {
+      "text": "Not quite! You can do it!",
+      "m4a": "geozones_audio/wrong_2.m4a"
+    },
+    "biome_complete": {
+      "text": "Wow! You explored the whole area!",
+      "m4a": "geozones_audio/biome_complete.m4a"
+    },
+    "all_done": {
+      "text": "You explored every biome! Amazing work!",
+      "m4a": "geozones_audio/all_done.m4a"
+    },
+    "q_forest_1": {
+      "text": "An owl sleeps during the bright day. Where is the safest place for them to hide?",
+      "m4a": "geozones_audio/q_forest_1.m4a"
+    },
+    "q_forest_1_a": {
+      "text": "A hollow hole inside a tree trunk",
+      "m4a": "geozones_audio/q_forest_1_a.m4a"
+    },
+    "q_forest_1_b": {
+      "text": "Underneath a wet river rock",
+      "m4a": "geozones_audio/q_forest_1_b.m4a"
+    },
+    "q_forest_1_c": {
+      "text": "On top of an open, sunny flower",
+      "m4a": "geozones_audio/q_forest_1_c.m4a"
+    },
+    "fact_forest_1": {
+      "text": "Spotted owls sleep inside dark hollow trees. Their brown feathers blend in with the bark to keep them safe from danger!",
+      "m4a": "geozones_audio/fact_forest_1.m4a"
+    },
+    "q_forest_2": {
+      "text": "Squirrels need food to survive the cold winter. What do they harvest and store in the autumn?",
+      "m4a": "geozones_audio/q_forest_2.m4a"
+    },
+    "q_forest_2_a": {
+      "text": "Fallen oak acorns and seeds",
+      "m4a": "geozones_audio/q_forest_2_a.m4a"
+    },
+    "q_forest_2_b": {
+      "text": "Fresh green seaweed",
+      "m4a": "geozones_audio/q_forest_2_b.m4a"
+    },
+    "q_forest_2_c": {
+      "text": "Shiny blue river stones",
+      "m4a": "geozones_audio/q_forest_2_c.m4a"
+    },
+    "fact_forest_2": {
+      "text": "Squirrels hide thousands of nuts in secret places under the ground. The nuts they forget grow into beautiful new trees!",
+      "m4a": "geozones_audio/fact_forest_2.m4a"
+    },
+    "q_forest_3": {
+      "text": "Grizzly bears must eat a lot of food before their long winter sleep. What is their favorite meal?",
+      "m4a": "geozones_audio/q_forest_3.m4a"
+    },
+    "q_forest_3_a": {
+      "text": "Fresh river fish and sweet honey",
+      "m4a": "geozones_audio/q_forest_3_a.m4a"
+    },
+    "q_forest_3_b": {
+      "text": "Dry pinecones and twigs",
+      "m4a": "geozones_audio/q_forest_3_b.m4a"
+    },
+    "q_forest_3_c": {
+      "text": "Dry sand and small pebbles",
+      "m4a": "geozones_audio/q_forest_3_c.m4a"
+    },
+    "fact_forest_3": {
+      "text": "Grizzly bears eat lots of fat-rich salmon and wild berries to grow strong before sleeping all through the snowy winter!",
+      "m4a": "geozones_audio/fact_forest_3.m4a"
+    },
+    "q_desert_1": {
+      "text": "A camel travels over very hot sand dunes. Where do they store fuel when food is hard to find?",
+      "m4a": "geozones_audio/q_desert_1.m4a"
+    },
+    "q_desert_1_a": {
+      "text": "Inside their big back hump",
+      "m4a": "geozones_audio/q_desert_1_a.m4a"
+    },
+    "q_desert_1_b": {
+      "text": "Inside their soft floppy ears",
+      "m4a": "geozones_audio/q_desert_1_b.m4a"
+    },
+    "q_desert_1_c": {
+      "text": "Underneath their hard feet",
+      "m4a": "geozones_audio/q_desert_1_c.m4a"
+    },
+    "fact_desert_1": {
+      "text": "A camel's hump is full of fat. When food is scarce, their body turns that fat into energy to help them walk for many days.",
+      "m4a": "geozones_audio/fact_desert_1.m4a"
+    },
+    "q_desert_2": {
+      "text": "The desert sun is super hot during the day. How does a little lizard stay nice and cool?",
+      "m4a": "geozones_audio/q_desert_2.m4a"
+    },
+    "q_desert_2_a": {
+      "text": "Hiding deep under the cool sand",
+      "m4a": "geozones_audio/q_desert_2_a.m4a"
+    },
+    "q_desert_2_b": {
+      "text": "Climbing up a pine tree branch",
+      "m4a": "geozones_audio/q_desert_2_b.m4a"
+    },
+    "q_desert_2_c": {
+      "text": "Jumping into cold ocean waves",
+      "m4a": "geozones_audio/q_desert_2_c.m4a"
+    },
+    "fact_desert_2": {
+      "text": "Desert lizards crawl into underground holes to rest during the hottest hours, and do a little dance to lift their toes off the hot sand!",
+      "m4a": "geozones_audio/fact_desert_2.m4a"
+    },
+    "q_desert_3": {
+      "text": "A scorpion hunts bugs in the dark desert night. How do they find food without bright light?",
+      "m4a": "geozones_audio/q_desert_3.m4a"
+    },
+    "q_desert_3_a": {
+      "text": "Using sensitive hairs to feel steps",
+      "m4a": "geozones_audio/q_desert_3_a.m4a"
+    },
+    "q_desert_3_b": {
+      "text": "Holding bright little flashlights",
+      "m4a": "geozones_audio/q_desert_3_b.m4a"
+    },
+    "q_desert_3_c": {
+      "text": "Tasting dry sand on the wind",
+      "m4a": "geozones_audio/q_desert_3_c.m4a"
+    },
+    "fact_desert_3": {
+      "text": "Scorpions have tiny hairs on their legs that feel bug footsteps in the sand. They also glow bright blue under the moonlight!",
+      "m4a": "geozones_audio/fact_desert_3.m4a"
+    },
+    "q_ocean_1": {
+      "text": "Little clownfish need a safe place to live. Where is the best spot for them to hide?",
+      "m4a": "geozones_audio/q_ocean_1.m4a"
+    },
+    "q_ocean_1_a": {
+      "text": "Waving tentacles of an anemone",
+      "m4a": "geozones_audio/q_ocean_1_a.m4a"
+    },
+    "q_ocean_1_b": {
+      "text": "Underneath cold ice sheets",
+      "m4a": "geozones_audio/q_ocean_1_b.m4a"
+    },
+    "q_ocean_1_c": {
+      "text": "Behind a prickly desert cactus",
+      "m4a": "geozones_audio/q_ocean_1_c.m4a"
+    },
+    "fact_ocean_1": {
+      "text": "Clownfish live safely inside stinging sea anemones. Their special slimy skin shields them from the anemone's stings!",
+      "m4a": "geozones_audio/fact_ocean_1.m4a"
+    },
+    "q_ocean_2": {
+      "text": "An octopus has no bones. What do they do to escape from a big hungry shark?",
+      "m4a": "geozones_audio/q_ocean_2.m4a"
+    },
+    "q_ocean_2_a": {
+      "text": "Shoot a cloud of dark ink",
+      "m4a": "geozones_audio/q_ocean_2_a.m4a"
+    },
+    "q_ocean_2_b": {
+      "text": "Sing a loud song to make friends",
+      "m4a": "geozones_audio/q_ocean_2_b.m4a"
+    },
+    "q_ocean_2_c": {
+      "text": "Hide inside a giant clam shell",
+      "m4a": "geozones_audio/q_ocean_2_c.m4a"
+    },
+    "fact_ocean_2": {
+      "text": "An octopus shoots ink to confuse predators and can change their skin color in an instant to blend in with ocean rocks!",
+      "m4a": "geozones_audio/fact_ocean_2.m4a"
+    },
+    "q_ocean_3": {
+      "text": "Sharks must keep moving through the deep sea. Why is swimming constantly so important?",
+      "m4a": "geozones_audio/q_ocean_3.m4a"
+    },
+    "q_ocean_3_a": {
+      "text": "To push fresh water through gills",
+      "m4a": "geozones_audio/q_ocean_3_a.m4a"
+    },
+    "q_ocean_3_b": {
+      "text": "To keep their muscular fins warm",
+      "m4a": "geozones_audio/q_ocean_3_b.m4a"
+    },
+    "q_ocean_3_c": {
+      "text": "To find shiny lost treasures",
+      "m4a": "geozones_audio/q_ocean_3_c.m4a"
+    },
+    "fact_ocean_3": {
+      "text": "Many sharks must swim day and night. Moving forward keeps water flowing across their gills so they can breathe while resting!",
+      "m4a": "geozones_audio/fact_ocean_3.m4a"
+    },
+    "q_arctic_1": {
+      "text": "Polar bears live in freezing blizzards. How do they stay warm in the ice and snow?",
+      "m4a": "geozones_audio/q_arctic_1.m4a"
+    },
+    "q_arctic_1_a": {
+      "text": "Thick fat and clear hollow fur",
+      "m4a": "geozones_audio/q_arctic_1_a.m4a"
+    },
+    "q_arctic_1_b": {
+      "text": "Drinking hot cocoa by a campfire",
+      "m4a": "geozones_audio/q_arctic_1_b.m4a"
+    },
+    "q_arctic_1_c": {
+      "text": "Wearing warm wool socks",
+      "m4a": "geozones_audio/q_arctic_1_c.m4a"
+    },
+    "fact_arctic_1": {
+      "text": "Polar bear fur isn't actually white! Their hair is clear and hollow, trapping the warm sunshine right against their black skin.",
+      "m4a": "geozones_audio/fact_arctic_1.m4a"
+    },
+    "q_arctic_2": {
+      "text": "Father penguins look after their single egg in the winter. How do they keep it cozy?",
+      "m4a": "geozones_audio/q_arctic_2.m4a"
+    },
+    "q_arctic_2_a": {
+      "text": "Cradling the egg on warm feet",
+      "m4a": "geozones_audio/q_arctic_2_a.m4a"
+    },
+    "q_arctic_2_b": {
+      "text": "Building a nest with dry mud",
+      "m4a": "geozones_audio/q_arctic_2_b.m4a"
+    },
+    "q_arctic_2_c": {
+      "text": "Hanging the egg from cold ice",
+      "m4a": "geozones_audio/q_arctic_2_c.m4a"
+    },
+    "fact_arctic_2": {
+      "text": "Penguin fathers balance the egg on top of their feet under a warm belly flap to shield it from freezing winds.",
+      "m4a": "geozones_audio/fact_arctic_2.m4a"
+    },
+    "q_arctic_3": {
+      "text": "Reindeer look for food deep under heavy winter snow. What helps them dig through the ice?",
+      "m4a": "geozones_audio/q_arctic_3.m4a"
+    },
+    "q_arctic_3_a": {
+      "text": "Wide hooves that scoop snow",
+      "m4a": "geozones_audio/q_arctic_3_a.m4a"
+    },
+    "q_arctic_3_b": {
+      "text": "Long sticky tongues",
+      "m4a": "geozones_audio/q_arctic_3_b.m4a"
+    },
+    "q_arctic_3_c": {
+      "text": "A glowing red nose",
+      "m4a": "geozones_audio/q_arctic_3_c.m4a"
+    },
+    "fact_arctic_3": {
+      "text": "Reindeer have wide, scoop-shaped hooves that act like snow shovels to dig up tasty plants hidden deep under the winter snow!",
+      "m4a": "geozones_audio/fact_arctic_3.m4a"
+    }
+  }
+}

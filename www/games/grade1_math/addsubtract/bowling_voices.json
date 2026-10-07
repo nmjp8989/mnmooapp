@@ -1,0 +1,146 @@
+{
+  "welcome": {
+    "text": "🐧 Welcome to Penguin Bowling! Let's knock down some penguins!",
+    "mp3": "bowling_audio/welcome.mp3"
+  },
+  "instructions": {
+    "text": "Watch the slow arrow, then tap to bowl!",
+    "mp3": "bowling_audio/instructions.mp3"
+  },
+  "penguins_knocked": {
+    "text": "Some penguins fell down!",
+    "mp3": "bowling_audio/penguins_knocked.mp3"
+  },
+  "all_knocked": {
+    "text": "All penguins down! Amazing strike!",
+    "mp3": "bowling_audio/all_knocked.mp3"
+  },
+  "math_prompt": {
+    "text": "How many penguins are still standing?",
+    "mp3": "bowling_audio/math_prompt.mp3"
+  },
+  "correct_1": {
+    "text": "Strike! You got the math right too!",
+    "mp3": "bowling_audio/correct_1.mp3"
+  },
+  "correct_2": {
+    "text": "Amazing subtraction!",
+    "mp3": "bowling_audio/correct_2.mp3"
+  },
+  "correct_3": {
+    "text": "Perfect! You're a bowling champion!",
+    "mp3": "bowling_audio/correct_3.mp3"
+  },
+  "correct_4": {
+    "text": "That's right! Great subtraction skills!",
+    "mp3": "bowling_audio/correct_4.mp3"
+  },
+  "wrong_1": {
+    "text": "Not quite! Count the standing penguins.",
+    "mp3": "bowling_audio/wrong_1.mp3"
+  },
+  "wrong_2": {
+    "text": "Try again! How many are still up?",
+    "mp3": "bowling_audio/wrong_2.mp3"
+  },
+  "wrong_3": {
+    "text": "Almost! Count the penguins that are still standing.",
+    "mp3": "bowling_audio/wrong_3.mp3"
+  },
+  "encouragement_1": {
+    "text": "Nice throw! Keep bowling!",
+    "mp3": "bowling_audio/encouragement_1.mp3"
+  },
+  "encouragement_2": {
+    "text": "You're getting better! Try again!",
+    "mp3": "bowling_audio/encouragement_2.mp3"
+  },
+  "encouragement_3": {
+    "text": "Great aim! A few more rounds!",
+    "mp3": "bowling_audio/encouragement_3.mp3"
+  },
+  "win": {
+    "text": "Champion bowler! You solved every equation!",
+    "mp3": "bowling_audio/win.mp3"
+  },
+  "try_again": {
+    "text": "Good game! Want to bowl another frame?",
+    "mp3": "bowling_audio/try_again.mp3"
+  },
+  "addition_start": {
+    "text": "Some penguins are waiting!",
+    "mp3": "bowling_audio/addition_start.mp3"
+  },
+  "penguins_joined": {
+    "text": "More penguins joined the game!",
+    "mp3": "bowling_audio/penguins_joined.mp3"
+  },
+  "addition_prompt": {
+    "text": "How many penguins are there altogether?",
+    "mp3": "bowling_audio/addition_prompt.mp3"
+  },
+  "addition_correct": {
+    "text": "That's right! Now let's bowl!",
+    "mp3": "bowling_audio/addition_correct.mp3"
+  },
+  "addition_wrong": {
+    "text": "Count all the penguins again.",
+    "mp3": "bowling_audio/addition_wrong.mp3"
+  },
+  "number_0": {
+    "text": "Zero.",
+    "mp3": "bowling_audio/number_0.mp3"
+  },
+  "number_1": {
+    "text": "One.",
+    "mp3": "bowling_audio/number_1.mp3"
+  },
+  "number_2": {
+    "text": "Two.",
+    "mp3": "bowling_audio/number_2.mp3"
+  },
+  "number_3": {
+    "text": "Three.",
+    "mp3": "bowling_audio/number_3.mp3"
+  },
+  "number_4": {
+    "text": "Four.",
+    "mp3": "bowling_audio/number_4.mp3"
+  },
+  "number_5": {
+    "text": "Five.",
+    "mp3": "bowling_audio/number_5.mp3"
+  },
+  "number_6": {
+    "text": "Six.",
+    "mp3": "bowling_audio/number_6.mp3"
+  },
+  "number_7": {
+    "text": "Seven.",
+    "mp3": "bowling_audio/number_7.mp3"
+  },
+  "number_8": {
+    "text": "Eight.",
+    "mp3": "bowling_audio/number_8.mp3"
+  },
+  "number_9": {
+    "text": "Nine.",
+    "mp3": "bowling_audio/number_9.mp3"
+  },
+  "number_10": {
+    "text": "Ten.",
+    "mp3": "bowling_audio/number_10.mp3"
+  },
+  "operator_plus": {
+    "text": "Plus.",
+    "mp3": "bowling_audio/operator_plus.mp3"
+  },
+  "operator_minus": {
+    "text": "Minus.",
+    "mp3": "bowling_audio/operator_minus.mp3"
+  },
+  "operator_equals": {
+    "text": "Equals.",
+    "mp3": "bowling_audio/operator_equals.mp3"
+  }
+}

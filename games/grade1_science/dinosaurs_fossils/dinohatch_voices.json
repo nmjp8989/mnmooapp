@@ -1,0 +1,115 @@
+{
+  "gameId": "dinohatch_opus",
+  "gameTitle": "Dino Dig Adventure Opus",
+  "voiceGuide": "Guide the child through digging up 6 dinosaurs by tapping rocks, learning facts about each one, and answering quiz questions. Celebrate each discovery and quiz success. Use actual dinosaur names in all per-dinosaur narrations.",
+  "phrases": {
+    "welcome": {
+      "text": "Welcome to Dino Dig Adventure! Let's dig up some dinosaurs!",
+      "m4a": "dinohatch_audio/welcome.m4a"
+    },
+    "dig_start": {
+      "text": "Tap the rock to crack it open! Keep tapping!",
+      "m4a": "dinohatch_audio/dig_start.m4a"
+    },
+    "dig_2": {
+      "text": "Keep going! The rock is cracking!",
+      "m4a": "dinohatch_audio/dig_2.m4a"
+    },
+    "dig_4": {
+      "text": "Almost there! One more tap!",
+      "m4a": "dinohatch_audio/dig_4.m4a"
+    },
+    "dig_6": {
+      "text": "The rock is breaking open!",
+      "m4a": "dinohatch_audio/dig_6.m4a"
+    },
+    "reveal": {
+      "text": "You found something new! Amazing discovery!",
+      "m4a": "dinohatch_audio/reveal.m4a"
+    },
+    "learn_intro": {
+      "text": "Let's learn cool facts!",
+      "m4a": "dinohatch_audio/learn_intro.m4a"
+    },
+    "quiz_time": {
+      "text": "Quiz time! Let's see what you learned!",
+      "m4a": "dinohatch_audio/quiz_time.m4a"
+    },
+    "quiz_correct": {
+      "text": "That's right! You really know your dinosaurs!",
+      "m4a": "dinohatch_audio/quiz_correct.m4a"
+    },
+    "quiz_wrong": {
+      "text": "Good try! Keep practicing!",
+      "m4a": "dinohatch_audio/quiz_wrong.m4a"
+    },
+    "next_dino": {
+      "text": "Great job! Let's find the next dinosaur!",
+      "m4a": "dinohatch_audio/next_dino.m4a"
+    },
+    "victory": {
+      "text": "You discovered all 6 dinosaurs! You're a Dino Expert!",
+      "m4a": "dinohatch_audio/victory.m4a"
+    },
+    "try_again": {
+      "text": "Want to dig again? Let's go!",
+      "m4a": "dinohatch_audio/try_again.m4a"
+    }
+  },
+  "dinosaurs": {
+    "stegosaurus": {
+      "reveal": { "text": "You found a Stegosaurus! Amazing discovery!", "m4a": "dinohatch_audio/reveal_stegosaurus.m4a" },
+      "learn1": { "text": "Stegosaurus had 17 bony plates on its back that could get up to 2 feet tall!", "m4a": "dinohatch_audio/learn1_stegosaurus.m4a" },
+      "learn2": { "text": "Its brain was only the size of a walnut, one of the smallest brains compared to body size.", "m4a": "dinohatch_audio/learn2_stegosaurus.m4a" },
+      "learn3": { "text": "It had 4 sharp spikes on its tail called a thagomizer to fight off predators!", "m4a": "dinohatch_audio/learn3_stegosaurus.m4a" },
+      "quiz_time": { "text": "What were the spikes on Stegosaurus's tail called?", "m4a": "dinohatch_audio/quiztime_stegosaurus.m4a" },
+      "quiz_correct": { "text": "That's right! Stegosaurus had a thagomizer on its tail!", "m4a": "dinohatch_audio/correct_stegosaurus.m4a" },
+      "quiz_wrong": { "text": "Good try! Stegosaurus had 4 sharp tail spikes called a thagomizer.", "m4a": "dinohatch_audio/wrong_stegosaurus.m4a" }
+    },
+    "triceratops": {
+      "reveal": { "text": "You found a Triceratops! Amazing discovery!", "m4a": "dinohatch_audio/reveal_triceratops.m4a" },
+      "learn1": { "text": "Triceratops means three-horned face. It had two big horns above its eyes and one on its nose!", "m4a": "dinohatch_audio/learn1_triceratops.m4a" },
+      "learn2": { "text": "Its huge neck frill could be over 3 feet wide and was used for protection and showing off.", "m4a": "dinohatch_audio/learn2_triceratops.m4a" },
+      "learn3": { "text": "Triceratops had up to 800 teeth arranged in groups called batteries that were constantly replaced!", "m4a": "dinohatch_audio/learn3_triceratops.m4a" },
+      "quiz_time": { "text": "What does Triceratops mean?", "m4a": "dinohatch_audio/quiztime_triceratops.m4a" },
+      "quiz_correct": { "text": "That's right! Triceratops means three-horned face!", "m4a": "dinohatch_audio/correct_triceratops.m4a" },
+      "quiz_wrong": { "text": "Good try! Triceratops means three-horned face.", "m4a": "dinohatch_audio/wrong_triceratops.m4a" }
+    },
+    "pteranodon": {
+      "reveal": { "text": "You found a Pteranodon! Amazing discovery!", "m4a": "dinohatch_audio/reveal_pteranodon.m4a" },
+      "learn1": { "text": "Pteranodon wasn't actually a dinosaur, it was a flying reptile called a pterosaur!", "m4a": "dinohatch_audio/learn1_pteranodon.m4a" },
+      "learn2": { "text": "Its wingspan could reach 23 feet wide, that's wider than a giraffe is tall!", "m4a": "dinohatch_audio/learn2_pteranodon.m4a" },
+      "learn3": { "text": "Pteranodon had a long pointed crest on the back of its head that helped it steer while flying!", "m4a": "dinohatch_audio/learn3_pteranodon.m4a" },
+      "quiz_time": { "text": "What type of creature was Pteranodon?", "m4a": "dinohatch_audio/quiztime_pteranodon.m4a" },
+      "quiz_correct": { "text": "That's right! Pteranodon was a flying reptile called a pterosaur!", "m4a": "dinohatch_audio/correct_pteranodon.m4a" },
+      "quiz_wrong": { "text": "Good try! Pteranodon was a flying reptile called a pterosaur.", "m4a": "dinohatch_audio/wrong_pteranodon.m4a" }
+    },
+    "tyrannosaurus": {
+      "reveal": { "text": "You found a Tyrannosaurus Rex! Amazing discovery!", "m4a": "dinohatch_audio/reveal_tyrannosaurus.m4a" },
+      "learn1": { "text": "T-Rex had the strongest bite of any land animal ever. It could crush bones with 12,800 pounds of force!", "m4a": "dinohatch_audio/learn1_tyrannosaurus.m4a" },
+      "learn2": { "text": "Despite its tiny arms, each arm could still curl about 430 pounds!", "m4a": "dinohatch_audio/learn2_tyrannosaurus.m4a" },
+      "learn3": { "text": "T-Rex could smell prey from miles away thanks to huge olfactory bulbs in its brain!", "m4a": "dinohatch_audio/learn3_tyrannosaurus.m4a" },
+      "quiz_time": { "text": "What was T-Rex's most powerful feature?", "m4a": "dinohatch_audio/quiztime_tyrannosaurus.m4a" },
+      "quiz_correct": { "text": "That's right! T-Rex had a bone-crushing bite!", "m4a": "dinohatch_audio/correct_tyrannosaurus.m4a" },
+      "quiz_wrong": { "text": "Good try! T-Rex's most powerful feature was its bone-crushing bite.", "m4a": "dinohatch_audio/wrong_tyrannosaurus.m4a" }
+    },
+    "brachiosaurus": {
+      "reveal": { "text": "You found a Brachiosaurus! Amazing discovery!", "m4a": "dinohatch_audio/reveal_brachiosaurus.m4a" },
+      "learn1": { "text": "Brachiosaurus could reach 85 feet high, as tall as a 4-story building, thanks to its long neck!", "m4a": "dinohatch_audio/learn1_brachiosaurus.m4a" },
+      "learn2": { "text": "It weighed about 62 tons, that's as heavy as 10 African elephants!", "m4a": "dinohatch_audio/learn2_brachiosaurus.m4a" },
+      "learn3": { "text": "Unlike most dinosaurs, its front legs were longer than its back legs, giving it a giraffe-like stance!", "m4a": "dinohatch_audio/learn3_brachiosaurus.m4a" },
+      "quiz_time": { "text": "How tall could Brachiosaurus reach?", "m4a": "dinohatch_audio/quiztime_brachiosaurus.m4a" },
+      "quiz_correct": { "text": "That's right! Brachiosaurus could reach as tall as a 4-story building!", "m4a": "dinohatch_audio/correct_brachiosaurus.m4a" },
+      "quiz_wrong": { "text": "Good try! Brachiosaurus could reach 85 feet high, as tall as a 4-story building.", "m4a": "dinohatch_audio/wrong_brachiosaurus.m4a" }
+    },
+    "oviraptor": {
+      "reveal": { "text": "You found an Oviraptor! Amazing discovery!", "m4a": "dinohatch_audio/reveal_oviraptor.m4a" },
+      "learn1": { "text": "Oviraptor means egg thief, but scientists now know it was guarding its own eggs, not stealing them!", "m4a": "dinohatch_audio/learn1_oviraptor.m4a" },
+      "learn2": { "text": "It had a parrot-like beak perfect for cracking tough food like shellfish and seeds.", "m4a": "dinohatch_audio/learn2_oviraptor.m4a" },
+      "learn3": { "text": "Oviraptor had a colorful crest on its head like a cassowary, and may have had feathers too!", "m4a": "dinohatch_audio/learn3_oviraptor.m4a" },
+      "quiz_time": { "text": "What does Oviraptor mean?", "m4a": "dinohatch_audio/quiztime_oviraptor.m4a" },
+      "quiz_correct": { "text": "That's right! Oviraptor means egg thief!", "m4a": "dinohatch_audio/correct_oviraptor.m4a" },
+      "quiz_wrong": { "text": "Good try! Oviraptor means egg thief.", "m4a": "dinohatch_audio/wrong_oviraptor.m4a" }
+    }
+  }
+}

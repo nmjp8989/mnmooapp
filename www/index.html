@@ -1,0 +1,1268 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width,initial-scale=1,maximum-scale=1,user-scalable=no,viewport-fit=cover">
+<meta name="apple-mobile-web-app-capable" content="yes">
+<meta name="mobile-web-app-capable" content="yes">
+<meta name="theme-color" content="#ffffff">
+<title>mnmoo — Learn · Play · Grow</title>
+<link rel="icon" href="data:,">
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+<link href="https://fonts.googleapis.com/css2?family=Fredoka:wght@600;700&family=Nunito:wght@500;700;800&display=swap" rel="stylesheet">
+<style>
+*,*::before,*::after { box-sizing: border-box; margin: 0; padding: 0; }
+:root {
+  --bg: #ffffff; --card: #ffffff; --ink: #111827;
+  --muted: #9ca3af; --border: #e5e7eb;
+}
+
+html, body {
+  width: 100%; height: 100%; overflow: hidden;
+  font-family: 'Nunito', sans-serif; font-weight: 500;
+  -webkit-font-smoothing: antialiased; touch-action: manipulation;
+  -webkit-user-select: none; user-select: none; overscroll-behavior: none;
+  background: var(--bg); color: var(--ink);
+}
+body { display: flex; flex-direction: column; }
+
+/* --- Mascot Animations --- */
+.spr-large {
+  width: 80px; height: 198px;
+  background: url('games/assets/cow/idle.webp') no-repeat;
+  background-size: 240px 198px;
+  image-rendering: pixelated;
+  animation: anim-large 0.6s steps(3) infinite;
+}
+@keyframes anim-large { 100% { background-position: -240px 0; } }
+
+.spr-small {
+  width: 36px; height: 89px;
+  background: url('games/assets/cow/idle.webp') no-repeat;
+  background-size: 108px 89px;
+  image-rendering: pixelated;
+  animation: anim-small 0.6s steps(3) infinite;
+  margin-top: -10px;
+}
+@keyframes anim-small { 100% { background-position: -108px 0; } }
+
+/* --- Splash Screen --- */
+.splash {
+  position: fixed; inset: 0; z-index: 9999;
+  background: linear-gradient(160deg, #f0f7ff 0%, #fff5f0 40%, #f5f0ff 100%);
+  display: flex; flex-direction: column; align-items: center; justify-content: center;
+  gap: 16px; transition: opacity .5s ease, visibility .5s ease;
+}
+.splash.hidden { opacity: 0; visibility: hidden; pointer-events: none; }
+.splash-mascot {
+  animation: splashBounce 1.2s cubic-bezier(.34,1.56,.64,1) both;
+}
+.splash-dance {
+  width: 120px; height: 140px;
+  background: url('games/assets/cow/dance.webp') no-repeat;
+  background-size: 720px 140px;
+  image-rendering: pixelated;
+  animation: splashBounce 1s cubic-bezier(.34,1.56,.64,1) both, splashDance 0.8s steps(6) 1.2s infinite;
+}
+@keyframes splashDance { 100% { background-position: -720px 0; } }
+@keyframes splashBounce {
+  from { opacity: 0; transform: scale(.3) translateY(40px); }
+  to { opacity: 1; transform: scale(1) translateY(0); }
+}
+.splash-title {
+  font-family: 'Fredoka', sans-serif; font-weight: 700;
+  font-size: clamp(20px, 8vw, 48px); color: #111827;
+  animation: splashFadeUp .8s .3s cubic-bezier(.22,1,.36,1) both;
+}
+.splash-sub {
+  font-family: 'Fredoka', sans-serif; font-weight: 600;
+  font-size: clamp(10px, 3.5vw, 20px); color: #6b7280;
+  letter-spacing: 3px; text-transform: uppercase;
+  animation: splashFadeUp .8s .5s cubic-bezier(.22,1,.36,1) both;
+}
+@keyframes splashFadeUp {
+  from { opacity: 0; transform: translateY(16px); }
+  to { opacity: 1; transform: translateY(0); }
+}
+
+/* --- Main Layout --- */
+.app {
+  position: relative; z-index: 1; display: flex; flex-direction: column;
+  height: 100%; 
+  /* Dynamic gaps so they shrink on small screens */
+  gap: clamp(8px, 1.5vh, 16px);
+  padding-top: max(clamp(8px, 1.5vh, 16px), env(safe-area-inset-top));
+  padding-right: max(16px, env(safe-area-inset-right));
+  padding-bottom: max(clamp(8px, 1.5vh, 16px), env(safe-area-inset-bottom));
+  padding-left: max(16px, env(safe-area-inset-left));
+}
+
+/* --- Header --- */
+.header {
+  display: flex; align-items: center; justify-content: space-between;
+  background: transparent; padding: 0;
+  flex-shrink: 0;
+}
+.header-left, .header-center, .header-right {
+  display: flex;
+  flex: 1;
+}
+.header-left { justify-content: flex-start; align-items: center; margin-left: -8px; }
+.header-center { justify-content: center; align-items: center; }
+.header-right { justify-content: flex-end; align-items: center; }
+
+/* Scale dynamically down to tiny sizes */
+.header-logo, .header-title-img { height: clamp(35px, 8vh, 90px); width: auto; object-fit: contain; }
+
+/* --- Unlock Badge --- */
+@keyframes shake-badge {
+  0%, 100% { transform: rotate(3deg); }
+  5% { transform: rotate(-5deg) scale(1.05); }
+  10% { transform: rotate(6deg) scale(1.05); }
+  15% { transform: rotate(-6deg) scale(1.05); }
+  20% { transform: rotate(4deg) scale(1.05); }
+  25% { transform: rotate(-2deg) scale(1.05); }
+  30% { transform: rotate(3deg); }
+}
+
+.unlock-badge {
+  background: #FFD54F;
+  color: #111827;
+  padding: clamp(4px, 1vh, 14px) clamp(10px, 2vh, 28px);
+  border-radius: clamp(12px, 3vh, 40px);
+  font-weight: 800;
+  font-size: clamp(9px, 1.6vh, 18px);
+  letter-spacing: 0.5px;
+  text-transform: uppercase;
+  border: 2px solid #111827;
+  box-shadow: 0 4px 14px rgba(255, 213, 79, 0.4);
+  cursor: pointer;
+  transform: rotate(3deg);
+  animation: shake-badge 4s infinite ease-in-out;
+}
+.unlock-badge:active {
+  animation: none;
+  transform: scale(0.95) rotate(0deg);
+}
+
+/* --- Skills Board --- */
+.skills-board-wrapper {
+  flex: 1;
+  min-height: 0;
+  display: flex;
+  overflow: hidden;
+  gap: clamp(6px, 1.2vh, 12px);
+}
+
+/* --- Row Labels --- */
+.row-labels {
+  display: grid;
+  grid-template-rows: repeat(3, 1fr);
+  gap: clamp(4px, 1vh, 10px);
+  padding-bottom: 4px;
+  flex-shrink: 0;
+  width: clamp(24px, 5.5vh, 80px);
+}
+.row-label {
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  writing-mode: vertical-rl;
+  transform: rotate(180deg);
+  font-family: 'Fredoka', 'Comic Sans MS', cursive, sans-serif;
+  font-weight: 700;
+  font-size: clamp(12px, 2.8vh, 30px);
+  color: #ffffff;
+  letter-spacing: clamp(0.5px, 0.2vh, 2px);
+  border-radius: clamp(8px, 1.5vh, 20px);
+  box-shadow: 0 4px 12px rgba(15,23,42,0.15);
+  text-shadow: 0 2px 4px rgba(0,0,0,0.15);
+}
+.row-label.math { background: #FFB74D; }
+.row-label.science { background: #81C784; }
+.row-label.language { background: #64B5F6; }
+
+.skills-board {
+  width: 100%;
+  overflow-y: hidden;
+  overflow-x: auto;
+  display: grid;
+  grid-auto-flow: column;
+  /* Removed the hard minimum limits! Scales infinitely with viewport height */
+  grid-auto-columns: calc((100vh - clamp(110px, 16vh, 160px)) * 0.585); 
+  gap: clamp(4px, 1vh, 10px);
+  padding-bottom: 4px;
+  scroll-snap-type: x mandatory;
+  scrollbar-width: thin;
+  align-items: stretch;
+}
+.skills-board::-webkit-scrollbar { height: 6px; }
+.skills-board::-webkit-scrollbar-thumb { background: #d1d5db; border-radius: 3px; }
+.skills-board::-webkit-scrollbar-track { background: transparent; }
+
+.slide-column {
+  scroll-snap-align: start;
+  display: grid;
+  grid-template-rows: repeat(3, 1fr);
+  gap: clamp(4px, 1vh, 10px);
+}
+
+.game-tile {
+  position: relative;
+  min-height: 0;
+  height: 100%;
+  border-radius: clamp(8px, 1.5vh, 14px);
+  overflow: hidden;
+  border: 1px solid rgba(255,255,255,0.65);
+  box-shadow: 0 8px 18px rgba(15,23,42,0.12);
+  cursor: pointer;
+  transition: transform .16s ease, filter .16s ease;
+}
+.game-tile:active { transform: scale(0.97); }
+.game-tile.disabled {
+  cursor: default;
+  filter: saturate(.45) brightness(.9);
+}
+.game-bg {
+  position: absolute;
+  inset: 0;
+  width: 100%;
+  height: 100%;
+  object-fit: cover;
+}
+.game-fallback {
+  position: absolute;
+  inset: 0;
+  background: linear-gradient(140deg, rgba(255,255,255,.25), rgba(255,255,255,.06));
+}
+.game-overlay-mask {
+  position: absolute;
+  inset: 0;
+  background: linear-gradient(180deg, rgba(17,24,39,0.02), rgba(17,24,39,0.35));
+  pointer-events: none;
+}
+.game-title {
+  position: absolute;
+  left: clamp(4px, 1.2vh, 16px);
+  right: clamp(4px, 1.2vh, 16px);
+  top: clamp(4px, 1.2vh, 16px);
+  color: #fff;
+  text-shadow: 0 1px 4px rgba(0,0,0,.7), 0 2px 10px rgba(0,0,0,.4);
+  font-size: clamp(10px, 2.2vh, 26px);
+  line-height: 1.15;
+  font-weight: 800;
+  letter-spacing: .2px;
+  overflow: hidden;
+  text-overflow: ellipsis;
+  display: -webkit-box;
+  -webkit-line-clamp: 2;
+  -webkit-box-orient: vertical;
+}
+.game-topic-bar {
+  position: absolute;
+  left: 0;
+  right: 0;
+  bottom: 0;
+  padding: clamp(4px, 1vh, 12px) clamp(30px, 6.5vh, 80px) clamp(4px, 1vh, 12px) clamp(6px, 1.2vh, 16px);
+  background: linear-gradient(180deg, rgba(15,23,42,0), rgba(15,23,42,.8) 55%);
+}
+.game-topic {
+  color: #e2e8f0;
+  font-size: clamp(7px, 1.4vh, 18px);
+  letter-spacing: .3px;
+  font-weight: 700;
+  text-shadow: 0 2px 8px rgba(0,0,0,.45);
+  text-transform: uppercase;
+}
+.game-lock {
+  position: absolute;
+  right: clamp(4px, 1.2vh, 16px);
+  bottom: clamp(4px, 1vh, 12px);
+  min-width: clamp(20px, 4.5vh, 55px);
+  height: clamp(20px, 4.5vh, 55px);
+  border-radius: clamp(6px, 1.5vh, 20px);
+  padding: 0 clamp(2px, 0.5vh, 6px);
+  background: #ef4444;
+  border: 2px solid #111827;
+  color: #fff;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  font-size: clamp(10px, 2.2vh, 26px);
+  box-shadow: 0 6px 14px rgba(0,0,0,.3);
+}
+.game-lock.play { background: #16a34a; }
+
+
+/* --- Overlay --- */
+.game-overlay { display: none; position: fixed; inset: 0; z-index: 200; background: #000; flex-direction: column; }
+.game-overlay.open { display: flex; }
+.game-close {
+  position: absolute; top: 10px; left: 10px; z-index: 210;
+  width: 48px; height: 48px; border-radius: 50%;
+  background: rgba(0,0,0,0.7); border: 2px solid rgba(255,255,255,0.6);
+  color: #fff; font-size: 22px; font-weight: 800;
+  display: flex; align-items: center; justify-content: center;
+  cursor: pointer; box-shadow: 0 2px 12px rgba(0,0,0,0.4);
+  transition: transform .15s ease, background .15s ease;
+}
+.game-close:active { transform: scale(0.9); background: rgba(0,0,0,0.9); }
+.game-overlay iframe { flex: 1; width: 100%; height: 100%; border: none; }
+
+/* --- Responsive Landscape Fix --- */
+@media (orientation: landscape) and (max-height: 600px) {
+  .app {
+    padding-top: max(4px, env(safe-area-inset-top));
+    padding-right: max(16px, env(safe-area-inset-right));
+    padding-bottom: max(4px, env(safe-area-inset-bottom));
+    padding-left: max(16px, env(safe-area-inset-left));
+  }
+  .header { padding: 0; }
+  .spr-small { width: 24px; height: 59px; background-size: 72px 59px; margin-top: -6px; }
+  @keyframes anim-small { 100% { background-position: -72px 0; } }
+  .skills-board {
+    /* Adjusted subtractor for tiny landscape headers */
+    grid-auto-columns: calc((100vh - clamp(75px, 12vh, 100px)) * 0.585); 
+  }
+}
+
+/* --- PRO Lock Badge --- */
+.game-lock.pro-lock {
+  background: linear-gradient(135deg, #FFD54F, #FFB300); color: #111827;
+  font-size: clamp(7px, 1.4vh, 18px); font-weight: 800; letter-spacing: .5px;
+  box-shadow: 0 4px 12px rgba(255,179,0,.35);
+}
+
+/* --- Pro Header Badge --- */
+.pro-active-badge {
+  background: #16a34a; color: #fff; border-radius: clamp(12px, 3vh, 40px);
+  padding: clamp(4px, 1vh, 14px) clamp(10px, 2vh, 28px);
+  font-weight: 800; font-size: clamp(9px, 1.6vh, 18px); letter-spacing: .5px; border: 2px solid #111827;
+  box-shadow: 0 4px 14px rgba(22,163,74,.3); animation: none; transform: none;
+}
+
+/* --- Paywall Overlay --- */
+.paywall-overlay {
+  display: none; position: fixed; inset: 0; z-index: 9000;
+  background: rgba(0,0,0,.55); backdrop-filter: blur(14px);
+  -webkit-backdrop-filter: blur(14px);
+  align-items: flex-end; justify-content: center;
+}
+.paywall-overlay.open { display: flex; }
+.paywall-sheet {
+  width: 100%; max-width: 440px; max-height: 92vh; overflow-y: auto;
+  background: #fff; border-radius: 28px 28px 0 0;
+  padding: 20px 20px max(28px, env(safe-area-inset-bottom)); position: relative;
+  animation: pw-slide .4s cubic-bezier(.22,1,.36,1);
+  box-shadow: 0 -10px 50px rgba(0,0,0,.25);
+}
+@keyframes pw-slide { from { transform: translateY(100%); } to { transform: translateY(0); } }
+.paywall-close {
+  position: absolute; top: 12px; right: 12px; width: 34px; height: 34px;
+  border-radius: 50%; background: #f3f4f6; border: none;
+  font-size: 15px; font-weight: 800; color: #6b7280; cursor: pointer;
+  display: flex; align-items: center; justify-content: center; z-index: 2;
+}
+.paywall-close:active { transform: scale(.9); }
+.paywall-mascot { display: flex; justify-content: center; margin-bottom: 4px; }
+.paywall-mascot .spr-large { transform: scale(.8); }
+.paywall-title {
+  font-family: 'Fredoka', sans-serif; font-weight: 700;
+  font-size: 26px; text-align: center; color: #111827; line-height: 1.1;
+}
+.paywall-subtitle {
+  font-size: 13px; color: #6b7280; text-align: center; margin: 4px 0 14px;
+}
+.paywall-features {
+  display: grid; grid-template-columns: 1fr 1fr; gap: 6px 12px; margin-bottom: 16px;
+  padding: 0 8px;
+}
+.pf-item {
+  font-size: 13px; font-weight: 700; color: #374151;
+  display: flex; align-items: center; gap: 6px;
+}
+.pf-item::before { content: '✅'; font-size: 14px; }
+.paywall-plans { display: flex; gap: 8px; margin-bottom: 14px; }
+.plan-card {
+  flex: 1; padding: 14px 6px 10px; border-radius: 14px;
+  border: 2.5px solid #e5e7eb; text-align: center; cursor: pointer;
+  transition: all .2s; position: relative; background: #fff;
+}
+.plan-card:active { transform: scale(.97); }
+.plan-card.selected { border-color: #16a34a; background: #f0fdf4; }
+.plan-badge {
+  position: absolute; top: -9px; left: 50%; transform: translateX(-50%);
+  background: linear-gradient(135deg, #FFD54F, #FFB300); color: #111827;
+  font-size: 8px; font-weight: 800; padding: 2px 8px; border-radius: 8px;
+  white-space: nowrap; letter-spacing: .5px;
+}
+.plan-badge.offer-badge {
+  background: linear-gradient(135deg, #ef4444, #dc2626); color: #fff;
+  animation: offerPulse 2s ease-in-out infinite;
+}
+@keyframes offerPulse {
+  0%, 100% { transform: translateX(-50%) scale(1); }
+  50% { transform: translateX(-50%) scale(1.05); }
+}
+.plan-name {
+  font-family: 'Fredoka', sans-serif; font-weight: 700;
+  font-size: 12px; color: #6b7280; margin-bottom: 2px;
+}
+.plan-price {
+  font-family: 'Fredoka', sans-serif; font-weight: 700;
+  font-size: 20px; color: #111827; line-height: 1.2;
+}
+.plan-detail { font-size: 10px; color: #16a34a; font-weight: 700; margin-top: 2px; }
+.plan-detail.muted { color: #9ca3af; }
+.paywall-cta {
+  width: 100%; padding: 15px; border-radius: 16px; border: none;
+  background: linear-gradient(135deg, #16a34a, #15803d); color: #fff;
+  font-family: 'Fredoka', sans-serif; font-weight: 700; font-size: 17px;
+  cursor: pointer; box-shadow: 0 4px 20px rgba(22,163,74,.35);
+  transition: transform .1s;
+}
+.paywall-cta:active { transform: scale(.97); }
+.paywall-footer {
+  display: flex; align-items: center; justify-content: center;
+  flex-wrap: wrap; gap: 6px 12px;
+  margin-top: 12px; font-size: 11px; color: #9ca3af;
+}
+.paywall-footer a {
+  color: #6b7280; text-decoration: underline; cursor: pointer;
+}
+
+/* === ADULT GATE === */
+.gate-overlay {
+  display: none; position: fixed; inset: 0; z-index: 9500;
+  background: linear-gradient(160deg, #e8f4fd 0%, #fef6e8 50%, #f0e8fe 100%);
+  overflow: hidden; 
+}
+.gate-overlay.open { display: flex; align-items: center; justify-content: center; }
+
+/* floating decorations */
+.gate-overlay::before,
+.gate-overlay::after {
+  position: fixed; pointer-events: none; z-index: 0;
+  font-size: clamp(28px, 7vw, 52px);
+  opacity: .12;
+  animation: gate-float 6s ease-in-out infinite alternate;
+}
+.gate-overlay::before {
+  content: '🌟 ☁️ 🎈';
+  top: clamp(8px, 3vh, 24px); left: clamp(12px, 4vw, 32px);
+}
+.gate-overlay::after {
+  content: '🌈 🦋 ⭐';
+  bottom: clamp(8px, 3vh, 24px); right: clamp(12px, 4vw, 32px);
+  animation-delay: -3s;
+}
+@keyframes gate-float {
+  from { transform: translateY(0px); }
+  to   { transform: translateY(-10px); }
+}
+
+.gate-card {
+  position: relative; z-index: 1;
+  width: min(90vw, 340px);
+  max-height: calc(100vh - 32px);
+  max-height: calc(100dvh - 32px);
+  overflow-y: auto;
+  -webkit-overflow-scrolling: touch;
+  background: #fff;
+  border-radius: 28px;
+  padding: clamp(20px, 4vw, 32px) clamp(16px, 4vw, 24px) clamp(16px, 3vw, 24px);
+  text-align: center;
+  box-shadow:
+    0 4px 0 0 #60a5fa,
+    0 12px 40px rgba(37,99,235,.13),
+    0 0 0 2px #bfdbfe;
+  -webkit-tap-highlight-color: transparent; 
+}
+.gate-card::-webkit-scrollbar { width: 0; }
+.gate-card { scrollbar-width: none; }
+
+.gate-close {
+  position: absolute; top: 10px; right: 10px;
+  width: 40px; height: 40px; border-radius: 50%; 
+  background: #f1f5f9; border: 2px solid #e2e8f0;
+  font-size: 18px; font-weight: 800; color: #94a3b8; cursor: pointer;
+  display: flex; align-items: center; justify-content: center;
+  transition: background .15s;
+  z-index: 10; 
+  -webkit-tap-highlight-color: transparent;
+  touch-action: manipulation;
+}
+.gate-close:active { background: #e2e8f0; transform: scale(.9); }
+
+.gate-emoji-wrap {
+  display: flex; justify-content: center; gap: 6px;
+  margin-bottom: 6px; font-size: clamp(36px, 10vw, 52px);
+  animation: gate-bounce .5s cubic-bezier(.34,1.56,.64,1) both;
+}
+@keyframes gate-bounce {
+  from { opacity: 0; transform: scale(.4) translateY(20px); }
+  to   { opacity: 1; transform: scale(1) translateY(0); }
+}
+
+.gate-title {
+  font-family: 'Fredoka', sans-serif; font-weight: 700;
+  font-size: clamp(20px, 5.5vw, 26px);
+  color: #1e3a5f;
+  margin-bottom: 2px;
+}
+.gate-subtitle {
+  font-size: clamp(12px, 3.2vw, 14px);
+  color: #64748b; margin-bottom: clamp(12px, 3vw, 20px);
+  line-height: 1.35;
+}
+
+.gate-display {
+  background: linear-gradient(135deg, #f0f7ff 0%, #f5f0ff 100%);
+  border: 2.5px solid #bfdbfe; border-radius: 16px;
+  padding: clamp(10px, 2.5vw, 14px);
+  margin-bottom: clamp(12px, 3vw, 18px);
+  font-family: 'Fredoka', sans-serif; font-weight: 700;
+  font-size: clamp(26px, 7.5vw, 34px);
+  color: #1e3a5f;
+  letter-spacing: clamp(6px, 2vw, 14px);
+  min-height: clamp(46px, 12vw, 58px);
+  display: flex; align-items: center; justify-content: center;
+  transition: border-color .2s;
+}
+.gate-display.error {
+  border-color: #f87171; animation: shakeWrong .4s;
+  background: linear-gradient(135deg, #fef2f2 0%, #fff1f2 100%);
+}
+.gate-display.ready {
+  border-color: #4ade80;
+  background: linear-gradient(135deg, #f0fdf4 0%, #ecfdf5 100%);
+}
+
+.gate-keypad {
+  display: grid;
+  grid-template-columns: repeat(3, 1fr);
+  gap: clamp(6px, 1.8vw, 10px);
+  margin-bottom: clamp(8px, 2vw, 14px);
+}
+.gate-key {
+  height: clamp(44px, 12vw, 56px);
+  border-radius: 14px; border: none;
+  font-family: 'Fredoka', sans-serif; font-weight: 700;
+  font-size: clamp(18px, 5vw, 22px);
+  cursor: pointer;
+  transition: transform .1s, box-shadow .1s;
+  display: flex; align-items: center; justify-content: center;
+  -webkit-tap-highlight-color: transparent; 
+  touch-action: manipulation; 
+}
+.gate-key:active { transform: scale(.9); }
+.gate-key.num {
+  background: linear-gradient(180deg, #f8fafc, #eef2ff);
+  color: #1e3a5f;
+  box-shadow: 0 3px 0 0 #c7d2fe, 0 4px 10px rgba(99,102,241,.08);
+}
+.gate-key.num:active {
+  box-shadow: 0 1px 0 0 #c7d2fe;
+  background: linear-gradient(180deg, #eef2ff, #e0e7ff);
+}
+.gate-key.del {
+  background: linear-gradient(180deg, #fff5f5, #fef2f2);
+  color: #f87171;
+  box-shadow: 0 3px 0 0 #fecaca, 0 4px 10px rgba(239,68,68,.06);
+  font-size: clamp(15px, 4vw, 18px);
+}
+.gate-key.del:active {
+  box-shadow: 0 1px 0 0 #fecaca;
+  background: linear-gradient(180deg, #fef2f2, #fee2e2);
+}
+.gate-key.go {
+  background: linear-gradient(180deg, #4ade80, #22c55e);
+  color: #fff;
+  box-shadow: 0 3px 0 0 #16a34a, 0 4px 14px rgba(34,197,94,.25);
+  font-size: clamp(14px, 3.8vw, 16px);
+  letter-spacing: .5px;
+}
+.gate-key.go:active {
+  box-shadow: 0 1px 0 0 #16a34a;
+  transform: scale(.93);
+}
+
+.gate-error-msg {
+  font-size: clamp(11px, 3vw, 13px);
+  color: #f87171; font-weight: 700;
+  margin-top: 2px; min-height: 18px;
+  transition: opacity .2s;
+} 
+
+.gate-guardian-note {
+  margin-top: 10px;
+  font-size: clamp(10px, 2.6vw, 11px);
+  color: #94a3b8;
+  display: flex; align-items: center; justify-content: center; gap: 4px;
+}
+
+@keyframes shakeWrong {
+  0%, 100% { transform: translateX(0); }
+  20% { transform: translateX(-8px); }
+  40% { transform: translateX(8px); }
+  60% { transform: translateX(-6px); }
+  80% { transform: translateX(6px); }
+}
+
+@media (orientation: landscape) and (max-height: 600px) {
+  .gate-card { padding: 14px 16px 12px; border-radius: 22px; }
+  .gate-emoji-wrap { font-size: 28px; margin-bottom: 2px; }
+  .gate-title { font-size: 18px; }
+  .gate-subtitle { font-size: 11px; margin-bottom: 8px; }
+  .gate-display { font-size: 22px; padding: 8px; min-height: 38px; margin-bottom: 8px; }
+  .gate-keypad { gap: 6px; margin-bottom: 6px; }
+  .gate-key { height: 38px; font-size: 16px; border-radius: 10px; }
+  .gate-guardian-note { display: none; }
+  .gate-overlay::before, .gate-overlay::after { display: none; }
+}
+
+@media (orientation: landscape) and (max-height: 600px) {
+  .paywall-sheet { padding: 14px 16px 14px; max-height: 96vh; }
+  .paywall-mascot { display: none; }
+  .paywall-title { font-size: 20px; }
+  .paywall-features { gap: 4px 10px; margin-bottom: 10px; }
+  .pf-item { font-size: 11px; }
+  .plan-card { padding: 10px 4px 8px; }
+  .plan-price { font-size: 16px; }
+  .paywall-cta { padding: 12px; font-size: 15px; }
+}
+</style>
+</head>
+<body>
+
+  <div class="splash" id="splash">
+    <div class="splash-mascot">
+      <div class="splash-dance" aria-hidden="true"></div>
+    </div>
+    <div class="splash-title">mnmoo academy</div>
+    <div class="splash-sub">Learn · Play · Grow</div>
+  </div>
+
+  <div class="app" id="app">
+
+    <div class="header">
+      <div class="header-left">
+        <img src="games/assets/headmnmoo.webp" alt="mnmoo" class="header-logo" onclick="logoTap()">
+      </div>
+      <div class="header-center">
+        <img src="games/assets/headtitle.webp" alt="Learn Play Grow" class="header-title-img">
+      </div>
+      <div class="header-right">
+        <div class="unlock-badge" onclick="showPaywall()">Unlock All Games</div>
+      </div>
+    </div>
+
+    <div class="skills-board-wrapper">
+      <div class="row-labels">
+        <div class="row-label math">MATH</div>
+        <div class="row-label science">SCIENCE</div>
+        <div class="row-label language">LANGUAGE</div>
+      </div>
+      <div class="skills-board" id="gameGrid"></div>
+    </div>
+
+  </div>
+
+  <div class="game-overlay" id="gameOverlay">
+    <button class="game-close" onclick="closeGame()">✕</button>
+    <iframe id="gameFrame" src="about:blank"></iframe>
+  </div>
+
+  <!-- Adult Gate -->
+  <div class="gate-overlay" id="gateOverlay">
+    <div class="gate-card">
+      <button class="gate-close" id="gateCloseBtn" onclick="closeGate(event)">✕</button>
+      <div class="gate-emoji-wrap">
+        <span>🔐</span>
+        <span>👤</span>
+      </div>
+      <div class="gate-title">Grown-Ups Only!</div>
+      <div class="gate-subtitle">Ask a parent or guardian to enter their birth year to continue</div>
+      <div class="gate-display" id="gateDisplay">_ _ _ _</div>
+      <div class="gate-keypad">
+        <button class="gate-key num" onclick="gatePress(1)">1</button>
+        <button class="gate-key num" onclick="gatePress(2)">2</button>
+        <button class="gate-key num" onclick="gatePress(3)">3</button>
+        <button class="gate-key num" onclick="gatePress(4)">4</button>
+        <button class="gate-key num" onclick="gatePress(5)">5</button>
+        <button class="gate-key num" onclick="gatePress(6)">6</button>
+        <button class="gate-key num" onclick="gatePress(7)">7</button>
+        <button class="gate-key num" onclick="gatePress(8)">8</button>
+        <button class="gate-key num" onclick="gatePress(9)">9</button>
+        <button class="gate-key del" onclick="gateDel()">⌫</button>
+        <button class="gate-key num" onclick="gatePress(0)">0</button>
+        <button class="gate-key go" onclick="verifyAge()">OK ✓</button>
+      </div>
+      <div class="gate-error-msg" id="gateError"></div>
+      <div class="gate-guardian-note">🛡️ For parents & guardians only</div>
+    </div>
+  </div>
+
+  <!-- Paywall -->
+  <div class="paywall-overlay" id="paywallOverlay">
+    <div class="paywall-sheet">
+      <button class="paywall-close" onclick="closePaywall()">✕</button>
+      <div class="paywall-mascot"><div class="spr-large"></div></div>
+      <div class="paywall-title">Unlock mnmoo Pro</div>
+      <div class="paywall-subtitle">All 27 educational games — Math, Science & Language</div>
+      <div class="paywall-features">
+        <div class="pf-item">All Math Games</div>
+        <div class="pf-item">All Science Games</div>
+        <div class="pf-item">All Language Games</div>
+        <div class="pf-item">New Games Monthly</div>
+      </div>
+      <div class="paywall-plans">
+        <div class="plan-card selected" id="planMonthly" onclick="selectPlan('monthly')">
+          <div class="plan-name">Monthly</div>
+          <div class="plan-price" id="priceMonthly">...</div>
+          <div class="plan-detail">3-day free trial</div>
+        </div>
+        <div class="plan-card" id="planYearly" onclick="selectPlan('yearly')">
+          <div class="plan-badge">POPULAR</div>
+          <div class="plan-name">Yearly</div>
+          <div class="plan-price" id="priceYearly">...</div>
+          <div class="plan-detail muted">Save 44%</div>
+        </div>
+        <div class="plan-card" id="planLifetime" onclick="selectPlan('lifetime')">
+          <div class="plan-badge offer-badge">LIMITED OFFER</div>
+          <div class="plan-name">Lifetime</div>
+          <div class="plan-price" id="priceLifetime">...</div>
+          <div class="plan-detail muted">One-time · Save 73%</div>
+        </div>
+      </div>
+      <button class="paywall-cta" id="paywallCta" onclick="doPurchase()">Start 3-Day Free Trial</button>
+      <div class="paywall-footer">
+        <a onclick="doRestore()">Restore Purchases</a>
+        <span>·</span>
+        <span>Cancel anytime</span>
+      </div>
+    </div>
+  </div>
+
+  <script>
+/* === ON-SCREEN DEBUGGER === */
+const debugDiv = document.createElement('div');
+debugDiv.style.cssText = 'position:fixed;bottom:0;left:0;right:0;max-height:40%;background:rgba(0,0,0,0.9);color:#0f0;font-family:monospace;font-size:10px;overflow-y:auto;z-index:99999;padding:10px;pointer-events:none;display:none;word-wrap:break-word;';
+document.body.appendChild(debugDiv);
+
+function logDebug(msg) {
+  console.log(msg);
+  // debugDiv.style.display = 'block';
+  // debugDiv.innerHTML += '<div style="margin-bottom:4px; border-bottom:1px solid #333;">> ' + msg + '</div>';
+  // debugDiv.scrollTop = debugDiv.scrollHeight;
+}
+
+/* ═══ REVENUECAT SUBSCRIPTION ═══ */
+const RC_GOOGLE_API_KEY = 'goog_OTYhKHoUiAMNkVUvsRCZAFwhwIH';
+const RC_AMAZON_API_KEY = 'amzn_biqRqADZZwCmtAMaFbjgPdjCnIM';
+let isPro = false;
+let rcReady = false;
+let selectedPlan = 'monthly';
+let rcOfferings = null;
+
+// UNIVERSAL UNWRAPPER: Safely unpacks Capacitor responses
+function unwrap(result, key) {
+  if (result && result[key] !== undefined) {
+    return result[key];
+  }
+  return result;
+}
+function checkIsPro(customerInfo) {
+  if (!customerInfo) {
+    logDebug('Check error: customerInfo is empty/undefined.');
+    return false;
+  }
+
+  const active = customerInfo.entitlements?.active;
+
+  if (!active) {
+    logDebug('No active entitlements found.');
+    return false;
+  }
+
+  const activeEntitlements = Object.keys(active);
+
+  logDebug(
+    'ACTIVE ENTITLEMENTS RAW: ' + JSON.stringify(activeEntitlements)
+  );
+
+  // Updated to look for the new entitlement ID: 'mnmoo_pro'
+  const hasPro = activeEntitlements.some(
+    key => String(key).trim() === 'mnmoo_pro'
+  );
+
+  if (hasPro) {
+    logDebug('PRO ACTIVE via entitlement: mnmoo_pro');
+    return true;
+  }
+
+  logDebug(
+    'Available entitlements: ' + activeEntitlements.join(', ')
+  );
+
+  return false;
+}
+
+async function initRevenueCat() {
+  try {
+    if (typeof Capacitor === 'undefined' || !Capacitor.Plugins || !Capacitor.Plugins.Purchases) { 
+      logDebug('ERROR: Purchases plugin not found'); 
+      return; 
+    }
+    const P = Capacitor.Plugins.Purchases;
+    const detector = Capacitor.Plugins.StoreDetector;
+    let store = 'google';
+
+    if (detector) {
+      const storeResult = await detector.getStore();
+      store = storeResult?.store === 'amazon' ? 'amazon' : 'google';
+      logDebug(
+        'RC: Store=' + store + ', installer=' +
+        (storeResult?.installer || 'unknown')
+      );
+    }
+
+    logDebug('RC: Configuring for ' + store + '...');
+    await P.configure(
+      store === 'amazon'
+        ? { apiKey: RC_AMAZON_API_KEY, useAmazon: true }
+        : { apiKey: RC_GOOGLE_API_KEY }
+    );
+    rcReady = true;
+    logDebug('RC: Configured OK');
+    
+    await checkProStatus();
+    await loadOfferings();
+  } catch (e) { logDebug('RC init error: ' + JSON.stringify(e)); }
+}
+
+async function checkProStatus() {
+  try {
+    const P = Capacitor.Plugins.Purchases;
+    logDebug('Checking status on Startup...');
+    
+    const rawResult = await P.getCustomerInfo();
+    const customerInfo = unwrap(rawResult, 'customerInfo'); 
+    
+    isPro = checkIsPro(customerInfo);
+    updateProUI();
+  } catch (e) { logDebug('RC status error: ' + JSON.stringify(e)); }
+}
+
+async function loadOfferings() {
+  try {
+    const P = Capacitor.Plugins.Purchases;
+    logDebug('Fetching Offerings...');
+    
+    const rawResult = await P.getOfferings(); 
+    const offerings = unwrap(rawResult, 'offerings');
+    
+    rcOfferings = offerings ? offerings.current : null;
+
+    if (!rcOfferings) {
+      logDebug('WARNING: No current offering found.');
+      logDebug('RAW OFFERINGS DUMP: ' + JSON.stringify(offerings)); // Debug helper!
+      return;
+    }
+
+    const packages = rcOfferings.availablePackages || [];
+    logDebug("Packages found: " + packages.length);
+    
+    if(packages.length > 0) {
+      // Print the identifiers so we know they match exactly
+      logDebug("Available: " + packages.map(p => p.identifier).join(', '));
+    }
+
+    const monthly = packages.find(p => p.identifier === "$rc_monthly");
+    const annual = packages.find(p => p.identifier === "$rc_annual");
+    const lifetime = packages.find(p => p.identifier === "$rc_lifetime");
+
+    if (monthly) document.getElementById('priceMonthly').textContent = monthly.product.priceString;
+    if (annual) document.getElementById('priceYearly').textContent = annual.product.priceString;
+    if (lifetime) document.getElementById('priceLifetime').textContent = lifetime.product.priceString;
+  } catch(e) {
+    logDebug('RC offerings error: ' + JSON.stringify(e));
+  }
+}
+
+function selectPlan(plan) {
+  selectedPlan = plan;
+  document.querySelectorAll('.plan-card').forEach(function(c){ c.classList.remove('selected'); });
+  var id = 'plan' + plan.charAt(0).toUpperCase() + plan.slice(1);
+  var el = document.getElementById(id);
+  if (el) el.classList.add('selected');
+  var cta = document.getElementById('paywallCta');
+  if (plan === 'monthly') cta.textContent = 'Start 3-Day Free Trial';
+  else if (plan === 'yearly') cta.textContent = 'Subscribe Yearly';
+  else cta.textContent = 'Get Lifetime Access';
+}
+
+function getPackageForPlan(plan) {
+  if (!rcOfferings) return null;
+  const packages = rcOfferings.availablePackages || [];
+  if (plan === 'monthly') return packages.find(p => p.identifier === "$rc_monthly");
+  if (plan === 'yearly') return packages.find(p => p.identifier === "$rc_annual");
+  if (plan === 'lifetime') return packages.find(p => p.identifier === "$rc_lifetime");
+  return null;
+}
+
+async function doPurchase() {
+  if (!rcReady || !rcOfferings) { 
+    alert('Store not available. See debug log.'); 
+    return; 
+  }
+  try {
+    var pkg = getPackageForPlan(selectedPlan);
+    if (!pkg) { alert('This plan is not available yet.'); return; }
+    
+    logDebug('Attempting purchase for: ' + pkg.identifier);
+    const P = Capacitor.Plugins.Purchases;
+    
+    const rawResult = await P.purchasePackage({ aPackage: pkg }); 
+    const customerInfo = unwrap(rawResult, 'customerInfo');
+    
+    isPro = checkIsPro(customerInfo);
+    logDebug('Purchase result Is Pro: ' + isPro);
+    
+    if (isPro) { 
+      closePaywall(); 
+      updateProUI(); 
+    }
+  } catch (e) {
+    if (e.code === 6 || (e.message && e.message.includes('ITEM_ALREADY_OWNED'))) {
+      logDebug('Item already owned! Auto-restoring...');
+      await doRestore();
+    } else if (e.code !== 1) { 
+      logDebug('Purchase failed: ' + JSON.stringify(e));
+      alert('Purchase failed. Please try again.');
+    }
+  }
+}
+
+async function doRestore() {
+  if (!rcReady) { alert('Store not available.'); return; }
+  try {
+    const P = Capacitor.Plugins.Purchases;
+    logDebug('Restoring purchases...');
+    
+    const rawResult = await P.restorePurchases();
+    const customerInfo = unwrap(rawResult, 'customerInfo');
+    
+    isPro = checkIsPro(customerInfo);
+    logDebug('Restore complete. Is Pro: ' + isPro);
+    
+    updateProUI();
+    if (isPro) {
+      closePaywall();
+      alert("Purchases restored successfully!");
+    } else {
+      alert('No active subscription found.');
+    }
+  } catch (e) { 
+    logDebug('Restore failed: ' + JSON.stringify(e));
+    alert('Restore failed. Try again.'); 
+  }
+}
+
+function showPaywall() {
+  gateValue = '';
+  document.getElementById('gateDisplay').textContent = '_ _ _ _';
+  document.getElementById('gateDisplay').className = 'gate-display';
+  document.getElementById('gateError').textContent = '';
+  document.getElementById('gateOverlay').classList.add('open');
+}
+
+function closeGate(e) { 
+  if (e) { e.preventDefault(); e.stopPropagation(); } 
+  document.getElementById('gateOverlay').classList.remove('open');
+}
+
+var gateValue = '';
+function gatePress(n) {
+  if (gateValue.length >= 4) return;
+  gateValue += n;
+  updateGateDisplay();
+  document.getElementById('gateDisplay').classList.remove('error');
+  document.getElementById('gateError').textContent = '';
+}
+function gateDel() {
+  gateValue = gateValue.slice(0, -1);
+  updateGateDisplay();
+  document.getElementById('gateDisplay').classList.remove('error');
+  document.getElementById('gateError').textContent = '';
+}
+function updateGateDisplay() {
+  var display = document.getElementById('gateDisplay');
+  var chars = gateValue.split('');
+  while (chars.length < 4) chars.push('_');
+  display.textContent = chars.join(' ');
+  if (gateValue.length === 4) display.classList.add('ready');
+  else display.classList.remove('ready');
+}
+function verifyAge() {
+  if (gateValue.length !== 4) {
+    document.getElementById('gateError').textContent = 'Please enter a 4-digit year.';
+    return;
+  }
+  var year = parseInt(gateValue, 10);
+  var currentYear = new Date().getFullYear();
+  if (year < 1920 || year > currentYear) {
+    document.getElementById('gateDisplay').classList.add('error');
+    document.getElementById('gateError').textContent = 'Please enter a valid birth year.';
+    return;
+  }
+  var age = currentYear - year;
+  if (age < 18) {
+    document.getElementById('gateDisplay').classList.add('error');
+    document.getElementById('gateError').textContent = 'You must be 18 or older to make a purchase.';
+    return;
+  }
+  closeGate();
+  document.getElementById('paywallOverlay').classList.add('open');
+}
+function closePaywall() {
+  document.getElementById('paywallOverlay').classList.remove('open');
+}
+
+function updateProUI() {
+  renderGames();
+  var badge = document.querySelector('.unlock-badge');
+  if (!badge) return;
+  if (isPro) {
+    badge.textContent = '⭐ PRO';
+    badge.className = 'unlock-badge pro-active-badge';
+    badge.onclick = null;
+    debugDiv.style.display = 'none'; // Hide debugger on success
+  } else {
+    badge.textContent = 'Unlock All Games';
+    badge.className = 'unlock-badge';
+    badge.onclick = showPaywall;
+  }
+}
+
+var logoTapCount = 0;
+var logoTapTimer = null;
+function logoTap() {
+  logoTapCount++;
+  clearTimeout(logoTapTimer);
+  logoTapTimer = setTimeout(function(){ logoTapCount = 0; }, 2000);
+  if (logoTapCount >= 5) {
+    logoTapCount = 0;
+    isPro = true;
+    updateProUI();
+    var badge = document.querySelector('.unlock-badge');
+    if (badge) { badge.textContent = '🔓 Review Mode'; badge.style.background = '#8b5cf6'; badge.style.color = '#fff'; }
+    debugDiv.style.display = 'none';
+  }
+}
+
+const MUSIC_SRC='games/audio/music.m4a';
+let backgroundMusic=null;
+let musicBaseVolume=0.5;
+
+function ensureBackgroundMusic(){
+  if(!backgroundMusic){
+    backgroundMusic=new Audio(MUSIC_SRC);
+    backgroundMusic.loop=true;
+    backgroundMusic.preload='auto';
+    backgroundMusic.volume=musicBaseVolume;
+  }
+  return backgroundMusic;
+}
+
+function startBackgroundMusic(){
+  const audio=ensureBackgroundMusic();
+  if(audio.paused) audio.play().catch(()=>{});
+}
+
+function setGameOverlayMusic(active){
+  if(backgroundMusic) backgroundMusic.volume = active ? musicBaseVolume * 0.2 : musicBaseVolume;
+}
+
+const SUBJECTS={math:[
+  {id:'patterns',name:'Patterns',games:5,color:'#FF6B4A'},
+  {id:'ordering',name:'Ordering',games:4,color:'#FFB74D'},
+  {id:'compare',name:'Compare Numbers',games:3,color:'#EF5350'},
+  {id:'addsubtract',name:'Add & Subtract',games:4,color:'#BA68C8'},
+  {id:'skipcounting',name:'Skip Counting',games:2,color:'#4DD0E1'},
+  {id:'fractions',name:'Fractions',games:2,color:'#7986CB'}
+],language:[
+  {id:'vocabulary',name:'Vocabulary',games:1,color:'#BA68C8'},
+  {id:'sightwords',name:'Sight Words',games:2,color:'#64B5F6'},
+  {id:'wordspelling',name:'Word Spelling',games:4,color:'#F06292'},
+  {id:'compound',name:'Compound Words',games:2,color:'#9575CD'},
+  {id:'contractions',name:'Contractions',games:2,color:'#FF8A65'},
+  {id:'verbs',name:'Verbs',games:2,color:'#4DB6AC'},
+  {id:'nounsadj',name:'Nouns & Adjectives',games:2,color:'#90A4AE'},
+  {id:'plurals',name:'Plurals',games:2,color:'#FFD54F'},
+  {id:'reading',name:'Reading Basics',games:2,color:'#81C784'}
+],science:[
+  {id:'animals',name:'Animals',games:2,color:'#81C784'},
+  {id:'bodyparts',name:'Body Parts',games:3,color:'#EF5350'},
+  {id:'dinosaurs',name:'Dinosaurs & Fossils',games:3,color:'#A1887F'},
+  {id:'geography',name:'Geography',games:2,color:'#64B5F6'},
+  {id:'photosynthesis',name:'Photosynthesis',games:1,color:'#AED581'},
+  {id:'senses',name:'5 Senses',games:2,color:'#CE93D8'}
+]};
+
+const T='games/thumbnails/';
+const GAMES={patterns:[
+  {name:'Bubble Pop Frenzy',href:'games/grade1_math/patternmatch/ballonpop_opus.html',thumb:T+'actionpatternmatch.webp'},
+  {name:'Shape Match Garden',href:'games/grade1_math/patternmatch/shapegarden_opus.html',thumb:T+'patterngarden.webp'},
+  {name:'Traffic Light Game',href:'games/grade1_math/patternmatch/trafficlights_opus.html',thumb:T+'trafficlightpattern.webp'}
+],ordering:[
+  {name:'Astro Kids',href:'games/grade1_math/ordering/astrokids.html',thumb:T+'catchstars.webp'}
+],compare:[
+  {name:'Catch the Heavier Fish',href:'games/grade1_math/compare/catchfish_opus.html',thumb:T+'catchfishheavy.webp'}
+],addsubtract:[
+  {name:'Penguin Bowling',href:'games/grade1_math/addsubtract/bowling_opus.html',thumb:T+'penguinbowling.webp'
+}],skipcounting:[
+  {name:'Catch the Stars',href:'games/grade1_math/skipcounting/catchstars_opus.html',thumb:T+'catchthefallingstars.webp'},
+  {name:'Number Line Jump',href:'games/grade1_math/skipcounting/numberlinejump_opus.html',thumb:T+'numberlinejump.webp'
+}],fractions:[
+  {name:'Pizza Fractions',href:'games/grade1_math/fractions/pizzafraction_opus.html',thumb:T+'pizzafractions.webp'
+}],vocabulary:[
+  {name:'Vocabulary Builder',href:'games/grade1_language/vocabulary/vocabulary.html',thumb:T+'vocabularybuilder.webp'
+}],sightwords:[
+  {name:'Balloon Pop',href:'games/grade1_language/sight_words/balloon_pop_opus.html',thumb:T+'popballonsight.webp'
+}],wordspelling:[
+  {name:'Pop Balloon',href:'games/grade1_language/word_spelling/pop_balloon_opus.html',thumb:T+'popballonspelling.webp'
+}],compound:[
+  {name:'Word Train',href:'games/grade1_language/compound_words/train_word_opus.html',thumb:T+'wordtrain.webp'
+}],contractions:[
+  {name:'Contraction Clouds',href:'games/grade1_language/contractions/balloon_pop_opus.html',thumb:T+'contractionclouds.webp'
+}],verbs:[
+  {name:'Egg Basket Verbs',href:'games/grade1_language/verbs/frog_hopper_opus.html',thumb:T+'eggbasketverbs.webp'
+}],nounsadj:[
+  {name:'Whack-a-Word',href:'games/grade1_language/nouns_adjectives/whack_a_mole_opus.html',thumb:T+'whackaword.webp'
+}],plurals:[
+  {name:'Ocean Plurals',href:'games/grade1_language/plurals/ocean_opus.html',thumb:T+'oceanplurals.webp'
+}],reading:[
+  {name:'Reading Stars',href:'games/grade1_language/reading_basics/readingbasic_opus.html',thumb:T+'readingstars.webp'
+}],animals:[
+  {name:'Firefly Jar',href:'games/grade1_science/animals/catchfireflies_opus.html',thumb:T+'fireflyjar.webp'},
+  {name:'Guess the Animal',href:'games/grade1_science/animals/identify_opus.html',thumb:T+'animalhomeexplorer.webp'
+}],bodyparts:[
+  {name:'My Body 2',href:'games/grade1_science/Bodyparts/bodyparts2_opus.html',thumb:T+'mybody2.webp'},
+  {name:'Face Builder',href:'games/grade1_science/Bodyparts/facebuilder_opus.html',thumb:T+'facebuilder.webp'
+}],dinosaurs:[
+  {name:'Dino Dig',href:'games/grade1_science/dinosaurs_fossils/dinohatch_opus.html',thumb:T+'dinodig.webp'
+}],geography:[
+  {name:'Animal Homes',href:'games/grade1_science/geography/geozones_opus.html',thumb:T+'animalhomes.webp'},
+  {name:'Habitat Match',href:'games/grade1_science/geography/habitats.html',thumb:T+'habitatmatch.webp'
+}],photosynthesis:[
+  {name:'Grow a Plant',href:'games/grade1_science/photosynthesis/plants_opus.html',thumb:T+'growaplant.webp'
+}],senses:[
+  {name:'My 5 Senses',href:'games/grade1_science/senses/hover_opus.html',thumb:T+'my5senses.webp'}
+]};
+
+const SUBJECT_ORDER=['math','science','language'];
+
+function tileTitle(gameName,topicName){
+  return gameName || topicName || 'Coming Soon';
+}
+
+function buildSubjectCards(subject){
+  var topics=SUBJECTS[subject]||[];
+  var buckets=topics.map(function(topic){
+    var tag=subject.toUpperCase()+' · '+topic.name;
+    var games=GAMES[topic.id]||[];
+    if(!games.length){
+      var fallback='<div class="game-fallback" style="background:linear-gradient(145deg,'+topic.color+'99,'+topic.color+'33)"></div>';
+      return ['<div class="game-tile disabled">'+fallback+'<div class="game-overlay-mask"></div><div class="game-title">'+topic.name+'</div><div class="game-topic-bar"><div class="game-topic">'+tag+'</div></div><div class="game-lock">🔒</div></div>'];
+    }
+    return games.map(function(game){
+      var hasThumb = !!game.thumb;
+      var thumb=hasThumb
+        ? '<img class="game-bg" src="'+game.thumb+'" alt="'+tileTitle(game.name,topic.name)+'" loading="lazy">'
+        : '<div class="game-fallback" style="background:linear-gradient(145deg,'+topic.color+'99,'+topic.color+'33)"></div>';
+      var titleElement = !hasThumb ? '<div class="game-title">'+tileTitle(game.name,topic.name)+'</div>' : '';
+      var lockBadge = isPro
+        ? '<div class="game-lock play">▶</div>'
+        : '<div class="game-lock pro-lock">PRO</div>';
+      return '<div class="game-tile" onclick="launchGame(\''+game.href+'\')">'+thumb+'<div class="game-overlay-mask"></div>'+titleElement+'<div class="game-topic-bar"><div class="game-topic">'+tag+'</div></div>'+lockBadge+'</div>';
+    });
+  });
+
+  var out=[];
+  var has=true;
+  while(has){
+    has=false;
+    for(var i=0;i<buckets.length;i++){
+      if(buckets[i].length){
+        out.push(buckets[i].shift());
+        has=true;
+      }
+    }
+  }
+  return out;
+}
+
+function renderGames(){
+  var totalGames=0;
+  var cardsBySubject={};
+  SUBJECT_ORDER.forEach(function(subject){
+    cardsBySubject[subject]=buildSubjectCards(subject);
+    var topics=SUBJECTS[subject]||[];
+    for(var t=0;t<topics.length;t++) totalGames += (GAMES[topics[t].id]||[]).length;
+  });
+
+  var maxLen=Math.max(cardsBySubject.math.length,cardsBySubject.science.length,cardsBySubject.language.length);
+  var panels=[];
+  for(var i=0;i<maxLen;i++){
+    var col='';
+    for(var s=0;s<SUBJECT_ORDER.length;s++){
+      var key=SUBJECT_ORDER[s];
+      col += cardsBySubject[key][i] || '<div class="game-tile disabled"><div class="game-fallback"></div><div class="game-overlay-mask"></div><div class="game-title">'+key.toUpperCase()+'</div><div class="game-topic-bar"><div class="game-topic">No More Games</div></div><div class="game-lock">•</div></div>';
+    }
+    panels.push('<section class="slide-column">'+col+'</section>');
+  }
+
+  document.getElementById('gameGrid').innerHTML=panels.join('');
+}
+
+function launchGame(h){
+  if (!isPro) { showPaywall(); return; }
+  document.getElementById('gameFrame').src=h;
+  document.getElementById('gameOverlay').classList.add('open');
+  setGameOverlayMusic(true);
+}
+
+function closeGame(){
+  document.getElementById('gameOverlay').classList.remove('open');
+  document.getElementById('gameFrame').src='about:blank';
+  setGameOverlayMusic(false);
+}
+
+window.addEventListener('DOMContentLoaded',()=>{
+  renderGames();
+  initRevenueCat();
+  startBackgroundMusic();
+  var splashEl = document.getElementById('splash');
+  function hideSplash(){
+    if(splashEl.classList.contains('hidden')) return;
+    splashEl.classList.add('hidden');
+  }
+  setTimeout(hideSplash, 2000);
+  splashEl.addEventListener('pointerdown', hideSplash);
+  document.addEventListener('pointerdown',function f(){
+    startBackgroundMusic();
+    try{(document.documentElement.requestFullscreen||document.documentElement.webkitRequestFullscreen).call(document.documentElement)}catch(e){}
+    document.removeEventListener('pointerdown',f);
+  },{once:true});
+});
+document.addEventListener('backbutton',e=>{
+  e.preventDefault();
+  if(document.getElementById('gateOverlay').classList.contains('open')){ closeGate(); return; }
+  if(document.getElementById('paywallOverlay').classList.contains('open')){ closePaywall(); return; }
+  if(document.getElementById('gameOverlay').classList.contains('open')) closeGame();
+},false);
+</script>
+</body>
+</html>

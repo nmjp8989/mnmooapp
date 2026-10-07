@@ -1,0 +1,473 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width,initial-scale=1,maximum-scale=1,user-scalable=no">
+<title>Compound Word Train</title>
+<link href="https://fonts.googleapis.com/css2?family=Fredoka:wght@400;600;700&family=Nunito:wght@400;600;700;800&display=swap" rel="stylesheet">
+<style>
+*{box-sizing:border-box;margin:0;padding:0}
+html,body{width:100vw;height:100dvh;overflow:hidden;margin:0;padding:0;touch-action:manipulation;user-select:none;overscroll-behavior:none;font-family:'Nunito',sans-serif;background:linear-gradient(135deg,#FFF9EC,#ECF4FF)}
+.screen{position:absolute;inset:0;display:flex;flex-direction:column;align-items:center;justify-content:center}.screen.hidden{display:none}
+.card{background:#fff;border-radius:20px;box-shadow:0 8px 32px rgba(0,0,0,0.10);padding:clamp(24px,4vh,40px) clamp(20px,4vw,32px);max-width:420px;width:90%;text-align:center}
+.title{font-family:'Fredoka',sans-serif;font-size:clamp(24px,6vh,40px);font-weight:700;color:#E65100;margin-bottom:8px}
+.subtitle{font-size:clamp(15px,3.2vh,22px);color:#555;margin-bottom:20px;line-height:1.5}
+.btn{display:inline-block;padding:clamp(14px,3vh,22px) clamp(28px,6vw,44px);border:none;border-radius:14px;font-family:'Fredoka',sans-serif;font-size:clamp(18px,4vh,26px);font-weight:600;color:#fff;background:#FF7043;cursor:pointer;min-height:44px;min-width:44px;touch-action:manipulation}
+.btn:active{opacity:0.85}
+
+#game-screen{background:linear-gradient(180deg,#87CEEB 0%,#B8DFFF 40%,#D4E8A0 72%,#8FB04A 100%)}
+
+.hud{position:absolute;top:12px;left:50%;transform:translateX(-50%);background:rgba(255,255,255,0.92);border-radius:14px;padding:clamp(6px,1.2vh,12px) clamp(14px,3vw,24px);font-family:'Fredoka',sans-serif;font-size:clamp(16px,3.5vh,24px);font-weight:600;color:#E65100;box-shadow:0 2px 12px rgba(0,0,0,0.08);z-index:10;white-space:nowrap}
+
+.game-area{display:flex;flex-direction:column;align-items:center;width:100%;height:100%;padding:clamp(52px,9vh,72px) 8px clamp(8px,1.5vh,14px);gap:clamp(6px,1.4vh,12px)}
+
+.picture-card{background:rgba(255,255,255,0.92);border-radius:18px;box-shadow:0 4px 18px rgba(0,0,0,0.12);padding:clamp(8px,1.5vh,14px) clamp(16px,4vw,28px);display:flex;flex-direction:column;align-items:center;gap:4px;flex-shrink:0}
+.picture-emoji{font-size:clamp(44px,10vh,68px);line-height:1.1}
+.picture-label{font-family:'Fredoka',sans-serif;font-size:clamp(12px,2.2vh,18px);color:#999;font-weight:600}
+
+.train-wrapper{flex:1;display:flex;align-items:center;justify-content:center;width:100%;min-height:0}
+.train-inner{position:relative;width:clamp(280px,94vw,560px);aspect-ratio:340/108}
+.train-inner.depart{animation:trainDepart 0.85s cubic-bezier(0.4,0,1,1) forwards}
+.train-inner.arrive{animation:trainArrive 0.5s ease forwards}
+@keyframes trainDepart{0%{transform:translateX(0)}100%{transform:translateX(115vw)}}
+@keyframes trainArrive{0%{transform:translateX(-115vw)}100%{transform:translateX(0)}}
+.train-svg{width:100%;height:100%;display:block}
+.car-label{position:absolute;display:flex;align-items:center;justify-content:center;font-family:'Fredoka',sans-serif;font-weight:700;color:rgba(255,255,255,0.38);font-size:clamp(12px,4vw,24px);pointer-events:none;transition:color .2s,background .2s,text-shadow .2s;border-radius:5px;top:46.3%;width:26.5%;height:29.6%;padding:1px;letter-spacing:-0.5px;line-height:1.1;text-align:center;word-break:break-all}
+#car-label-1{left:28.2%}
+#car-label-2{left:57.1%}
+.car-label.loaded{color:#fff;text-shadow:0 1px 6px rgba(0,0,0,0.6);background:rgba(0,0,0,0.22)}
+
+.crates-grid{display:flex;flex-wrap:wrap;justify-content:center;gap:clamp(8px,1.8vw,14px);width:100%;max-width:480px;flex-shrink:0}
+.crate{background:#FF7043;border:none;border-radius:14px;padding:clamp(10px,1.8vh,16px) clamp(12px,2.5vw,20px);font-family:'Fredoka',sans-serif;font-size:clamp(17px,3.8vh,28px);font-weight:700;color:#fff;cursor:pointer;touch-action:manipulation;transition:transform 0.15s,background 0.15s,opacity 0.2s;box-shadow:0 4px 12px rgba(255,112,67,0.4);min-width:clamp(64px,15vw,100px);text-align:center}
+.crate:active{transform:scale(0.93)}
+.crate.selected{background:#BF360C;box-shadow:0 2px 8px rgba(0,0,0,0.3);transform:scale(0.95)}
+.crate.disabled{opacity:0.35;pointer-events:none}
+.crate.wobble{animation:crateWobble 0.5s ease}
+@keyframes crateWobble{0%,100%{transform:rotate(0deg)}20%{transform:rotate(-12deg)}40%{transform:rotate(12deg)}60%{transform:rotate(-7deg)}80%{transform:rotate(7deg)}}
+
+/* Result popup */
+.result-pop{position:absolute;top:44%;left:50%;transform:translate(-50%,-50%) scale(0);font-family:'Fredoka',sans-serif;font-size:clamp(26px,6.5vh,48px);font-weight:700;color:#E65100;background:#fff;border-radius:20px;padding:12px 28px;box-shadow:0 8px 32px rgba(0,0,0,0.18);z-index:50;pointer-events:none;opacity:0;white-space:nowrap}
+.result-pop.show{animation:resultPop 1.1s ease forwards}
+@keyframes resultPop{0%{transform:translate(-50%,-50%) scale(0);opacity:0}18%{transform:translate(-50%,-50%) scale(1.1);opacity:1}65%{transform:translate(-50%,-50%) scale(1);opacity:1}100%{transform:translate(-50%,-50%) scale(0.75);opacity:0}}
+
+/* Mascot */
+.mascot-float{position:absolute;top:8vh;left:2vw;z-index:35;pointer-events:none;opacity:0;transition:opacity .4s}
+.mascot-float.show{opacity:1}
+.mascot-center{display:flex;justify-content:center;margin-bottom:8px}
+.mascot-container{transform:scale(1.1);transform-origin:center}
+.mascot-sprite{width:72px;height:128px;image-rendering:pixelated;transform:translateZ(0)}
+.mascot-sprite.idle{background-image:url('../../assets/cow/idle.webp');background-size:216px 128px;animation:spIdle .6s steps(3) infinite}
+@keyframes spIdle{100%{background-position:-216px 0}}
+.mascot-sprite.dancing{background-image:url('../../assets/cow/rhythm.webp');background-size:432px 128px}
+.mascot-sprite.sad{background-image:url('../../assets/cow/sadface.webp');background-size:144px 128px;animation:spSad .5s steps(2) infinite}
+@keyframes spSad{100%{background-position:-144px 0}}
+
+/* End screen */
+.end-emoji{font-size:clamp(48px,12vh,80px);margin-bottom:12px}
+.end-score{font-family:'Fredoka',sans-serif;font-size:clamp(22px,5vh,36px);color:#E65100;margin-bottom:6px}
+.end-msg{font-size:clamp(15px,3.2vh,24px);color:#555;margin-bottom:24px;line-height:1.4}
+.emoji-row{font-size:clamp(18px,3.5vh,28px);margin-bottom:16px;word-break:break-all}
+</style>
+</head>
+<body>
+
+<!-- ══ Game Screen ══ -->
+<div id="game-screen" class="screen hidden">
+  <div class="mascot-float" id="mascotFloat">
+    <div class="mascot-container">
+      <div class="mascot-sprite idle" id="mascotSprite" aria-hidden="true"></div>
+    </div>
+  </div>
+
+  <div class="hud" id="hud">🚂 0 / 10</div>
+
+  <div class="game-area">
+    <!-- Target picture -->
+    <div class="picture-card">
+      <div class="picture-emoji" id="picture-emoji">🌻</div>
+      <div class="picture-label">Build the compound word!</div>
+    </div>
+
+    <!-- Train — word labels float on the two cargo cars -->
+    <div class="train-wrapper">
+      <div class="train-inner" id="train-inner">
+        <svg class="train-svg" viewBox="0 0 340 108" xmlns="http://www.w3.org/2000/svg">
+          <!-- Shadow -->
+          <ellipse cx="170" cy="105" rx="158" ry="3" fill="rgba(0,0,0,0.07)"/>
+          <!-- Rail -->
+          <rect x="0" y="94" width="340" height="5" fill="#8D6E63" rx="2"/>
+          <!-- Ties -->
+          <rect x="5"   y="92" width="14" height="8" fill="#6D4C41" rx="1.5"/>
+          <rect x="34"  y="92" width="14" height="8" fill="#6D4C41" rx="1.5"/>
+          <rect x="63"  y="92" width="14" height="8" fill="#6D4C41" rx="1.5"/>
+          <rect x="92"  y="92" width="14" height="8" fill="#6D4C41" rx="1.5"/>
+          <rect x="122" y="92" width="14" height="8" fill="#6D4C41" rx="1.5"/>
+          <rect x="152" y="92" width="14" height="8" fill="#6D4C41" rx="1.5"/>
+          <rect x="182" y="92" width="14" height="8" fill="#6D4C41" rx="1.5"/>
+          <rect x="212" y="92" width="14" height="8" fill="#6D4C41" rx="1.5"/>
+          <rect x="242" y="92" width="14" height="8" fill="#6D4C41" rx="1.5"/>
+          <rect x="272" y="92" width="14" height="8" fill="#6D4C41" rx="1.5"/>
+          <rect x="302" y="92" width="14" height="8" fill="#6D4C41" rx="1.5"/>
+          <!-- Engine -->
+          <rect x="8"  y="44" width="76" height="36" fill="#E65100" rx="6"/>
+          <rect x="16" y="32" width="50" height="18" fill="#FF7043" rx="5"/>
+          <rect x="66" y="35" width="12" height="10" fill="#B3E5FC" rx="3" opacity="0.9"/>
+          <!-- Chimney -->
+          <rect x="26" y="18" width="10" height="16" fill="#BF360C" rx="3"/>
+          <rect x="22" y="16" width="18" height="5"  fill="#8D3000" rx="3"/>
+          <!-- Smoke -->
+          <circle cx="31" cy="12" r="6" fill="rgba(215,215,215,0.6)"/>
+          <circle cx="38" cy="8"  r="5" fill="rgba(215,215,215,0.5)"/>
+          <circle cx="46" cy="5"  r="4" fill="rgba(215,215,215,0.4)"/>
+          <!-- Bumper -->
+          <rect x="82" y="60" width="8" height="15" fill="#BF360C" rx="2"/>
+          <!-- Engine wheels -->
+          <circle cx="28" cy="86" r="10" fill="#37474F" stroke="#263238" stroke-width="2"/>
+          <circle cx="28" cy="86" r="5"  fill="#546E7A"/>
+          <circle cx="64" cy="86" r="10" fill="#37474F" stroke="#263238" stroke-width="2"/>
+          <circle cx="64" cy="86" r="5"  fill="#546E7A"/>
+          <!-- Coupling 1 -->
+          <rect x="88" y="72" width="10" height="3" fill="#78909C" rx="1.5"/>
+          <!-- Car 1 (blue) -->
+          <rect x="96"  y="50" width="90" height="32" fill="#1565C0" rx="5"/>
+          <rect x="100" y="42" width="82" height="14" fill="#1976D2" rx="4"/>
+          <circle cx="112" cy="86" r="9" fill="#37474F" stroke="#263238" stroke-width="2"/>
+          <circle cx="112" cy="86" r="4" fill="#546E7A"/>
+          <circle cx="170" cy="86" r="9" fill="#37474F" stroke="#263238" stroke-width="2"/>
+          <circle cx="170" cy="86" r="4" fill="#546E7A"/>
+          <!-- Coupling 2 -->
+          <rect x="184" y="72" width="12" height="3" fill="#78909C" rx="1.5"/>
+          <!-- Car 2 (green) -->
+          <rect x="194" y="50" width="90" height="32" fill="#2E7D32" rx="5"/>
+          <rect x="198" y="42" width="82" height="14" fill="#388E3C" rx="4"/>
+          <circle cx="210" cy="86" r="9" fill="#37474F" stroke="#263238" stroke-width="2"/>
+          <circle cx="210" cy="86" r="4" fill="#546E7A"/>
+          <circle cx="268" cy="86" r="9" fill="#37474F" stroke="#263238" stroke-width="2"/>
+          <circle cx="268" cy="86" r="4" fill="#546E7A"/>
+          <!-- Coupling 3 -->
+          <rect x="282" y="72" width="10" height="3" fill="#78909C" rx="1.5"/>
+          <!-- Caboose -->
+          <rect x="290" y="44" width="46" height="38" fill="#C62828" rx="5"/>
+          <rect x="294" y="36" width="38" height="14" fill="#E53935" rx="4"/>
+          <rect x="298" y="40" width="10" height="8" fill="#B3E5FC" rx="2" opacity="0.9"/>
+          <rect x="316" y="40" width="10" height="8" fill="#B3E5FC" rx="2" opacity="0.9"/>
+          <circle cx="302" cy="86" r="9" fill="#37474F" stroke="#263238" stroke-width="2"/>
+          <circle cx="302" cy="86" r="4" fill="#546E7A"/>
+          <circle cx="326" cy="86" r="9" fill="#37474F" stroke="#263238" stroke-width="2"/>
+          <circle cx="326" cy="86" r="4" fill="#546E7A"/>
+        </svg>
+        <div class="car-label" id="car-label-1">?</div>
+        <div class="car-label" id="car-label-2">?</div>
+      </div>
+    </div>
+
+    <!-- Word crates -->
+    <div class="crates-grid" id="crates-grid"></div>
+  </div>
+
+  <div class="result-pop" id="result-pop"></div>
+</div>
+
+<!-- ══ End Screen ══ -->
+<div id="end-screen" class="screen hidden">
+  <div class="mascot-center">
+    <div class="mascot-container">
+      <div class="mascot-sprite idle" id="endMascot" aria-hidden="true"></div>
+    </div>
+  </div>
+  <div class="card">
+    <div class="end-emoji">🚂</div>
+    <div class="end-score" id="end-score">10/10</div>
+    <div class="end-msg" id="end-msg">You're a Train Conductor!</div>
+    <div class="emoji-row" id="emoji-row"></div>
+    <button class="btn" onclick="window.startGame()">Play Again</button>
+  </div>
+</div>
+
+<script>
+(function(){
+
+/* ══ COMPOUND WORD DATA ══ */
+const COMPOUNDS = [
+  {word:'sunflower',  part1:'sun',    part2:'flower', emoji:'🌻'},
+  {word:'rainbow',    part1:'rain',   part2:'bow',    emoji:'🌈'},
+  {word:'butterfly',  part1:'butter', part2:'fly',    emoji:'🦋'},
+  {word:'cupcake',    part1:'cup',    part2:'cake',   emoji:'🧁'},
+  {word:'starfish',   part1:'star',   part2:'fish',   emoji:'⭐'},
+  {word:'baseball',   part1:'base',   part2:'ball',   emoji:'⚾'},
+  {word:'toothbrush', part1:'tooth',  part2:'brush',  emoji:'🪥'},
+  {word:'snowman',    part1:'snow',   part2:'man',    emoji:'⛄'},
+  {word:'backpack',   part1:'back',   part2:'pack',   emoji:'🎒'},
+  {word:'football',   part1:'foot',   part2:'ball',   emoji:'🏈'},
+  {word:'firetruck',  part1:'fire',   part2:'truck',  emoji:'🚒'},
+  {word:'raincoat',   part1:'rain',   part2:'coat',   emoji:'🧥'},
+  {word:'doorbell',   part1:'door',   part2:'bell',   emoji:'🔔'},
+  {word:'sunshine',   part1:'sun',    part2:'shine',  emoji:'☀️'},
+  {word:'sandbox',    part1:'sand',   part2:'box',    emoji:'🏖️'},
+];
+
+const ALL_PARTS = [...new Set(COMPOUNDS.flatMap(c => [c.part1, c.part2]))];
+
+/* ══ VOICES ══ */
+let VOICES = {};
+let voicesLoaded = false;
+let voicesPromise = null;
+
+function loadVoices(){
+  if(voicesLoaded) return Promise.resolve();
+  if(voicesPromise) return voicesPromise;
+  voicesPromise = fetch('train_word_voices.json')
+    .then(r => { if(!r.ok) throw new Error(); return r.json(); })
+    .then(d => { VOICES = d; voicesLoaded = true; })
+    .catch(e => console.warn('voices load failed', e));
+  return voicesPromise;
+}
+
+/* ══ AUDIO ══ */
+const ACtx = window.AudioContext || window.webkitAudioContext;
+let actx;
+function ensureAudio(){ if(!actx) actx = new ACtx(); }
+
+function tone(freq, dur, type='sine', vol=0.15){
+  ensureAudio();
+  const o = actx.createOscillator(), g = actx.createGain();
+  o.connect(g); g.connect(actx.destination);
+  o.type = type; o.frequency.value = freq;
+  g.gain.setValueAtTime(vol, actx.currentTime);
+  g.gain.linearRampToValueAtTime(0, actx.currentTime + dur);
+  o.start(); o.stop(actx.currentTime + dur);
+}
+
+const SFX = {
+  click()  { tone(600, 0.08, 'sine', 0.14); },
+  correct(){ tone(523,0.08,'sine',0.18); setTimeout(()=>tone(659,0.08,'sine',0.18),100); setTimeout(()=>tone(784,0.25,'sine',0.18),200); },
+  wrong()  { tone(200, 0.28, 'sawtooth', 0.12); },
+  chug()   { tone(140,0.12,'square',0.09); setTimeout(()=>tone(140,0.12,'square',0.09),220); },
+  win()    { [523,659,784,1047].forEach((f,i) => setTimeout(()=>tone(f,0.15,'sine',0.2), i*130)); },
+};
+
+let voiceEl = null;
+function playVoice(key){
+  const entry = VOICES[key];
+  if(entry && entry.m4a){
+    if(voiceEl){ voiceEl.pause(); voiceEl = null; }
+    voiceEl = new Audio(entry.m4a);
+    voiceEl.play().catch(()=>{});
+  }
+}
+
+/* ══ STATE ══ */
+let score = 0, round = 0;
+const TOTAL = 10;
+let selected = [];
+let locked = false;
+let current = null;
+let usedIdx = new Set();
+
+function shuffle(a){ const b=a.slice(); for(let i=b.length-1;i>0;i--){const j=Math.random()*(i+1)|0;[b[i],b[j]]=[b[j],b[i]]} return b; }
+
+function pickNext(){
+  if(usedIdx.size >= COMPOUNDS.length) usedIdx.clear();
+  let idx;
+  do { idx = Math.floor(Math.random() * COMPOUNDS.length); } while(usedIdx.has(idx));
+  usedIdx.add(idx);
+  return COMPOUNDS[idx];
+}
+
+/* ══ RENDER ══ */
+function setCar(num, text, loaded){
+  const el = document.getElementById('car-label-' + num);
+  if(!el) return;
+  el.textContent = text;
+  el.classList.toggle('loaded', loaded);
+}
+
+function renderRound(){
+  if(round >= TOTAL){ endGame(); return; }
+  current = pickNext();
+  selected = [];
+  locked = false;
+
+  document.getElementById('picture-emoji').textContent = current.emoji;
+  document.getElementById('hud').textContent = `🚂 ${score} / ${TOTAL}`;
+  setCar(1, '?', false);
+  setCar(2, '?', false);
+
+  const correct = [current.part1, current.part2];
+  const distractors = shuffle(ALL_PARTS.filter(p => !correct.includes(p))).slice(0, 4);
+  const crates = shuffle([...correct, ...distractors]);
+
+  const grid = document.getElementById('crates-grid');
+  grid.innerHTML = '';
+  crates.forEach(word => {
+    const btn = document.createElement('button');
+    btn.className = 'crate';
+    btn.textContent = word;
+    btn.dataset.word = word;
+    btn.addEventListener('click', () => handleCrate(btn));
+    grid.appendChild(btn);
+  });
+
+  playVoice('hint');
+}
+
+/* ══ INTERACTION ══ */
+function handleCrate(btn){
+  if(locked || btn.classList.contains('selected') || btn.classList.contains('disabled')) return;
+  SFX.click();
+
+  btn.classList.add('selected');
+  selected.push(btn.dataset.word);
+
+  if(selected.length === 1){
+    setCar(1, selected[0], true);
+  } else {
+    setCar(2, selected[1], true);
+    locked = true;
+    setTimeout(checkAnswer, 320);
+  }
+}
+
+function checkAnswer(){
+  const [a, b] = selected;
+  const tgt = current.word;
+  if(a + b === tgt || b + a === tgt){
+    handleCorrect();
+  } else {
+    handleWrong();
+  }
+}
+
+function handleCorrect(){
+  SFX.correct(); SFX.chug();
+  score++; round++;
+  document.getElementById('hud').textContent = `🚂 ${score} / ${TOTAL}`;
+
+  const pop = document.getElementById('result-pop');
+  pop.textContent = current.emoji + '  ' + current.word;
+  pop.classList.add('show');
+  setTimeout(() => pop.classList.remove('show'), 1200);
+
+  const pool = ['correct_1','correct_2','correct_3'];
+  playVoice(pool[Math.floor(Math.random() * pool.length)]);
+  if(score === 5) setTimeout(() => playVoice('halfway'), 1000);
+
+  MascotCtrl.danceQuick();
+  opusConfetti(16);
+
+  const train = document.getElementById('train-inner');
+  train.classList.add('depart');
+  setTimeout(() => {
+    train.classList.remove('depart');
+    train.classList.add('arrive');
+    setTimeout(() => { train.classList.remove('arrive'); renderRound(); }, 500);
+  }, 900);
+}
+
+function handleWrong(){
+  SFX.wrong();
+  document.querySelectorAll('.crate.selected').forEach(c => {
+    c.classList.remove('selected');
+    void c.offsetWidth;
+    c.classList.add('wobble');
+    setTimeout(() => c.classList.remove('wobble'), 600);
+  });
+  selected = [];
+  locked = false;
+  setCar(1, '?', false);
+  setCar(2, '?', false);
+
+  playVoice(Math.random() > 0.5 ? 'wrong_1' : 'wrong_2');
+  MascotCtrl.sad();
+}
+
+/* ══ END ══ */
+function endGame(){
+  document.getElementById('game-screen').classList.add('hidden');
+  document.getElementById('end-screen').classList.remove('hidden');
+  document.getElementById('end-score').textContent = `${score} / ${TOTAL}`;
+
+  if(score >= 8){
+    document.getElementById('end-msg').textContent = "🏆 You're a Train Conductor!";
+    SFX.win();
+    opusConfetti(45);
+    MascotCtrl.celebrate(3000);
+    playVoice('win');
+  } else {
+    document.getElementById('end-msg').textContent = 'Good effort! Ready to ride again?';
+    playVoice('try_again');
+  }
+  let trains = '';
+  for(let i = 0; i < score; i++) trains += '🚂';
+  document.getElementById('emoji-row').textContent = trains;
+}
+
+/* ══ CONFETTI ══ */
+function opusConfetti(n){
+  const colors = ['#FF6B6B','#FFD93D','#6BCB77','#4D96FF','#FF8FB1','#A78BFA','#FF7043'];
+  for(let i = 0; i < n; i++){
+    const c = document.createElement('div');
+    c.style.cssText = `position:fixed;width:${7+Math.random()*8}px;height:${7+Math.random()*8}px;background:${colors[i%colors.length]};border-radius:${Math.random()>.5?'50%':'3px'};left:${Math.random()*100}vw;top:-16px;z-index:200;pointer-events:none;opacity:.9`;
+    document.body.appendChild(c);
+    const dur = 1400 + Math.random() * 1800;
+    c.animate([
+      {transform:'translate(0,0) rotate(0deg)', opacity:1},
+      {transform:`translate(${(Math.random()-.5)*180}px,${window.innerHeight+40}px) rotate(${Math.random()*720}deg)`, opacity:0}
+    ],{duration:dur, easing:'cubic-bezier(.25,.46,.45,.94)', fill:'forwards'}).onfinish = () => c.remove();
+  }
+}
+
+/* ══ START ══ */
+window.startGame = async function(){
+  await loadVoices();
+  ensureAudio();
+  SFX.click();
+  score = 0; round = 0; usedIdx.clear(); selected = []; locked = false;
+  document.getElementById('end-screen').classList.add('hidden');
+  document.getElementById('game-screen').classList.remove('hidden');
+  document.getElementById('result-pop').classList.remove('show');
+  MascotCtrl.show(); MascotCtrl.idle();
+  playVoice('instructions');
+  renderRound();
+};
+
+window.addEventListener('DOMContentLoaded',()=>{window.startGame();});
+
+})();
+
+/* ══ Mascot Controller ══ */
+const MascotCtrl = (() => {
+  const FW = 72; let st = null, ct = null;
+  function gEl(){ return document.getElementById('mascotSprite'); }
+  function eEl(){ return document.getElementById('endMascot'); }
+  function clr(){ clearTimeout(st); clearTimeout(ct); }
+  function setSp(el, state, fi){
+    if(!el) return;
+    el.className = 'mascot-sprite ' + state;
+    el.style.backgroundPosition = (state === 'dancing' && fi !== undefined) ? `-${fi*FW}px 0px` : '';
+  }
+  function idle(el){ if(!el) return; clr(); setSp(el, 'idle'); }
+  function sad(el, dur){ if(!el) return; clr(); setSp(el, 'sad'); st = setTimeout(() => setSp(el, 'idle'), dur); }
+  function danceQuick(el){
+    if(!el) return; clr();
+    const fr = [0,1,2,3,4,5]; let i = 0;
+    (function n(){ if(i >= fr.length){ setSp(el,'idle'); return; } setSp(el,'dancing',fr[i]); i++; ct = setTimeout(n, 100); })();
+  }
+  function celebrate(el, dur){
+    if(!el) return; clr(); const s = Date.now();
+    (function lp(){ if(Date.now()-s > dur){ setSp(el,'idle'); return; } setSp(el,'dancing',(Date.now()/180|0)%6); ct = setTimeout(lp, 180); })();
+  }
+  return {
+    show(){ const f=document.getElementById('mascotFloat'); if(f) f.classList.add('show'); },
+    hide(){ const f=document.getElementById('mascotFloat'); if(f) f.classList.remove('show'); },
+    idle(){ idle(gEl()); },
+    sad(d=1800){ sad(gEl(), d); },
+    danceQuick(){ danceQuick(gEl()); },
+    celebrate(d=2200){ celebrate(gEl(), d); },
+    endIdle(){ idle(eEl()); },
+    endCelebrate(d=2000){ celebrate(eEl(), d); },
+  };
+})();
+</script>
+</body>
+</html>

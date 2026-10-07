@@ -1,0 +1,544 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no">
+    <title>Star Hop - Infinite Counting</title>
+    <link rel="preconnect" href="https://fonts.googleapis.com">
+    <link href="https://fonts.googleapis.com/css2?family=Fredoka+One&family=Nunito:wght@700;800&display=swap" rel="stylesheet">
+    <style>
+        * { box-sizing: border-box; margin: 0; padding: 0; }
+
+        body {
+            margin: 0;
+            padding: 0;
+            background: #08081a;
+            color: white;
+            font-family: 'Nunito', 'Comic Sans MS', sans-serif;
+            overflow: hidden;
+            width: 100vw;
+            height: 100vh;
+            touch-action: none;
+        }
+
+        #game-board {
+            position: relative;
+            width: 100vw;
+            height: 100vh;
+            background:
+                radial-gradient(ellipse at 15% 85%, rgba(118, 28, 160, 0.45) 0%, transparent 50%),
+                radial-gradient(ellipse at 85% 15%, rgba(15, 90, 200, 0.35) 0%, transparent 50%),
+                radial-gradient(ellipse at 50% 50%, rgba(6, 90, 60, 0.2) 0%, transparent 55%),
+                radial-gradient(ellipse at 70% 80%, rgba(200, 50, 80, 0.15) 0%, transparent 40%),
+                linear-gradient(180deg, #08081a 0%, #0d1025 50%, #08081a 100%);
+            overflow: hidden;
+        }
+
+        .bg-star {
+            position: absolute;
+            border-radius: 50%;
+            background: white;
+            pointer-events: none;
+            animation: twinkle var(--d, 3s) ease-in-out infinite;
+            animation-delay: var(--delay, 0s);
+            opacity: 0;
+        }
+        @keyframes twinkle {
+            0%, 100% { opacity: 0.05; transform: scale(0.6); }
+            50% { opacity: var(--peak, 0.7); transform: scale(1.1); }
+        }
+
+        .star {
+            position: absolute;
+            width: 76px;
+            height: 76px;
+            border-radius: 50%;
+            display: flex;
+            justify-content: center;
+            align-items: center;
+            color: #fff;
+            font-size: 30px;
+            font-weight: 800;
+            font-family: 'Fredoka One', cursive;
+            user-select: none;
+            z-index: 2;
+            transition: transform 0.15s, box-shadow 0.15s, opacity 0.3s;
+            border: 3px solid rgba(255,255,255,0.25);
+            text-shadow: 0 2px 4px rgba(0,0,0,0.4);
+            animation: starAppear 0.4s cubic-bezier(0.34, 1.56, 0.64, 1) backwards;
+            
+            /* Enable Clicking/Tapping */
+            pointer-events: auto;
+            cursor: pointer;
+            
+            transform: translate(-50%, -50%);
+        }
+
+        @keyframes starAppear {
+            from { transform: translate(-50%, -50%) scale(0) rotate(-30deg); opacity: 0; }
+            to { transform: translate(-50%, -50%) scale(1) rotate(0deg); opacity: 1; }
+        }
+
+        .star.solved {
+            opacity: 0.35;
+            transform: translate(-50%, -50%) scale(0.65);
+            filter: saturate(0.3) brightness(0.5);
+            pointer-events: none; /* Can't click solved stars */
+        }
+
+        .star-c0  { background: linear-gradient(135deg, #ff6b6b, #ee5a24); box-shadow: 0 4px 18px rgba(255,107,107,0.55), inset 0 -3px 6px rgba(0,0,0,0.15); }
+        .star-c1  { background: linear-gradient(135deg, #ffa502, #e67e22); box-shadow: 0 4px 18px rgba(255,165,2,0.55), inset 0 -3px 6px rgba(0,0,0,0.15); }
+        .star-c2  { background: linear-gradient(135deg, #ffd700, #f0c420); box-shadow: 0 4px 18px rgba(255,215,0,0.55), inset 0 -3px 6px rgba(0,0,0,0.15); }
+        .star-c3  { background: linear-gradient(135deg, #55efc4, #00b894); box-shadow: 0 4px 18px rgba(85,239,196,0.55), inset 0 -3px 6px rgba(0,0,0,0.15); }
+        .star-c4  { background: linear-gradient(135deg, #66fcf1, #38c9b4); box-shadow: 0 4px 18px rgba(102,252,241,0.55), inset 0 -3px 6px rgba(0,0,0,0.15); }
+        .star-c5  { background: linear-gradient(135deg, #74b9ff, #0984e3); box-shadow: 0 4px 18px rgba(116,185,255,0.55), inset 0 -3px 6px rgba(0,0,0,0.15); }
+        .star-c6  { background: linear-gradient(135deg, #a29bfe, #6c5ce7); box-shadow: 0 4px 18px rgba(162,155,254,0.55), inset 0 -3px 6px rgba(0,0,0,0.15); }
+        .star-c7  { background: linear-gradient(135deg, #fd79a8, #e84393); box-shadow: 0 4px 18px rgba(253,121,168,0.55), inset 0 -3px 6px rgba(0,0,0,0.15); }
+        .star-c8  { background: linear-gradient(135deg, #ff7675, #d63031); box-shadow: 0 4px 18px rgba(255,118,117,0.55), inset 0 -3px 6px rgba(0,0,0,0.15); }
+        .star-c9  { background: linear-gradient(135deg, #fdcb6e, #e17055); box-shadow: 0 4px 18px rgba(253,203,110,0.55), inset 0 -3px 6px rgba(0,0,0,0.15); }
+
+        #astro-frog {
+            position: absolute;
+            font-size: 65px;
+            z-index: 10;
+            user-select: none;
+            transform: translate(-50%, -50%);
+            filter: drop-shadow(0 0 12px rgba(46, 204, 113, 0.5));
+            transition: top 0.4s cubic-bezier(0.34, 1.56, 0.64, 1), left 0.4s cubic-bezier(0.34, 1.56, 0.64, 1);
+            pointer-events: none; /* Let clicks pass through to stars underneath */
+        }
+
+        #speech-bubble {
+            position: absolute;
+            z-index: 11;
+            background: rgba(255,255,255,0.95);
+            color: #2d3436;
+            font-family: 'Fredoka One', cursive;
+            font-size: 22px;
+            padding: 8px 18px;
+            border-radius: 22px;
+            pointer-events: none;
+            box-shadow: 0 4px 18px rgba(0,0,0,0.25);
+            transition: top 0.4s cubic-bezier(0.34, 1.56, 0.64, 1), left 0.4s cubic-bezier(0.34, 1.56, 0.64, 1);
+            white-space: nowrap;
+            transform: translateX(-50%);
+        }
+        #speech-bubble::after {
+            content: '';
+            position: absolute;
+            bottom: -9px;
+            left: 50%;
+            transform: translateX(-50%);
+            border-left: 9px solid transparent;
+            border-right: 9px solid transparent;
+            border-top: 9px solid rgba(255,255,255,0.95);
+        }
+
+        .sparkle {
+            position: absolute;
+            border-radius: 50%;
+            pointer-events: none;
+            z-index: 5;
+            animation: sparkFly 0.65s ease-out forwards;
+        }
+        @keyframes sparkFly {
+            0% { transform: translate(-50%, -50%) scale(1); opacity: 1; }
+            100% { transform: translate(var(--tx), var(--ty)) scale(0); opacity: 0; }
+        }
+
+        @keyframes wiggle {
+            0% { transform: translate(-50%, -50%) rotate(0deg); }
+            20% { transform: translate(-50%, -50%) rotate(-10deg); }
+            40% { transform: translate(-50%, -50%) rotate(10deg); }
+            60% { transform: translate(-50%, -50%) rotate(-8deg); }
+            80% { transform: translate(-50%, -50%) rotate(8deg); }
+            100% { transform: translate(-50%, -50%) rotate(0deg); }
+        }
+        .shake {
+            animation: wiggle 0.45s ease-in-out;
+            border-color: #ff4c4c !important;
+            box-shadow: 0 0 28px rgba(255, 76, 76, 0.8) !important;
+        }
+
+        #msg-toast {
+            position: absolute;
+            bottom: 28px;
+            left: 50%;
+            transform: translateX(-50%) translateY(0);
+            background: rgba(0,0,0,0.65);
+            backdrop-filter: blur(8px);
+            color: #66fcf1;
+            font-family: 'Fredoka One', cursive;
+            font-size: 22px;
+            padding: 12px 30px;
+            border-radius: 50px;
+            border: 2px solid rgba(102, 252, 241, 0.25);
+            z-index: 20;
+            pointer-events: none;
+            transition: opacity 0.35s, transform 0.35s;
+            white-space: nowrap;
+        }
+        #msg-toast.hide {
+            opacity: 0;
+            transform: translateX(-50%) translateY(12px);
+        }
+
+        #score-badge {
+            position: absolute;
+            top: 14px;
+            right: 16px;
+            background: rgba(0,0,0,0.5);
+            backdrop-filter: blur(6px);
+            color: #ffd700;
+            font-family: 'Fredoka One', cursive;
+            font-size: 16px;
+            padding: 8px 18px;
+            border-radius: 30px;
+            border: 2px solid rgba(255, 215, 0, 0.3);
+            z-index: 15;
+            pointer-events: auto;
+            display: flex;
+            align-items: center;
+            gap: 8px;
+        }
+
+        #reset-btn {
+            background: none;
+            border: none;
+            font-size: 18px;
+            cursor: pointer;
+            padding: 2px 6px;
+            border-radius: 8px;
+            transition: background 0.2s;
+        }
+        #reset-btn:active { background: rgba(255,255,255,0.15); }
+    </style>
+</head>
+<body>
+
+    <div id="game-board">
+        <div id="score-badge">⭐ <span id="score-num">0</span> <button id="reset-btn" onclick="hardReset()" title="Reset">🔄</button></div>
+        
+        <div id="astro-frog">🐸</div>
+        <div id="speech-bubble">Find 1!</div>
+        
+        <div id="msg-toast" class="hide"></div>
+    </div>
+
+    <script>
+        // Data Configuration
+        const gameData = {
+            voices: {
+                welcome: { text: "Lets number hop", m4a: "starhop/welcome.m4a" },
+                instructions_main: { text: "Tap the stars to hop!", m4a: "starhop/instructions_main.m4a" },
+                instructions_hint: { text: "Look for smallest...", m4a: "starhop/instructions_hint.m4a" },
+                feedback_correct_1: { text: "Great jump!", m4a: "starhop/feedback_correct_1.m4a" },
+                feedback_correct_2: { text: "Perfect! Keep going.", m4a: "starhop/feedback_correct_2.m4a" },
+                feedback_wrong_larger: { text: "Oops!", m4a: "starhop/feedback_wrong_larger.m4a" },
+                feedback_wrong_smaller: { text: "Boing! Find a bigger number.", m4a: "starhop/feedback_wrong_smaller.m4a" },
+                idle_prompt: { text: "Which number comes next?", m4a: "starhop/idle_prompt.m4a" },
+                level_complete: { text: "Great!", m4a: "starhop/level_complete.m4a" },
+                game_complete: { text: "Great Frog!", m4a: "starhop/game_complete.m4a" }
+            }
+        };
+        
+        for (let i = 1; i <= 50; i++) {
+            gameData.voices[i.toString()] = { text: i.toString(), m4a: `starhop/${i}.m4a` };
+        }
+
+        const board = document.getElementById('game-board');
+        const frog = document.getElementById('astro-frog');
+        const speechBubble = document.getElementById('speech-bubble');
+        const msgToast = document.getElementById('msg-toast');
+        const scoreNum = document.getElementById('score-num');
+
+        const BATCH_SIZE = 10;
+        let expectedNumber = 1;
+        let currentStarPositions = [];
+        let idleTimer = null;
+        let toastTimer = null;
+
+        // Audio Queue System
+        let currentAudio = null;
+        let audioQueue = [];
+        let audioUnlocked = false;
+        
+        // Frog Base Position
+        let frogBaseX, frogBaseY;
+
+        // ── Initialization ──
+        window.onload = () => {
+            generateBackground();
+            initGame();
+
+            // Attempt to autoplay audio on load. 
+            // Most modern browsers block this, but it will work on some older devices.
+            let testAudio = new Audio(gameData.voices['welcome'].m4a);
+            let playPromise = testAudio.play();
+            
+            if (playPromise !== undefined) {
+                playPromise.then(() => {
+                    // Browser allowed autoplay! Queue the rest of the intro.
+                    audioUnlocked = true;
+                    playAudioChain(['instructions_main', '1']);
+                }).catch(error => {
+                    // Browser blocked autoplay. We will unlock it on the first tap.
+                    console.log("Audio waiting for first tap...");
+                });
+            }
+        };
+
+        // Listen for the very first tap anywhere on the screen to safely unlock audio
+        window.addEventListener('pointerdown', () => {
+            if (!audioUnlocked) {
+                audioUnlocked = true;
+                // Speak instructions and the number they need to find ("1")
+                playAudioChain(['welcome', 'instructions_main', expectedNumber.toString()]);
+            }
+        }, { capture: true, once: true });
+
+        // ── Generate Decor Background ──
+        function generateBackground() {
+            for (let i = 0; i < 80; i++) {
+                const s = document.createElement('div');
+                s.className = 'bg-star';
+                const size = Math.random() * 3 + 1;
+                s.style.width = size + 'px';
+                s.style.height = size + 'px';
+                s.style.left = Math.random() * 100 + '%';
+                s.style.top = Math.random() * 100 + '%';
+                s.style.setProperty('--d', (2 + Math.random() * 4) + 's');
+                s.style.setProperty('--delay', (Math.random() * 5) + 's');
+                s.style.setProperty('--peak', (0.4 + Math.random() * 0.5));
+                board.appendChild(s);
+            }
+        }
+
+        // ── Audio Handler ──
+        function playAudioChain(keys) {
+            audioQueue = [...keys];
+            playNextInQueue();
+        }
+
+        function playNextInQueue() {
+            if (audioQueue.length === 0) {
+                resetIdleTimer();
+                return;
+            }
+            
+            let key = audioQueue.shift();
+            let path = gameData.voices[key]?.m4a;
+
+            if (!path) {
+                playNextInQueue();
+                return;
+            }
+
+            if (currentAudio) {
+                currentAudio.pause();
+                currentAudio.currentTime = 0;
+            }
+
+            currentAudio = new Audio(path);
+            currentAudio.onended = playNextInQueue;
+            currentAudio.play().catch(e => {
+                // If audio fails, immediately move to next in line
+                playNextInQueue();
+            });
+        }
+
+        function resetIdleTimer() {
+            if (idleTimer) clearTimeout(idleTimer);
+            // If idle for 10s, remind them of the exact number to find
+            idleTimer = setTimeout(() => playAudioChain(['idle_prompt', expectedNumber.toString()]), 10000);
+        }
+
+        function showToast(text, duration) {
+            msgToast.textContent = text;
+            msgToast.classList.remove('hide');
+            if (toastTimer) clearTimeout(toastTimer);
+            toastTimer = setTimeout(() => msgToast.classList.add('hide'), duration || 1800);
+        }
+
+        // ── Core Game Logic ──
+        function hardReset() {
+            expectedNumber = 1;
+            scoreNum.textContent = 0;
+            speechBubble.textContent = 'Find 1!';
+            loadStage();
+            playAudioChain(['1']); // Re-narrate 1 when resetting
+        }
+
+        function initGame() {
+            expectedNumber = 1;
+            scoreNum.textContent = 0;
+            speechBubble.textContent = 'Find 1!';
+            loadStage();
+        }
+
+        function loadStage() {
+            document.querySelectorAll('.star').forEach(s => s.remove());
+            currentStarPositions = [];
+
+            // Set Frog starting position at bottom center
+            frogBaseX = window.innerWidth / 2;
+            frogBaseY = window.innerHeight * 0.85;
+            updateFrogPos(frogBaseX, frogBaseY, true);
+
+            let stageEndNumber = expectedNumber + BATCH_SIZE - 1;
+            for (let i = expectedNumber; i <= stageEndNumber; i++) {
+                createStar(i);
+            }
+        }
+
+        function createStar(number) {
+            const star = document.createElement('div');
+            star.classList.add('star', 'star-c' + (number % 10));
+            star.innerText = number;
+            star.dataset.number = number;
+            star.style.animationDelay = ((number - expectedNumber) * 0.06) + 's';
+
+            // Tap/Click Event
+            const handleTap = (e) => {
+                e.preventDefault(); // Prevents double firing on mobile
+                handleStarTap(star, number);
+            };
+            
+            star.addEventListener('mousedown', handleTap);
+            star.addEventListener('touchstart', handleTap, {passive: false});
+
+            const minDistancePx = 95;
+            let vLeft, vTop, pixelX, pixelY;
+            let overlapping = true;
+            let attempts = 0;
+
+            while (overlapping && attempts < 150) {
+                vLeft = Math.floor(Math.random() * 80) + 10; 
+                vTop = Math.floor(Math.random() * 55) + 15;  
+                pixelX = (vLeft / 100) * window.innerWidth;
+                pixelY = (vTop / 100) * window.innerHeight;
+                
+                overlapping = false;
+                for (let pos of currentStarPositions) {
+                    let dx = pixelX - pos.x;
+                    let dy = pixelY - pos.y;
+                    if (Math.sqrt(dx * dx + dy * dy) < minDistancePx) {
+                        overlapping = true;
+                        break;
+                    }
+                }
+                attempts++;
+            }
+
+            currentStarPositions.push({ x: pixelX, y: pixelY, vw: vLeft, vh: vTop });
+            star.style.left = vLeft + 'vw';
+            star.style.top = vTop + 'vh';
+            board.appendChild(star);
+        }
+
+        function updateFrogPos(x, y, instant) {
+            if (instant) {
+                frog.style.transition = 'none';
+                speechBubble.style.transition = 'none';
+            } else {
+                frog.style.transition = 'top 0.4s cubic-bezier(0.34, 1.56, 0.64, 1), left 0.4s cubic-bezier(0.34, 1.56, 0.64, 1)';
+                speechBubble.style.transition = 'top 0.4s cubic-bezier(0.34, 1.56, 0.64, 1), left 0.4s cubic-bezier(0.34, 1.56, 0.64, 1)';
+            }
+            frog.style.left = x + 'px';
+            frog.style.top = y + 'px';
+            speechBubble.style.left = x + 'px';
+            speechBubble.style.top = (y - 55) + 'px';
+        }
+
+        function handleStarTap(starElement, number) {
+            // Ignore if star is already solved
+            if (starElement.classList.contains('solved')) return;
+            
+            resetIdleTimer();
+
+            if (number === expectedNumber) {
+                // Get star coordinates
+                let sRect = starElement.getBoundingClientRect();
+                frogBaseX = sRect.left + sRect.width / 2;
+                frogBaseY = sRect.top + sRect.height / 2;
+                
+                // Move frog smoothly to star
+                updateFrogPos(frogBaseX, frogBaseY, false);
+
+                // VFX
+                spawnSparkles(frogBaseX, frogBaseY);
+
+                starElement.classList.add('solved');
+                expectedNumber++;
+                scoreNum.textContent = expectedNumber - 1;
+
+                const isStageComplete = (expectedNumber - 1) % BATCH_SIZE === 0;
+
+                if (isStageComplete) {
+                    speechBubble.textContent = 'Woohoo! 🎉';
+                    showToast('Next zone loading...', 1500);
+                    
+                    playAudioChain(['level_complete']);
+                    
+                    setTimeout(() => {
+                        loadStage();
+                        // Narrate the very first number of the NEW stage
+                        playAudioChain([expectedNumber.toString()]);
+                    }, 1500);
+                } else {
+                    speechBubble.textContent = `Find ${expectedNumber}!`;
+                    showToast('Nice jump!', 1200);
+                    
+                    const feedback = Math.random() > 0.5 ? 'feedback_correct_1' : 'feedback_correct_2';
+                    
+                    // Plays "Great Jump!" -> then announces the NEXT number they need to look for
+                    playAudioChain([feedback, expectedNumber.toString()]);
+                }
+
+            } else {
+                // Wrong Star Clicked
+                if (number < expectedNumber) {
+                    showToast(`We need ${expectedNumber}!`, 1600);
+                    playAudioChain(['feedback_wrong_smaller', expectedNumber.toString()]);
+                } else {
+                    showToast(`Too high! Find ${expectedNumber}`, 1600);
+                    playAudioChain(['feedback_wrong_larger', expectedNumber.toString()]);
+                }
+
+                starElement.classList.add('shake');
+                setTimeout(() => starElement.classList.remove('shake'), 450);
+            }
+        }
+
+        function spawnSparkles(x, y) {
+            const colors = ['#ffd700', '#ff6b6b', '#66fcf1', '#a29bfe', '#55efc4', '#fd79a8', '#ffa502'];
+            for (let i = 0; i < 12; i++) {
+                const sp = document.createElement('div');
+                sp.className = 'sparkle';
+                const angle = (Math.PI * 2 * i) / 12 + (Math.random() - 0.5) * 0.5;
+                const dist = 30 + Math.random() * 50;
+                const size = 4 + Math.random() * 6;
+                sp.style.width = size + 'px';
+                sp.style.height = size + 'px';
+                sp.style.left = x + 'px';
+                sp.style.top = y + 'px';
+                sp.style.background = colors[Math.floor(Math.random() * colors.length)];
+                sp.style.boxShadow = `0 0 6px ${sp.style.background}`;
+                sp.style.setProperty('--tx', Math.cos(angle) * dist + 'px');
+                sp.style.setProperty('--ty', Math.sin(angle) * dist + 'px');
+                board.appendChild(sp);
+                setTimeout(() => sp.remove(), 700);
+            }
+        }
+
+        window.addEventListener('resize', () => {
+            if (expectedNumber > 1) {
+                expectedNumber = expectedNumber - ((expectedNumber - 1) % BATCH_SIZE);
+                speechBubble.textContent = `Find ${expectedNumber}!`;
+                loadStage();
+                playAudioChain([expectedNumber.toString()]);
+            }
+        });
+    </script>
+</body>
+</html>

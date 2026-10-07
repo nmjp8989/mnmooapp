@@ -1,0 +1,635 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width,initial-scale=1,maximum-scale=1,user-scalable=no,viewport-fit=cover">
+<title>Catch the Heavier Fish!</title>
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+<link href="https://fonts.googleapis.com/css2?family=Fredoka:wght@400;600;700&family=Nunito:wght@400;600;700;800&display=swap" rel="stylesheet">
+<style>
+:root {
+  --opus-accent: #FF6B4A;
+  --opus-accent-light: #FF8A6E;
+  --opus-bg-start: #FFF5F0;
+  --opus-bg-end: #F0F4FF;
+  --opus-card: #FFFFFF;
+  --opus-shadow: 0 8px 32px rgba(0,0,0,0.10);
+  --opus-radius: 20px;
+  --water-top: #4FC3F7;
+  --water-mid: #29B6F6;
+  --water-bottom: #0288D1;
+}
+*, *::before, *::after { box-sizing: border-box; margin: 0; padding: 0; }
+html, body {
+  width: 100vw; height: 100dvh; overflow: hidden;
+  font-family: 'Nunito', sans-serif;
+  background: linear-gradient(135deg, var(--opus-bg-start), var(--opus-bg-end));
+  user-select: none; -webkit-user-select: none;
+  touch-action: manipulation; overscroll-behavior: none;
+}
+h1, h2, h3 { font-family: 'Fredoka', sans-serif; }
+
+/* ── Screens ── */
+.screen {
+  position: absolute; inset: 0;
+  display: flex; flex-direction: column;
+  align-items: center; justify-content: center;
+  transition: opacity 0.4s ease;
+}
+.screen.hidden { display: none; }
+
+/* ── Buttons (Used on End Screen) ── */
+.btn {
+  font-family: 'Fredoka', sans-serif;
+  font-weight: 600;
+  border: none; cursor: pointer;
+  border-radius: 14px;
+  min-height: 44px; min-width: 44px;
+  padding: 1.2vh 4vw;
+  font-size: clamp(18px, 4vh, 26px);
+  transition: transform 0.15s ease, box-shadow 0.15s ease;
+}
+.btn:active { transform: scale(0.95); }
+.btn-play {
+  background: var(--opus-accent);
+  color: #fff;
+  box-shadow: 0 6px 20px rgba(255,107,74,0.35);
+  font-size: clamp(20px, 5vh, 30px);
+  padding: 1.5vh 6vw;
+}
+.btn-play:hover { background: var(--opus-accent-light); }
+
+/* ── Game Screen ── */
+#game-screen {
+  background: linear-gradient(180deg, #B3E5FC 0%, var(--water-top) 15%, var(--water-mid) 50%, var(--water-bottom) 85%, #01579B 100%);
+  flex-direction: column;
+}
+
+#pond {
+  position: absolute; inset: 0;
+  overflow: hidden;
+}
+
+/* ── Fish ── */
+.fish {
+  position: absolute;
+  cursor: pointer;
+  z-index: 10;
+  transition: left 2.5s ease-in-out, top 2.5s ease-in-out;
+  touch-action: manipulation;
+}
+.fish-inner {
+  animation: fishSwim 2.2s ease-in-out infinite;
+  transform-origin: center;
+}
+@keyframes fishSwim {
+  0%, 100% { transform: translateY(0) rotate(0deg); }
+  50% { transform: translateY(-8px) rotate(2deg); }
+}
+.fish svg { display: block; filter: drop-shadow(0 4px 8px rgba(0,0,0,0.2)); }
+
+/* ── Animations ── */
+@keyframes popIn {
+  0% { transform: scale(0); opacity: 0; }
+  60% { transform: scale(1.15); opacity: 1; }
+  100% { transform: scale(1); opacity: 1; }
+}
+@keyframes popCorrect {
+  0% { transform: scale(1); }
+  30% { transform: scale(1.4); }
+  60% { transform: scale(0.9); opacity: 0.5; }
+  100% { transform: scale(0); opacity: 0; }
+}
+@keyframes shakeWrong {
+  0%, 100% { transform: translateX(0); }
+  15% { transform: translateX(-8px) rotate(-2deg); }
+  30% { transform: translateX(8px) rotate(2deg); }
+  45% { transform: translateX(-6px) rotate(-1deg); }
+  60% { transform: translateX(6px) rotate(1deg); }
+  75% { transform: translateX(-3px); }
+  90% { transform: translateX(3px); }
+}
+.fish.pop { animation: popCorrect 0.5s forwards ease-in-out; }
+.fish.shake { animation: shakeWrong 0.5s ease-in-out; }
+
+/* ── Ripple ── */
+.ripple {
+  position: absolute;
+  border: 2px solid rgba(255,255,255,0.5);
+  border-radius: 50%;
+  pointer-events: none;
+  transform: translate(-50%, -50%);
+  animation: rippleExpand 0.7s forwards ease-out;
+  z-index: 5;
+}
+@keyframes rippleExpand {
+  0% { width: 0; height: 0; opacity: 1; }
+  100% { width: 120px; height: 120px; opacity: 0; }
+}
+
+/* ── Bubbles ── */
+.bubble {
+  position: absolute;
+  width: 8px; height: 8px;
+  background: rgba(255,255,255,0.3);
+  border-radius: 50%;
+  pointer-events: none;
+  animation: bubbleRise 4s forwards ease-in;
+}
+@keyframes bubbleRise {
+  0% { opacity: 0.5; transform: translateY(0) scale(1); }
+  100% { opacity: 0; transform: translateY(-200px) scale(0.3); }
+}
+
+/* ── End Screen ── */
+#end-screen {
+  background: linear-gradient(135deg, var(--opus-bg-start), var(--opus-bg-end));
+  gap: 1.5vh;
+  z-index: 50;
+}
+.end-card {
+  background: var(--opus-card);
+  border-radius: var(--opus-radius);
+  box-shadow: var(--opus-shadow);
+  padding: 3vh 5vw;
+  text-align: center;
+  max-width: 460px;
+  width: 85vw;
+  animation: popIn 0.5s ease-out;
+}
+.end-emoji { font-size: clamp(2.5rem, 8vh, 4.5rem); margin-bottom: 0.5vh; }
+.end-title {
+  font-size: clamp(24px, 6vh, 40px);
+  color: var(--opus-accent);
+  font-weight: 700;
+  margin-bottom: 2vh;
+}
+.end-message {
+  font-size: clamp(16px, 3.5vh, 24px);
+  color: #666;
+  margin-bottom: 2.5vh;
+  line-height: 1.4;
+}
+
+/* ── Confetti ── */
+.confetti-piece {
+  position: fixed;
+  width: 10px; height: 10px;
+  z-index: 999;
+  pointer-events: none;
+  animation: confettiFall 2.5s forwards ease-in;
+}
+@keyframes confettiFall {
+  0% { opacity: 1; transform: translateY(0) rotate(0deg); }
+  100% { opacity: 0; transform: translateY(100vh) rotate(720deg); }
+}
+
+/* ═══ Mascot Cow ═══ */
+.mascot-float{
+  position:absolute;top:8vh;left:2vw;z-index:35;
+  pointer-events:none;opacity:0;transition:opacity .4s;
+}
+.mascot-float.show{opacity:1}
+.mascot-center{display:flex;justify-content:center;margin-bottom:8px}
+.mascot-container{transform:scale(1.1);transform-origin:center}
+.mascot-sprite{width:72px;height:128px;image-rendering:pixelated;transform:translateZ(0)}
+.mascot-sprite.idle{
+  background-image:url('../../assets/cow/idle.webp');
+  background-size:216px 128px;
+  animation:spIdle .6s steps(3) infinite;
+}
+@keyframes spIdle{100%{background-position:-216px 0}}
+.mascot-sprite.dancing{
+  background-image:url('../../assets/cow/rhythm.webp');
+  background-size:432px 128px;
+}
+.mascot-sprite.sad{
+  background-image:url('../../assets/cow/sadface.webp');
+  background-size:144px 128px;
+  animation:spSad .5s steps(2) infinite;
+}
+@keyframes spSad{100%{background-position:-144px 0}}
+</style>
+</head>
+<body>
+
+<!-- GAME SCREEN -->
+<div id="game-screen" class="screen hidden">
+  <div class="mascot-float" id="mascotFloat">
+    <div class="mascot-container">
+      <div class="mascot-sprite idle" id="mascotSprite" aria-hidden="true"></div>
+    </div>
+  </div>
+
+  <div id="pond"></div>
+</div>
+
+<!-- END SCREEN -->
+<div id="end-screen" class="screen hidden">
+  <div class="end-card">
+    <div class="mascot-center">
+      <div class="mascot-container">
+        <div class="mascot-sprite idle" id="endMascot" aria-hidden="true"></div>
+      </div>
+    </div>
+    <div class="end-emoji" id="end-emoji">🎉</div>
+    <h1 class="end-title" id="end-title">Great Job!</h1>
+    <p class="end-message" id="end-message">You caught all the heaviest fish!</p>
+    <button class="btn btn-play" onclick="startGame()">🔄 Play Again</button>
+  </div>
+</div>
+
+<!-- AUDIO TAGS -->
+<audio id="audio-cheer" preload="auto" src="cheer.m4a"></audio>
+<audio id="audio-sad" preload="auto" src="sad.m4a"></audio>
+
+<script>
+// ═══════════════════════════════════════════
+// 1. OpusAudio — Web Audio oscillator engine
+// ═══════════════════════════════════════════
+const OpusAudio = (() => {
+  let ctx = null;
+  function getCtx() {
+    if (!ctx) ctx = new (window.AudioContext || window.webkitAudioContext)();
+    if (ctx.state === 'suspended') ctx.resume();
+    return ctx;
+  }
+  function play(type, freq, dur, vol = 0.15) {
+    const c = getCtx();
+    const o = c.createOscillator();
+    const g = c.createGain();
+    o.type = type;
+    o.frequency.setValueAtTime(freq, c.currentTime);
+    g.gain.setValueAtTime(vol, c.currentTime);
+    g.gain.exponentialRampToValueAtTime(0.001, c.currentTime + dur);
+    o.connect(g).connect(c.destination);
+    o.start(); o.stop(c.currentTime + dur);
+  }
+  return {
+    click() { try { play('sine', 800, 0.08, 0.1); } catch(e){} },
+    correct() {
+      try {
+        play('sine', 523, 0.12, 0.15);
+        setTimeout(() => play('sine', 659, 0.12, 0.15), 100);
+        setTimeout(() => play('sine', 784, 0.18, 0.15), 200);
+      } catch(e){}
+    },
+    wrong() {
+      try {
+        play('square', 200, 0.15, 0.1);
+        setTimeout(() => play('square', 160, 0.2, 0.1), 120);
+      } catch(e){}
+    },
+    win() {
+      try {
+        [523, 659, 784, 1047].forEach((f, i) => setTimeout(() => play('sine', f, 0.25, 0.12), i * 150));
+      } catch(e){}
+    },
+    pop() { try { play('sine', 1200, 0.06, 0.08); } catch(e){} }
+  };
+})();
+
+// ═══════════════════════════════════════════
+// 2. OpusMedia — MP3 playback for cheer/sad
+// ═══════════════════════════════════════════
+const OpusMedia = (() => {
+  const cheer = document.getElementById('audio-cheer');
+  const sad = document.getElementById('audio-sad');
+  return {
+    cheer() { try { cheer.currentTime = 0; cheer.play(); } catch(e){} },
+    sad() { try { sad.currentTime = 0; sad.play(); } catch(e){} }
+  };
+})();
+
+// ═══ Mascot Controller ═══
+const MascotCtrl=(()=>{
+  const FW=72;let st=null,ct=null;
+  function gEl(){return document.getElementById('mascotSprite')}
+  function eEl(){return document.getElementById('endMascot')}
+  function clr(){clearTimeout(st);clearTimeout(ct)}
+  function setSp(el,state,fi){
+    if(!el)return;
+    el.className='mascot-sprite '+state;
+    if(state==='dancing'&&fi!==undefined)el.style.backgroundPosition=`-${fi*FW}px 0px`;
+    else el.style.backgroundPosition='';
+  }
+  function idle(el){if(!el)return;clr();setSp(el,'idle')}
+  function sad(el,dur){if(!el)return;clr();setSp(el,'sad');st=setTimeout(()=>setSp(el,'idle'),dur)}
+  function danceQuick(el){
+    if(!el)return;clr();const fr=[0,1,2,3,4,5];let i=0;
+    (function n(){if(i>=fr.length){setSp(el,'idle');return}setSp(el,'dancing',fr[i]);i++;ct=setTimeout(n,100)})();
+  }
+  function celebrate(el,dur){
+    if(!el)return;clr();const af=[0,1,2,3,4,5];let i=0;const s=Date.now();
+    (function lp(){if(Date.now()-s>dur){setSp(el,'idle');return}setSp(el,'dancing',af[i%6]);i++;ct=setTimeout(lp,180)})();
+  }
+  return{
+    show(){const f=document.getElementById('mascotFloat');if(f)f.classList.add('show')},
+    hide(){const f=document.getElementById('mascotFloat');if(f)f.classList.remove('show')},
+    idle(){idle(gEl())},
+    sad(d=1800){sad(gEl(),d)},
+    danceQuick(){danceQuick(gEl())},
+    celebrate(d=2200){celebrate(gEl(),d)},
+    endIdle(){idle(eEl())},
+    endCelebrate(d=2000){celebrate(eEl(),d)},
+  };
+})();
+
+// ═══════════════════════════════════════════
+// 3. opusConfetti
+// ═══════════════════════════════════════════
+function opusConfetti() {
+  const colors = ['#FF6B4A','#FFD54F','#4FC3F7','#81C784','#BA68C8','#FF8A65','#64B5F6'];
+  for (let i = 0; i < 60; i++) {
+    const el = document.createElement('div');
+    el.className = 'confetti-piece';
+    el.style.left = Math.random() * 100 + 'vw';
+    el.style.top = -10 + Math.random() * 10 + 'vh';
+    el.style.background = colors[Math.floor(Math.random() * colors.length)];
+    el.style.width = 6 + Math.random() * 8 + 'px';
+    el.style.height = 6 + Math.random() * 8 + 'px';
+    el.style.borderRadius = Math.random() > 0.5 ? '50%' : '2px';
+    el.style.animationDuration = 1.5 + Math.random() * 2 + 's';
+    el.style.animationDelay = Math.random() * 0.8 + 's';
+    document.body.appendChild(el);
+    setTimeout(() => el.remove(), 4000);
+  }
+}
+
+// ═══════════════════════════════════════════
+// 4. VOICES object
+// ═══════════════════════════════════════════
+const VOICES = {
+  welcome: {m4a:"catchfish_audio/welcome.m4a"},
+  instructions: {m4a:"catchfish_audio/instructions.m4a"},
+  correct_1: {m4a:"catchfish_audio/correct_1.m4a"},
+  correct_2: {m4a:"catchfish_audio/correct_2.m4a"},
+  correct_3: {m4a:"catchfish_audio/correct_3.m4a"},
+  correct_4: {m4a:"catchfish_audio/correct_4.m4a"},
+  correct_5: {m4a:"catchfish_audio/correct_5.m4a"},
+  wrong_1: {m4a:"catchfish_audio/wrong_1.m4a"},
+  wrong_2: {m4a:"catchfish_audio/wrong_2.m4a"},
+  wrong_3: {m4a:"catchfish_audio/wrong_3.m4a"},
+  wrong_4: {m4a:"catchfish_audio/wrong_4.m4a"},
+  encouragement_1: {m4a:"catchfish_audio/encouragement_1.m4a"},
+  encouragement_2: {m4a:"catchfish_audio/encouragement_2.m4a"},
+  encouragement_3: {m4a:"catchfish_audio/encouragement_3.m4a"},
+  encouragement_4: {m4a:"catchfish_audio/encouragement_4.m4a"},
+  win: {m4a:"catchfish_audio/win.m4a"},
+  try_again: {m4a:"catchfish_audio/try_again.m4a"},
+  perfect_score: {m4a:"catchfish_audio/perfect_score.m4a"}
+};
+
+// ═══════════════════════════════════════════
+// 5. Global Voice Player for safe mobile unlock
+// ═══════════════════════════════════════════
+const voicePlayer = new Audio();
+
+function playVoice(mp3File) {
+  if (!mp3File) return;
+  try {
+    voicePlayer.pause();
+    voicePlayer.src = mp3File;
+    voicePlayer.currentTime = 0;
+    voicePlayer.play().catch((e) => console.log('Audio playback prevented until interaction', e));
+  } catch(e) {}
+}
+
+function playVoiceLine(key) {
+  const entry = VOICES[key];
+  if (!entry) return;
+  playVoice(entry.m4a);
+}
+
+// ═══════════════════════════════════════════
+// 6. Game Logic
+// ═══════════════════════════════════════════
+const FISH_COUNT = 3;
+const TARGET_CATCHES = 10;
+const MIN_WEIGHT = 5;
+const MAX_WEIGHT = 99;
+
+let successfulCatches = 0;
+let fishLocked = false;
+
+function showScreen(id) {
+  document.querySelectorAll('.screen').forEach(s => s.classList.add('hidden'));
+  document.getElementById(id).classList.remove('hidden');
+}
+
+function startGame() {
+  // Try unlocking audio if it was a user click (like the 'Play Again' button)
+  voicePlayer.play().catch(() => {});
+  
+  successfulCatches = 0;
+  showScreen('game-screen');
+  MascotCtrl.show(); MascotCtrl.idle();
+  
+  setTimeout(() => {
+    playVoiceLine('welcome');
+    setTimeout(() => {
+      playVoiceLine('instructions');
+      setTimeout(() => nextCatch(), 1500);
+    }, 2500);
+  }, 400);
+}
+
+function nextCatch() {
+  if (successfulCatches >= TARGET_CATCHES) {
+    endGame();
+    return;
+  }
+  fishLocked = false;
+  spawnFish();
+}
+
+function spawnFish() {
+  const pond = document.getElementById('pond');
+  pond.innerHTML = '';
+
+  const weights = [];
+  while (weights.length < FISH_COUNT) {
+    const w = Math.floor(Math.random() * (MAX_WEIGHT - MIN_WEIGHT + 1)) + MIN_WEIGHT;
+    if (!weights.includes(w)) weights.push(w);
+  }
+  const maxWeight = Math.max(...weights);
+
+  weights.forEach((w, i) => {
+    setTimeout(() => {
+      createFish(w, w === maxWeight, pond);
+    }, i * 200);
+  });
+
+  spawnBubbles(pond);
+}
+
+function createFish(weight, isHeaviest, pond) {
+  const fish = document.createElement('div');
+  fish.className = 'fish';
+  fish.style.animation = 'popIn 0.4s ease-out';
+
+  const hue = Math.floor(Math.random() * 360);
+  const sat = 70 + Math.floor(Math.random() * 20);
+  const bodyColor = `hsl(${hue}, ${sat}%, 58%)`;
+  const finColor = `hsl(${hue}, ${sat}%, 48%)`;
+  const bellyColor = `hsl(${hue}, 40%, 85%)`;
+
+  const scale = 0.9 + (weight / MAX_WEIGHT) * 0.8;
+  const w = Math.round(160 * scale);
+  const h = Math.round(110 * scale);
+
+  fish.innerHTML = `
+    <div class="fish-inner">
+      <svg viewBox="0 0 130 90" width="${w}" height="${h}">
+        <g>
+          <path d="M18 45 Q65 -5 115 45 Q65 95 18 45Z" fill="${bodyColor}" stroke="${finColor}" stroke-width="2"/>
+          <ellipse cx="70" cy="52" rx="30" ry="14" fill="${bellyColor}" opacity="0.5"/>
+          <path d="M8 45 L0 20 L0 70Z" fill="${finColor}" stroke="${finColor}" stroke-width="1.5"/>
+          <path d="M55 18 Q65 5 75 18" fill="${finColor}" stroke="${finColor}" stroke-width="1.5"/>
+          <path d="M55 72 Q65 85 75 72" fill="${finColor}" stroke="${finColor}" stroke-width="1.5"/>
+          <ellipse cx="100" cy="34" rx="7" ry="8" fill="#fff" stroke="#333" stroke-width="1.5"/>
+          <ellipse cx="102" cy="34" rx="3.5" ry="4" fill="#333"/>
+          <ellipse cx="103" cy="32" rx="1.2" ry="1.4" fill="#fff"/>
+          <text x="65" y="55" font-size="${Math.max(24, 32 * scale)}" font-family="Fredoka,sans-serif" font-weight="700" fill="#fff" text-anchor="middle" stroke="${finColor}" stroke-width="4" paint-order="stroke">${weight}</text>
+        </g>
+      </svg>
+    </div>
+  `;
+
+  const maxX = window.innerWidth - w - 20;
+  const maxY = window.innerHeight - h - 40;
+  const x = 20 + Math.random() * Math.max(0, maxX - 20);
+  const y = 80 + Math.random() * Math.max(0, maxY - 80);
+  fish.style.left = x + 'px';
+  fish.style.top = y + 'px';
+
+  const inner = fish.querySelector('.fish-inner');
+  if (Math.random() > 0.5) inner.style.transform = 'scaleX(-1)';
+
+  fish.addEventListener('pointerdown', (e) => {
+    e.preventDefault();
+    handleTap(e, isHeaviest, fish, weight);
+  });
+
+  pond.appendChild(fish);
+  swimFish(fish, w, h);
+}
+
+function swimFish(fish, fw, fh) {
+  const move = () => {
+    if (!fish.parentNode) return;
+    const maxX = window.innerWidth - fw - 10;
+    const maxY = window.innerHeight - fh - 30;
+    const nx = 10 + Math.random() * Math.max(0, maxX - 10);
+    const ny = 70 + Math.random() * Math.max(0, maxY - 70);
+
+    const cx = parseFloat(fish.style.left) || 0;
+    const inner = fish.querySelector('.fish-inner');
+    if (nx < cx) inner.style.transform = 'scaleX(-1)';
+    else inner.style.transform = 'scaleX(1)';
+
+    fish.style.left = nx + 'px';
+    fish.style.top = ny + 'px';
+  };
+  const loop = () => {
+    if (!fish.parentNode) return;
+    move();
+    setTimeout(loop, 2500 + Math.random() * 2000);
+  };
+  setTimeout(loop, 1500 + Math.random() * 1000);
+}
+
+function handleTap(e, isHeaviest, fish, weight) {
+  if (fishLocked) return;
+  OpusAudio.click();
+
+  if (isHeaviest) {
+    fishLocked = true;
+    successfulCatches++;
+    
+    OpusAudio.correct();
+    MascotCtrl.danceQuick();
+    fish.classList.add('pop');
+    createRipple(e.clientX, e.clientY);
+
+    const phrases = ['correct_1','correct_2','correct_3','correct_4', 'correct_5'];
+    playVoiceLine(phrases[Math.floor(Math.random() * phrases.length)]);
+
+    if (successfulCatches % 3 === 0 && successfulCatches < TARGET_CATCHES) {
+      setTimeout(() => {
+        const enc = ['encouragement_1','encouragement_2','encouragement_3','encouragement_4'];
+        playVoiceLine(enc[Math.floor(Math.random() * enc.length)]);
+      }, 2000);
+    }
+
+    setTimeout(() => nextCatch(), 800);
+  } else {
+    OpusAudio.wrong();
+    MascotCtrl.sad();
+    fish.classList.add('shake');
+    createRipple(e.clientX, e.clientY);
+
+    const phrases = ['wrong_1','wrong_2','wrong_3','wrong_4'];
+    playVoiceLine(phrases[Math.floor(Math.random() * phrases.length)]);
+
+    setTimeout(() => fish.classList.remove('shake'), 500);
+  }
+}
+
+function createRipple(x, y) {
+  const r = document.createElement('div');
+  r.className = 'ripple';
+  r.style.left = x + 'px';
+  r.style.top = y + 'px';
+  document.body.appendChild(r);
+  setTimeout(() => r.remove(), 700);
+}
+
+function spawnBubbles(pond) {
+  const addBubble = () => {
+    if (!pond.parentNode || pond.children.length === 0) return;
+    const b = document.createElement('div');
+    b.className = 'bubble';
+    b.style.left = Math.random() * 100 + '%';
+    b.style.bottom = '0';
+    b.style.width = 4 + Math.random() * 8 + 'px';
+    b.style.height = b.style.width;
+    pond.appendChild(b);
+    setTimeout(() => b.remove(), 4000);
+    setTimeout(addBubble, 600 + Math.random() * 1200);
+  };
+  setTimeout(addBubble, 500);
+}
+
+function endGame() {
+  OpusAudio.win();
+  MascotCtrl.celebrate(3000);
+  OpusMedia.cheer();
+  opusConfetti();
+  showScreen('end-screen');
+  MascotCtrl.hide();
+
+  const endEmoji = document.getElementById('end-emoji');
+  const endTitle = document.getElementById('end-title');
+  const endMsg = document.getElementById('end-message');
+
+  endEmoji.textContent = '🏆';
+  endTitle.textContent = 'Fishing Champion!';
+  endMsg.textContent = 'You found all the heaviest fish!';
+  
+  playVoiceLine('perfect_score');
+}
+
+// Pond background click ripple
+document.getElementById('pond').addEventListener('pointerdown', (e) => {
+  if (e.target === document.getElementById('pond')) {
+    createRipple(e.clientX, e.clientY);
+  }
+});
+
+// Auto-start the game on load!
+window.addEventListener('DOMContentLoaded', startGame);
+</script>
+</body>
+</html>

@@ -1,0 +1,1482 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width,initial-scale=1,maximum-scale=1,user-scalable=no,viewport-fit=cover">
+<title>Penguin Bowling</title>
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+<link href="https://fonts.googleapis.com/css2?family=Fredoka:wght@500;600;700&family=Nunito:wght@600;700;800&display=swap" rel="stylesheet">
+<style>
+:root{
+  --sky1:#163c7a;
+  --sky2:#42a5f5;
+  --ice1:#dff6ff;
+  --ice2:#8ed8f8;
+  --navy:#17324d;
+  --orange:#ff7043;
+  --yellow:#ffd54f;
+  --green:#35c776;
+  --red:#ff5f67;
+}
+*{box-sizing:border-box;margin:0;padding:0}
+html,body{
+  width:100%;height:100%;overflow:hidden;
+  font-family:"Nunito",system-ui,sans-serif;
+  background:#163c7a;
+  color:var(--navy);
+  touch-action:none;
+  user-select:none;
+  -webkit-user-select:none;
+  overscroll-behavior:none;
+}
+button{font:inherit;-webkit-tap-highlight-color:transparent}
+#game{
+  position:fixed;inset:0;overflow:hidden;
+  background:
+    radial-gradient(circle at 78% 4%,rgba(255,255,255,.35),transparent 18%),
+    linear-gradient(180deg,var(--sky1) 0%,#2576bd 38%,#7fcdf3 66%,#d9f4ff 100%);
+}
+#aurora{
+  position:absolute;inset:-20% -10% 35%;
+  opacity:.34;filter:blur(16px);pointer-events:none;
+  background:
+    radial-gradient(ellipse at 25% 45%,rgba(117,255,213,.75),transparent 35%),
+    radial-gradient(ellipse at 55% 25%,rgba(185,141,255,.7),transparent 34%),
+    radial-gradient(ellipse at 78% 55%,rgba(111,236,255,.7),transparent 32%);
+  animation:aurora 8s ease-in-out infinite alternate;
+}
+@keyframes aurora{
+  from{transform:translateX(-3%) skewX(-5deg)}
+  to{transform:translateX(4%) skewX(5deg)}
+}
+.star{
+  position:absolute;width:3px;height:3px;border-radius:50%;
+  background:#fff;opacity:.7;animation:twinkle 1.8s ease-in-out infinite alternate;
+}
+@keyframes twinkle{to{opacity:.16;transform:scale(.6)}}
+
+.mountain{
+  position:absolute;bottom:48%;width:42vw;height:36vh;
+  background:linear-gradient(145deg,#d7eef7,#7cb3cf);
+  clip-path:polygon(0 100%,47% 2%,100% 100%);
+  opacity:.75;pointer-events:none;
+}
+.mountain::after{
+  content:"";position:absolute;inset:0;
+  background:#f8fdff;
+  clip-path:polygon(47% 2%,27% 43%,44% 36%,55% 51%,68% 43%);
+}
+.m1{left:-5%}.m2{right:-10%;transform:scale(.86);opacity:.58}
+
+#ice{
+  position:absolute;left:0;right:0;bottom:0;height:58%;
+  background:
+    linear-gradient(90deg,transparent 0 7%,rgba(255,255,255,.3) 7.3%,transparent 7.7% 22%,rgba(255,255,255,.25) 22.3%,transparent 22.8% 66%,rgba(255,255,255,.24) 66.3%,transparent 66.8%),
+    linear-gradient(180deg,var(--ice1),var(--ice2));
+  clip-path:polygon(0 17%,100% 0,100% 100%,0 100%);
+}
+#lane{
+  position:absolute;
+  left:50%;bottom:-2%;transform:translateX(-50%);
+  width:min(72vw,780px);height:87%;
+  clip-path:polygon(34% 0,66% 0,96% 100%,4% 100%);
+  background:
+    repeating-linear-gradient(90deg,transparent 0 13%,rgba(255,255,255,.24) 13.4%,transparent 13.8% 27%),
+    linear-gradient(180deg,#effcff 0%,#bfeaff 55%,#83cbee 100%);
+  border-top:3px solid rgba(255,255,255,.8);
+  filter:drop-shadow(0 10px 12px rgba(19,72,113,.22));
+  overflow:visible;
+}
+#lane::before,#lane::after{
+  content:"";position:absolute;top:0;bottom:0;width:8px;
+  background:rgba(255,255,255,.8);filter:blur(1px);
+}
+#lane::before{left:13%}#lane::after{right:13%}
+.lane-glint{
+  position:absolute;height:4px;border-radius:50%;background:rgba(255,255,255,.7);
+  transform:rotate(-6deg);pointer-events:none;
+}
+
+#mascotFloat{
+  position:absolute;left:max(12px,2vw);bottom:4vh;z-index:60;
+  width:86px;height:142px;pointer-events:none;
+  filter:drop-shadow(0 7px 5px rgba(0,0,0,.18));
+}
+.mascot-sprite{width:72px;height:128px;image-rendering:pixelated;transform:scale(1.08);transform-origin:bottom left}
+.mascot-sprite.idle{
+  background-image:url('../../assets/cow/idle.png');
+  background-size:216px 128px;
+  animation:spIdle .6s steps(3) infinite;
+}
+@keyframes spIdle{to{background-position:-216px 0}}
+.mascot-sprite.dancing{
+  background-image:url('../../assets/cow/rhythm.png');
+  background-size:432px 128px;
+}
+.mascot-sprite.sad{
+  background-image:url('../../assets/cow/sadface.png');
+  background-size:144px 128px;
+  animation:spSad .5s steps(2) infinite;
+}
+@keyframes spSad{to{background-position:-144px 0}}
+
+#voiceBubble{
+  position:absolute;right:max(12px,2.2vw);top:max(10px,2vh);z-index:80;
+  max-width:min(43vw,390px);
+  padding:10px 18px;
+  border:3px solid rgba(255,255,255,.88);
+  border-radius:20px 20px 5px 20px;
+  background:rgba(255,255,255,.94);
+  box-shadow:0 7px 20px rgba(0,40,80,.18);
+  font-family:"Fredoka",sans-serif;
+  font-size:clamp(15px,3.5vh,23px);
+  font-weight:600;text-align:center;
+  opacity:0;transform:translateY(-8px) scale(.96);
+  transition:.22s ease;pointer-events:none;
+}
+#voiceBubble.show{opacity:1;transform:translateY(0) scale(1)}
+
+#soundUnlock{
+  position:absolute;
+  right:max(12px,2.2vw);
+  top:max(66px,12vh);
+  z-index:96;
+  display:none;
+  align-items:center;
+  justify-content:center;
+  min-height:44px;
+  padding:8px 15px;
+  border:2px solid rgba(255,255,255,.92);
+  border-radius:999px;
+  background:rgba(20,66,112,.94);
+  color:#fff;
+  font:700 clamp(13px,2.8vh,18px) "Fredoka",sans-serif;
+  box-shadow:0 5px 16px rgba(0,0,0,.22);
+  cursor:pointer;
+}
+#soundUnlock.show{display:flex}
+#soundUnlock:active{transform:scale(.96)}
+
+#instruction{
+  position:absolute;left:50%;bottom:2.7vh;transform:translateX(-50%);
+  z-index:70;min-width:min(72vw,560px);max-width:76vw;
+  padding:9px 20px;border-radius:999px;
+  background:rgba(18,54,85,.88);color:#fff;
+  box-shadow:0 6px 18px rgba(0,0,0,.2);
+  font-family:"Fredoka",sans-serif;
+  font-size:clamp(16px,3.7vh,25px);
+  font-weight:600;text-align:center;pointer-events:none;
+  transition:.25s ease;
+}
+#instruction strong{color:var(--yellow)}
+#instruction.math-mode{left:28%;min-width:45vw;max-width:48vw}
+#instruction.bump{animation:hintBump .35s ease}
+@keyframes hintBump{50%{transform:translateX(-50%) scale(1.06)}}
+
+#aimer{
+  position:absolute;left:50%;bottom:9%;width:8px;height:76%;
+  transform:translateX(-50%) rotate(0deg);
+  transform-origin:50% 100%;z-index:35;
+  opacity:0;pointer-events:none;transition:opacity .15s;
+}
+#aimer.active{opacity:1}
+.aim-dots{
+  position:absolute;bottom:42px;left:50%;transform:translateX(-50%);
+  width:8px;height:calc(100% - 35px);
+  background:repeating-linear-gradient(180deg,#fff 0 10px,transparent 10px 19px);
+  border-radius:8px;filter:drop-shadow(0 2px 2px rgba(0,0,0,.2));
+}
+.aim-head{
+  position:absolute;top:-2px;left:50%;transform:translateX(-50%);
+  width:0;height:0;
+  border-left:16px solid transparent;border-right:16px solid transparent;
+  border-bottom:25px solid #fff;
+  filter:drop-shadow(0 2px 2px rgba(0,0,0,.2));
+}
+#sweetSpot{
+  position:absolute;top:25%;left:50%;transform:translateX(-50%);
+  width:34px;height:34px;border-radius:50%;
+  border:4px solid var(--yellow);
+  box-shadow:0 0 0 6px rgba(255,213,79,.22),0 0 18px var(--yellow);
+  opacity:0;transition:.15s;z-index:34;pointer-events:none;
+}
+#sweetSpot.show{opacity:1;animation:sweet 1s ease-in-out infinite}
+@keyframes sweet{50%{transform:translateX(-50%) scale(1.12)}}
+
+#ball{
+  position:absolute;z-index:45;width:58px;height:58px;border-radius:50%;
+  background:
+    radial-gradient(circle at 34% 26%,rgba(255,255,255,.95) 0 9%,transparent 10%),
+    radial-gradient(circle at 35% 34%,#fbfdff 0%,#c5d1d8 55%,#71828b 100%);
+  border:3px solid rgba(69,86,95,.75);
+  box-shadow:0 10px 14px rgba(14,62,93,.3),inset -5px -8px 8px rgba(0,0,0,.15);
+  transform:translate(-50%,-50%);
+  pointer-events:none;
+}
+#ball::after{
+  content:"";position:absolute;width:7px;height:7px;top:14px;left:18px;border-radius:50%;
+  background:#4e5a61;box-shadow:13px 3px #4e5a61,7px 13px #4e5a61;
+}
+.ball-spin{animation:ballSpin .18s linear infinite}
+@keyframes ballSpin{to{rotate:360deg}}
+
+.penguin{
+  position:absolute;z-index:30;width:54px;height:74px;
+  transform:translate(-50%,-50%) scale(var(--pin-scale,1));
+  transform-origin:50% 90%;
+  filter:drop-shadow(0 6px 4px rgba(22,76,107,.25));
+  transition:left .58s cubic-bezier(.2,.8,.2,1),top .58s cubic-bezier(.2,.8,.2,1),transform .5s cubic-bezier(.2,.8,.2,1),opacity .35s ease;
+}
+.penguin .body{animation:wobble 2.2s ease-in-out infinite;transform-origin:50% 85%}
+.penguin:nth-child(2n) .body{animation-delay:-1s}
+@keyframes wobble{0%,100%{transform:rotate(-2deg)}50%{transform:rotate(2deg)}}
+.penguin.alert .body{animation:alert .32s ease-in-out 2}
+@keyframes alert{0%,100%{transform:translateY(0)}50%{transform:translateY(-7px)}}
+.penguin.fallen{
+  opacity:0;
+  transform:translate(-50%,-50%) rotate(var(--fall,78deg)) translateY(22px) scale(calc(var(--pin-scale,1) * .75));
+  pointer-events:none;
+}
+.penguin.count-me .body{
+  animation:countPulse var(--count-cycle,2.2s) ease-in-out infinite;
+  animation-delay:var(--count-delay,0ms);
+  transform-origin:50% 85%;
+}
+.penguin.group-a{filter:drop-shadow(0 0 9px rgba(72,180,255,.85))}
+.penguin.group-b{filter:drop-shadow(0 0 9px rgba(255,198,75,.9))}
+.penguin.waiting-joiner{opacity:0}
+#mathPanel.addition-question{
+  border-color:rgba(255,220,100,.96);
+  box-shadow:0 12px 30px rgba(115,75,0,.22);
+}
+#mathPanel.addition-question .math-title{color:#906714}
+#mathPanel.subtraction-question{
+  border-color:rgba(255,255,255,.9);
+}
+@keyframes countPulse{
+  0%,62%,100%{transform:translateY(0) scale(.96)}
+  13%{transform:translateY(-7px) scale(1.14)}
+  28%{transform:translateY(1px) scale(.90)}
+  42%{transform:translateY(-2px) scale(1.03)}
+}
+.scarf{fill:var(--scarf,#ff7043)}
+
+.snow-puff,.spark,.fish{
+  position:absolute;z-index:50;pointer-events:none;
+}
+.snow-puff{
+  width:9px;height:9px;border-radius:50%;background:#fff;
+  animation:puff .65s ease-out forwards;
+}
+@keyframes puff{to{transform:translate(var(--dx),var(--dy)) scale(2);opacity:0}}
+.spark{
+  width:9px;height:9px;background:var(--c,#ffd54f);
+  clip-path:polygon(50% 0,61% 37%,100% 50%,61% 63%,50% 100%,39% 63%,0 50%,39% 37%);
+  animation:spark .9s ease-out forwards;
+}
+@keyframes spark{to{transform:translate(var(--dx),var(--dy)) rotate(180deg) scale(.3);opacity:0}}
+.fish{
+  font-size:30px;animation:fishFly 1.3s cubic-bezier(.2,.7,.2,1) forwards;
+}
+@keyframes fishFly{
+  0%{transform:translate(0,0) rotate(-15deg);opacity:0}
+  20%{opacity:1}
+  100%{transform:translate(var(--fx),var(--fy)) rotate(35deg);opacity:0}
+}
+
+#mathPanel{
+  position:absolute;right:2vw;bottom:7vh;z-index:100;
+  width:min(37vw,390px);
+  padding:14px 16px 16px;
+  border:4px solid rgba(255,255,255,.9);
+  border-radius:24px;
+  background:rgba(255,255,255,.96);
+  box-shadow:0 12px 30px rgba(11,57,90,.25);
+  transform:translateX(120%) scale(.85);
+  opacity:0;transition:.38s cubic-bezier(.2,.9,.2,1);
+}
+#mathPanel.show{transform:translateX(0) scale(1);opacity:1}
+.math-title{
+  font-family:"Fredoka",sans-serif;font-size:clamp(15px,3.2vh,22px);
+  text-align:center;color:#5e7181;margin-bottom:4px;
+}
+.equation{
+  display:flex;align-items:center;justify-content:center;gap:8px;
+  font-family:"Fredoka",sans-serif;font-size:clamp(27px,6.2vh,43px);font-weight:700;
+  margin:2px 0 10px;
+}
+.eq-total{color:#2478bd}.eq-knocked{color:#f05b62}.eq-answer{color:#71818e}
+#answerRow{display:flex;gap:9px;justify-content:center}
+.answer{
+  flex:1;min-width:62px;min-height:54px;
+  border:3px solid #dbe6ec;border-radius:16px;background:#f7fbfd;
+  color:#18344d;font-family:"Fredoka",sans-serif;
+  font-size:clamp(23px,5.3vh,35px);font-weight:700;
+  box-shadow:0 5px 0 #c8d6de;
+  cursor:pointer;transition:.12s;
+}
+.answer:active{transform:translateY(3px);box-shadow:0 2px 0 #c8d6de}
+.answer.correct{background:#dcf8e8;border-color:#35c776;color:#177443;animation:correct .45s ease}
+.answer.wrong{background:#ffe5e7;border-color:#ff6971;color:#b22f37;animation:wrong .35s ease}
+.answer.hint{animation:hint .7s ease-in-out 2}
+@keyframes correct{50%{transform:scale(1.18)}}
+@keyframes wrong{20%,60%{transform:translateX(-6px)}40%,80%{transform:translateX(6px)}}
+@keyframes hint{50%{box-shadow:0 0 0 8px rgba(53,199,118,.22);transform:scale(1.08)}}
+
+#resultBanner{
+  position:absolute;left:50%;top:48%;z-index:120;
+  transform:translate(-50%,-50%) scale(.6);
+  padding:12px 24px;border-radius:24px;
+  background:#fff;color:#193650;
+  font-family:"Fredoka",sans-serif;font-size:clamp(24px,6vh,42px);font-weight:700;
+  box-shadow:0 12px 30px rgba(0,0,0,.2);
+  opacity:0;pointer-events:none;
+}
+#resultBanner.show{animation:result 1.15s ease forwards}
+@keyframes result{
+  0%{opacity:0;transform:translate(-50%,-50%) scale(.55)}
+  22%{opacity:1;transform:translate(-50%,-50%) scale(1.12)}
+  70%{opacity:1;transform:translate(-50%,-58%) scale(1)}
+  100%{opacity:0;transform:translate(-50%,-90%) scale(.9)}
+}
+#tapZone{position:absolute;inset:0;z-index:20}
+
+#rotate{
+  display:none;position:fixed;inset:0;z-index:999;
+  background:linear-gradient(160deg,#173f7a,#42a5f5);
+  color:white;align-items:center;justify-content:center;flex-direction:column;text-align:center;
+  font-family:"Fredoka",sans-serif;font-size:24px;padding:30px;
+}
+#rotate .phone{font-size:64px;animation:rotatePhone 1.7s ease-in-out infinite}
+@keyframes rotatePhone{50%{transform:rotate(90deg)}}
+@media(orientation:portrait){
+  #rotate{display:flex}
+}
+@media(orientation:landscape) and (max-height:420px){
+  #mascotFloat{transform:scale(.82);transform-origin:left bottom;bottom:1vh}
+  #voiceBubble{font-size:14px;padding:7px 13px}
+  #instruction{font-size:16px;padding:7px 15px;bottom:2vh}
+  #mathPanel{bottom:6vh;padding:9px 11px 12px}
+  .answer{min-height:45px}
+  #ball{width:48px;height:48px}
+}
+
+#voiceBubble,
+#soundUnlock,
+#instruction,
+#resultBanner{
+  display:none !important;
+}
+</style>
+</head>
+<body>
+<div id="game">
+  <div id="aurora"></div>
+  <div class="mountain m1"></div>
+  <div class="mountain m2"></div>
+  <div id="ice"></div>
+  <div id="lane"></div>
+
+  <div id="sweetSpot"></div>
+  <div id="aimer">
+    <div class="aim-head"></div>
+    <div class="aim-dots"></div>
+  </div>
+  <div id="ball"></div>
+  <div id="tapZone" aria-label="Bowling area"></div>
+
+  <div id="mascotFloat">
+    <div class="mascot-sprite idle" id="mascotSprite" aria-hidden="true"></div>
+  </div>
+
+  <div id="voiceBubble" aria-live="polite"></div>
+  <button id="soundUnlock" type="button" aria-label="Turn on narration">
+    🔊 Tap for sound
+  </button>
+  <div id="instruction">Watch the slow arrow...</div>
+
+  <section id="mathPanel" aria-label="Math question">
+    <div class="math-title" id="mathTitle">How many penguins are there altogether?</div>
+    <div class="equation">
+      <span class="eq-total" id="eqTotal">3</span>
+      <span id="eqOperator">+</span>
+      <span class="eq-knocked" id="eqKnocked">2</span>
+      <span>=</span>
+      <span class="eq-answer" id="eqAnswer">?</span>
+    </div>
+    <div id="answerRow"></div>
+  </section>
+
+  <div id="resultBanner" aria-live="polite"></div>
+</div>
+
+<div id="rotate">
+  <div class="phone">📱</div>
+  <div>Turn your phone sideways to bowl!</div>
+</div>
+
+<audio id="audio-cheer" preload="auto" src="cheer.m4a"></audio>
+<audio id="audio-sad" preload="auto" src="sad.m4a"></audio>
+
+<script>
+const VOICES = {
+  welcome: { text: "🐧 Welcome to Penguin Bowling! Let's knock down some penguins!", m4a: "welcome.m4a" },
+  instructions: { text: "Watch the slow arrow, then tap to bowl!", m4a: "instructions.m4a" },
+  penguins_knocked: { text: "Some penguins fell down!", m4a: "penguins_knocked.m4a" },
+  all_knocked: { text: "All penguins down! Amazing strike!", m4a: "all_knocked.m4a" },
+  math_prompt: { text: "How many penguins are still standing?", m4a: "math_prompt.m4a" },
+  correct_1: { text: "Strike! You got the math right too!", m4a: "correct_1.m4a" },
+  correct_2: { text: "Amazing subtraction!", m4a: "correct_2.m4a" },
+  correct_3: { text: "Perfect! You're a bowling champion!", m4a: "correct_3.m4a" },
+  correct_4: { text: "That's right! Great subtraction skills!", m4a: "correct_4.m4a" },
+  wrong_1: { text: "Not quite! Count the standing penguins.", m4a: "wrong_1.m4a" },
+  wrong_2: { text: "Try again! How many are still up?", m4a: "wrong_2.m4a" },
+  wrong_3: { text: "Almost! Count the penguins that are still standing.", m4a: "wrong_3.m4a" },
+  encouragement_1: { text: "Nice throw! Keep bowling!", m4a: "encouragement_1.m4a" },
+  encouragement_2: { text: "You're getting better! Try again!", m4a: "encouragement_2.m4a" },
+  encouragement_3: { text: "Great aim! A few more rounds!", m4a: "encouragement_3.m4a" },
+  win: { text: "Champion bowler! You solved every equation!", m4a: "win.m4a" },
+  try_again: { text: "Good game! Want to bowl another frame?", m4a: "try_again.m4a" },
+  addition_start: { text: "Some penguins are waiting!", m4a: "addition_start.m4a" },
+  penguins_joined: { text: "More penguins joined the game!", m4a: "penguins_joined.m4a" },
+  addition_prompt: { text: "How many penguins are there altogether?", m4a: "addition_prompt.m4a" },
+  addition_correct: { text: "That's right! Now let's bowl!", m4a: "addition_correct.m4a" },
+  addition_wrong: { text: "Count all the penguins again.", m4a: "addition_wrong.m4a" },
+  number_0: { text: "Zero.", m4a: "number_0.m4a" },
+  number_1: { text: "One.", m4a: "number_1.m4a" },
+  number_2: { text: "Two.", m4a: "number_2.m4a" },
+  number_3: { text: "Three.", m4a: "number_3.m4a" },
+  number_4: { text: "Four.", m4a: "number_4.m4a" },
+  number_5: { text: "Five.", m4a: "number_5.m4a" },
+  number_6: { text: "Six.", m4a: "number_6.m4a" },
+  number_7: { text: "Seven.", m4a: "number_7.m4a" },
+  number_8: { text: "Eight.", m4a: "number_8.m4a" },
+  number_9: { text: "Nine.", m4a: "number_9.m4a" },
+  number_10: { text: "Ten.", m4a: "number_10.m4a" },
+  operator_plus: { text: "Plus.", m4a: "operator_plus.m4a" },
+  operator_minus: { text: "Minus.", m4a: "operator_minus.m4a" },
+  operator_equals: { text: "Equals.", m4a: "operator_equals.m4a" }
+};
+
+const MIN_TOTAL = 5;
+const MAX_TOTAL = 10;
+let currentTotal = 10;
+let previousTotal = 0;
+let additionFirst = 3;
+let additionSecond = 2;
+let previousSplit = "";
+const $ = id => document.getElementById(id);
+const lane = $("lane");
+const ball = $("ball");
+const tapZone = $("tapZone");
+const aimer = $("aimer");
+const sweetSpot = $("sweetSpot");
+const mathPanel = $("mathPanel");
+const answerRow = $("answerRow");
+const mascot = $("mascotSprite");
+
+let state = "ready";
+let penguins = [];
+let aimAngle = 0;
+let aimFrame = 0;
+let aimStart = 0;
+let audioUnlocked = false;
+let wrongAttempts = 0;
+let currentAudio = null;
+let narrationQueue = Promise.resolve();
+let narrationGeneration = 0;
+let pendingNarrationTask = null;
+let resizeTimer = 0;
+let impactTimers = [];
+
+const AudioFx = (() => {
+  let ctx;
+  function tone(freq,dur,type="sine",vol=.12,delay=0){
+    try{
+      if(!ctx)ctx=new (window.AudioContext||window.webkitAudioContext)();
+      if(ctx.state==="suspended")ctx.resume();
+      const o=ctx.createOscillator(),g=ctx.createGain();
+      const t=ctx.currentTime+delay;
+      o.type=type;o.frequency.setValueAtTime(freq,t);
+      g.gain.setValueAtTime(vol,t);
+      g.gain.exponentialRampToValueAtTime(.001,t+dur);
+      o.connect(g).connect(ctx.destination);o.start(t);o.stop(t+dur);
+    }catch(e){}
+  }
+  return{
+    unlock(){tone(700,.03,"sine",.01)},
+    click(){tone(700,.06,"sine",.08)},
+    aim(){tone(560,.05,"sine",.08)},
+    roll(){tone(115,.45,"triangle",.06);tone(145,.35,"triangle",.04,.16)},
+    hit(){tone(250,.08,"square",.1);tone(160,.13,"triangle",.08)},
+    correct(){tone(523,.1);tone(659,.1,"sine",.12,.1);tone(784,.16,"sine",.12,.2)},
+    wrong(){tone(190,.14,"square",.08);tone(150,.2,"square",.06,.12)},
+    strike(){[523,659,784,1047].forEach((f,i)=>tone(f,.18,"sine",.12,i*.1))}
+  };
+})();
+
+const MascotCtrl = (() => {
+  const FW=72;let timer=0,frameTimer=0;
+  function clear(){clearTimeout(timer);clearTimeout(frameTimer)}
+  function set(type,frame){
+    mascot.className="mascot-sprite "+type;
+    mascot.style.backgroundPosition=(type==="dancing"&&frame!==undefined)?(-frame*FW)+"px 0":"";
+  }
+  return{
+    idle(){clear();set("idle")},
+    sad(){clear();set("sad");timer=setTimeout(()=>set("idle"),1100)},
+    dance(){
+      clear();let i=0;
+      (function step(){
+        if(i>=6){set("idle");return}
+        set("dancing",i++);frameTimer=setTimeout(step,95);
+      })();
+    },
+    celebrate(ms=1700){
+      clear();let i=0,start=performance.now();
+      (function step(){
+        if(performance.now()-start>ms){set("idle");return}
+        set("dancing",i++%6);frameTimer=setTimeout(step,120);
+      })();
+    }
+  };
+})();
+
+function interpolate(text,reps={}){
+  return Object.entries(reps).reduce((s,[k,v])=>s.replaceAll("{"+k+"}",v),text);
+}
+
+function showNarrationText(){
+  // Narration is audio-only.
+}
+
+function narrationPath(entry){
+  return entry.m4a.includes("/") ? entry.m4a : "bowling_audio/"+entry.m4a;
+}
+
+function stopCurrentNarration(){
+  if(currentAudio){
+    currentAudio.pause();
+    currentAudio.currentTime=0;
+    currentAudio=null;
+  }
+}
+
+function playNarrationClip(item,generation){
+  const key=typeof item==="string"?item:item.key;
+  const entry=VOICES[key];
+  if(!entry)return Promise.resolve(true);
+
+  return new Promise(resolve=>{
+    if(generation!==narrationGeneration){
+      resolve(false);
+      return;
+    }
+
+    try{
+      const audio=new Audio(narrationPath(entry));
+      currentAudio=audio;
+      audio.volume=.82;
+      audio.preload="auto";
+
+      // Speed up only equation tokens. preservesPitch keeps the voice
+      // at the original pitch while playbackRate shortens the clip.
+      const rate=(typeof item==="object"&&item.rate)?item.rate:1;
+      audio.preservesPitch=true;
+      audio.mozPreservesPitch=true;
+      audio.webkitPreservesPitch=true;
+      audio.playbackRate=rate;
+
+      let settled=false;
+      const finish=success=>{
+        if(settled)return;
+        settled=true;
+        if(currentAudio===audio)currentAudio=null;
+        audio.onended=null;
+        audio.onerror=null;
+        resolve(success);
+      };
+
+      audio.onended=()=>finish(true);
+      audio.onerror=()=>finish(false);
+
+      const playPromise=audio.play();
+      if(playPromise&&typeof playPromise.then==="function"){
+        playPromise.then(()=>{
+          audioUnlocked=true;
+        }).catch(()=>{
+          if(currentAudio===audio)currentAudio=null;
+          finish(false);
+        });
+      }else{
+        audioUnlocked=true;
+      }
+    }catch(e){
+      resolve(false);
+    }
+  });
+}
+
+async function runNarrationTask(task,generation){
+  for(const item of task.items){
+    if(generation!==narrationGeneration)return false;
+
+    const played=await playNarrationClip(item,generation);
+    if(!played){
+      if(!audioUnlocked)pendingNarrationTask=task;
+      return false;
+    }
+
+    if(item.pauseAfter){
+      await new Promise(resolve=>setTimeout(resolve,item.pauseAfter));
+    }
+  }
+
+  if(generation===narrationGeneration)pendingNarrationTask=null;
+  return true;
+}
+
+function queueNarrationTask(task,{replace=false}={}){
+  if(replace){
+    narrationGeneration++;
+    stopCurrentNarration();
+    narrationQueue=Promise.resolve();
+  }
+
+  const generation=narrationGeneration;
+  const queued=narrationQueue.then(
+    ()=>runNarrationTask(task,generation),
+    ()=>runNarrationTask(task,generation)
+  );
+
+  narrationQueue=queued.then(()=>undefined,()=>undefined);
+  return queued;
+}
+
+function narrate(key,reps={},duration=2300,options={}){
+  const entry=VOICES[key];
+  if(!entry)return Promise.resolve(false);
+
+  return queueNarrationTask({
+    items:[{
+      key,
+      reps,
+      duration,
+      displayText:interpolate(entry.text,reps)
+    }]
+  },options);
+}
+
+function narrateEquation(first,operator,second,answer=null,options={}){
+  /*
+    The equation remains visible on screen, but we no longer build it from
+    separate number/operator m4a files. Those clips often contain small
+    leading/trailing silences, making the combined sentence sound slow and
+    mechanical even at a faster playback rate.
+  */
+  const items=[];
+
+  if(options.prefixKey){
+    items.push({
+      key:options.prefixKey,
+      reps:options.prefixReps||{},
+      showText:false
+    });
+  }
+
+  if(options.suffixKey){
+    items.push({
+      key:options.suffixKey,
+      reps:options.suffixReps||{},
+      showText:false
+    });
+  }
+
+  if(items.length===0)return Promise.resolve(true);
+
+  return queueNarrationTask(
+    {items},
+    {replace:options.replace===true}
+  );
+}
+
+function unlockNarration(){
+  if(!audioUnlocked){
+    audioUnlocked=true;
+    AudioFx.unlock();
+  }
+
+  if(pendingNarrationTask){
+    const task=pendingNarrationTask;
+    pendingNarrationTask=null;
+    queueNarrationTask(task,{replace:true});
+  }
+}
+
+function setInstruction(){
+  // No text instruction callouts.
+}
+
+function makeStars(){
+  for(let i=0;i<34;i++){
+    const s=document.createElement("i");
+    s.className="star";
+    s.style.left=Math.random()*100+"%";
+    s.style.top=Math.random()*44+"%";
+    s.style.animationDelay=Math.random()*2+"s";
+    s.style.transform="scale("+(0.5+Math.random()*1.3)+")";
+    $("game").appendChild(s);
+  }
+  for(let i=0;i<9;i++){
+    const g=document.createElement("i");
+    g.className="lane-glint";
+    g.style.left=(17+Math.random()*66)+"%";
+    g.style.top=(12+Math.random()*80)+"%";
+    g.style.width=(22+Math.random()*55)+"px";
+    lane.appendChild(g);
+  }
+}
+
+function penguinSVG(scarf){
+  return `<svg class="body" width="54" height="74" viewBox="0 0 54 74" aria-hidden="true">
+    <ellipse cx="27" cy="68" rx="18" ry="4" fill="rgba(24,77,108,.22)"/>
+    <path d="M11 50C10 27 14 7 27 6c13 1 17 21 16 44 0 13-7 18-16 18s-16-5-16-18Z" fill="#263843"/>
+    <ellipse cx="27" cy="43" rx="12" ry="19" fill="#fff"/>
+    <circle cx="21" cy="24" r="5.2" fill="#fff"/><circle cx="33" cy="24" r="5.2" fill="#fff"/>
+    <circle cx="22" cy="24" r="2.2" fill="#18242c"/><circle cx="34" cy="24" r="2.2" fill="#18242c"/>
+    <circle cx="22.8" cy="23.2" r=".8" fill="#fff"/><circle cx="34.8" cy="23.2" r=".8" fill="#fff"/>
+    <polygon points="23,31 31,31 27,36" fill="#ff9f1c"/>
+    <path d="M12 37Q3 43 8 53" stroke="#263843" stroke-width="5" stroke-linecap="round" fill="none"/>
+    <path d="M42 37Q51 43 46 53" stroke="#263843" stroke-width="5" stroke-linecap="round" fill="none"/>
+    <path d="M13 36Q27 43 41 36" stroke="${scarf}" stroke-width="6" fill="none" stroke-linecap="round"/>
+    <path d="M39 37l4 17" stroke="${scarf}" stroke-width="5" stroke-linecap="round"/>
+    <ellipse cx="18" cy="66" rx="9" ry="4" fill="#ff9f1c"/><ellipse cx="36" cy="66" rx="9" ry="4" fill="#ff9f1c"/>
+  </svg>`;
+}
+
+function laneRect(){
+  return lane.getBoundingClientRect();
+}
+
+function chooseRoundTotal(){
+  const choices=[];
+  for(let n=MIN_TOTAL;n<=MAX_TOTAL;n++){
+    if(n!==previousTotal)choices.push(n);
+  }
+  currentTotal=choices[Math.floor(Math.random()*choices.length)];
+  previousTotal=currentTotal;
+
+  const possibleSplits=[];
+  for(let first=1;first<currentTotal;first++){
+    const second=currentTotal-first;
+    if(first<=5&&second<=5){
+      const key=first+"+"+second;
+      if(key!==previousSplit)possibleSplits.push({first,second,key});
+    }
+  }
+  const split=possibleSplits[Math.floor(Math.random()*possibleSplits.length)];
+  additionFirst=split.first;
+  additionSecond=split.second;
+  previousSplit=split.key;
+}
+
+function clusterPosition(index,count,side,rect){
+  const cols=Math.min(3,count);
+  const rows=Math.ceil(count/cols);
+  const row=Math.floor(index/cols);
+  const itemsThisRow=Math.min(cols,count-row*cols);
+  const col=index-row*cols;
+  const centerX=rect.width*(side==="left"?.37:.63);
+  const spacingX=Math.min(52,rect.width*.072);
+  const spacingY=Math.min(64,rect.height*.16);
+  return{
+    x:centerX+(col-(itemsThisRow-1)/2)*spacingX,
+    y:rect.height*(.30+row*.18),
+    scale:.88
+  };
+}
+
+function setupPenguins(){
+  lane.querySelectorAll(".penguin").forEach(p=>p.remove());
+  penguins=[];
+  const rect=laneRect();
+
+  const nearRows=[];
+  let remaining=currentTotal;
+  for(let capacity=1;capacity<=4&&remaining>0;capacity++){
+    const count=Math.min(capacity,remaining);
+    nearRows.push(count);
+    remaining-=count;
+  }
+  const rows=nearRows.slice().reverse();
+  const finalPositions=[];
+
+  rows.forEach((count,row)=>{
+    const rowCount=rows.length;
+    const yRatio=rowCount===1?.485:.14+row*(.345/(rowCount-1));
+    const y=rect.height*yRatio;
+    const depthFromNear=rowCount-1-row;
+    const spacing=rect.width*(.076+depthFromNear*.006);
+    const pinScale=.78+row*(.225/Math.max(1,rowCount-1));
+    const isHead=row===rowCount-1;
+
+    for(let col=0;col<count;col++){
+      finalPositions.push({
+        x:rect.width/2+(col-(count-1)/2)*spacing,
+        y,
+        scale:pinScale,
+        row,
+        col,
+        isHead
+      });
+    }
+  });
+
+  const scarvesA=["#4fc3f7","#6c8cff","#35c776"];
+  const scarvesB=["#ffd54f","#ff7043","#d06cff"];
+
+  finalPositions.forEach((finalPos,id)=>{
+    const inFirstGroup=id<additionFirst;
+    const groupIndex=inFirstGroup?id:id-additionFirst;
+    const groupCount=inFirstGroup?additionFirst:additionSecond;
+    const cluster=clusterPosition(
+      groupIndex,
+      groupCount,
+      inFirstGroup?"left":"right",
+      rect
+    );
+
+    const el=document.createElement("div");
+    el.className="penguin "+(inFirstGroup?"group-a":"group-b waiting-joiner");
+    el.dataset.id=id;
+    el.style.left=(inFirstGroup?cluster.x:rect.width*1.12)+"px";
+    el.style.top=cluster.y+"px";
+    el.style.setProperty("--pin-scale",cluster.scale.toFixed(3));
+    el.innerHTML=penguinSVG(
+      inFirstGroup
+        ? scarvesA[id%scarvesA.length]
+        : scarvesB[groupIndex%scarvesB.length]
+    );
+    lane.appendChild(el);
+
+    penguins.push({
+      id,
+      el,
+      x:inFirstGroup?cluster.x:rect.width*1.12,
+      y:cluster.y,
+      scale:cluster.scale,
+      standing:true,
+      group:inFirstGroup?"a":"b",
+      clusterX:cluster.x,
+      clusterY:cluster.y,
+      finalX:finalPos.x,
+      finalY:finalPos.y,
+      finalScale:finalPos.scale,
+      row:finalPos.row,
+      col:finalPos.col,
+      isHead:finalPos.isHead
+    });
+  });
+}
+
+function bringInSecondGroup(){
+  state="joining";
+  penguins.filter(p=>p.group==="b").forEach((p,i)=>{
+    setTimeout(()=>{
+      p.el.classList.remove("waiting-joiner");
+      p.el.style.left=p.clusterX+"px";
+      p.el.style.top=p.clusterY+"px";
+      p.x=p.clusterX;
+      p.y=p.clusterY;
+      p.el.classList.add("alert");
+      setTimeout(()=>p.el.classList.remove("alert"),620);
+    },i*80);
+  });
+  setInstruction(additionSecond+" more joined — count every penguin!");
+  const movementTime=520+additionSecond*80;
+  setTimeout(()=>{
+    narrate("penguins_joined").finally(()=>{
+      if(state==="joining")showAdditionQuestion();
+    });
+  },movementTime);
+}
+
+function arrangeForBowling(){
+  penguins.forEach((p,i)=>{
+    setTimeout(()=>{
+      p.el.classList.remove("group-a","group-b","count-me");
+      p.el.style.left=p.finalX+"px";
+      p.el.style.top=p.finalY+"px";
+      p.el.style.setProperty("--pin-scale",p.finalScale.toFixed(3));
+      p.x=p.finalX;
+      p.y=p.finalY;
+      p.scale=p.finalScale;
+    },i*28);
+  });
+}
+
+function resetBall(){
+  const rect=laneRect();
+  ball.style.left=(rect.left+rect.width/2)+"px";
+  ball.style.top=(rect.top+rect.height*.88)+"px";
+  ball.style.transform="translate(-50%,-50%) scale(1)";
+  ball.classList.remove("ball-spin");
+  ball.style.opacity="1";
+}
+
+function nextRound(){
+  stopCountingWave();
+  impactTimers.forEach(clearTimeout);
+  impactTimers=[];
+  cancelAnimationFrame(aimFrame);
+  state="preparing";
+  wrongAttempts=0;
+  mathPanel.classList.remove("show","addition-question","subtraction-question");
+  aimer.classList.remove("active");
+  sweetSpot.classList.remove("show");
+  aimAngle=0;
+  aimer.style.transform="translateX(-50%) rotate(0deg)";
+  chooseRoundTotal();
+  setupPenguins();
+  resetBall();
+  ball.style.opacity="0";
+  setInstruction(additionFirst+" penguins are waiting...");
+  MascotCtrl.idle();
+
+  penguins.filter(p=>p.group==="a").forEach((p,i)=>{
+    setTimeout(()=>p.el.classList.add("alert"),i*70);
+  });
+
+  narrate("addition_start",{},2300,{replace:true}).finally(()=>{
+    if(state!=="preparing")return;
+    penguins.forEach(p=>p.el.classList.remove("alert"));
+    bringInSecondGroup();
+  });
+}
+
+function showAdditionQuestion(){
+  state="addition";
+  wrongAttempts=0;
+  $("mathTitle").textContent="How many penguins are there altogether?";
+  $("eqTotal").textContent=additionFirst;
+  $("eqOperator").textContent="+";
+  $("eqKnocked").textContent=additionSecond;
+  $("eqAnswer").textContent="?";
+  $("eqAnswer").style.color="";
+  startCountingWave(penguins);
+
+  buildAnswerButtons(
+    currentTotal,
+    currentTotal,
+    (button,value)=>answerAddition(button,value)
+  );
+
+  mathPanel.classList.remove("subtraction-question");
+  mathPanel.classList.add("addition-question","show");
+  narrateEquation(
+    additionFirst,
+    "plus",
+    additionSecond,
+    null,
+    {prefixKey:"addition_prompt",replace:true}
+  );
+  setInstruction("Count both groups <strong>altogether</strong>");
+}
+
+function answerAddition(btn,value){
+  if(state!=="addition")return;
+
+  if(value===currentTotal){
+    state="addition-correct";
+    btn.classList.add("correct");
+    $("eqAnswer").textContent=currentTotal;
+    $("eqAnswer").style.color="#35c776";
+    stopCountingWave();
+    AudioFx.correct();
+    MascotCtrl.dance();
+    const spoken=narrateEquation(
+      additionFirst,
+      "plus",
+      additionSecond,
+      currentTotal,
+      {suffixKey:"addition_correct",replace:true}
+    );
+    showBanner(additionFirst+" + "+additionSecond+" = "+currentTotal+" ✨");
+    setInstruction("Now the penguins are lining up to bowl!");
+
+    spoken.finally(()=>{
+      if(state!=="addition-correct")return;
+      mathPanel.classList.remove("show");
+      arrangeForBowling();
+      setTimeout(()=>{
+        state="preparing";
+        resetBall();
+        startAim();
+      },760);
+    });
+  }else{
+    wrongAttempts++;
+    btn.classList.add("wrong");
+    AudioFx.wrong();
+    MascotCtrl.sad();
+    narrateEquation(
+      additionFirst,
+      "plus",
+      additionSecond,
+      null,
+      {prefixKey:"addition_wrong",replace:true}
+    );
+    setTimeout(()=>btn.classList.remove("wrong"),420);
+    setInstruction("Count the blue group and yellow group <strong>together</strong>",true);
+
+    if(wrongAttempts>=2){
+      [...answerRow.children]
+        .find(b=>Number(b.textContent)===currentTotal)
+        ?.classList.add("hint");
+    }
+  }
+}
+
+function startAim(){
+  // Accept the normal preparation states and the post-addition state as a
+  // defensive fallback. Previously the function silently returned here,
+  // leaving only the "Watch the slow arrow" instruction visible.
+  if(!["preparing","ready","addition-correct"].includes(state))return;
+  state="aiming";
+  aimStart=performance.now();
+  aimer.classList.add("active");
+  sweetSpot.classList.add("show");
+  setInstruction("Watch the slow arrow — <strong>tap to bowl!</strong>");
+  AudioFx.aim();
+  function sweep(t){
+    if(state!=="aiming")return;
+    // One full left-to-right-to-left cycle takes 4.8 seconds.
+    // The narrow angle keeps the ball inside the lane and makes aiming easy.
+    const cycle=(t-aimStart)/4800;
+    aimAngle=Math.sin(cycle*Math.PI*2)*18;
+    aimer.style.transform=`translateX(-50%) rotate(${aimAngle}deg)`;
+    aimFrame=requestAnimationFrame(sweep);
+  }
+  aimFrame=requestAnimationFrame(sweep);
+}
+
+function puff(x,y,count=8){
+  for(let i=0;i<count;i++){
+    const p=document.createElement("i");
+    p.className="snow-puff";
+    p.style.left=x+"px";p.style.top=y+"px";
+    const a=Math.random()*Math.PI*2,d=12+Math.random()*35;
+    p.style.setProperty("--dx",Math.cos(a)*d+"px");
+    p.style.setProperty("--dy",Math.sin(a)*d+"px");
+    $("game").appendChild(p);
+    setTimeout(()=>p.remove(),700);
+  }
+}
+function sparks(x,y,count=10){
+  const colors=["#ffd54f","#ff7043","#65d6ff","#7ee29e","#c88cff"];
+  for(let i=0;i<count;i++){
+    const p=document.createElement("i");
+    p.className="spark";p.style.left=x+"px";p.style.top=y+"px";
+    p.style.setProperty("--c",colors[i%colors.length]);
+    const a=Math.random()*Math.PI*2,d=28+Math.random()*58;
+    p.style.setProperty("--dx",Math.cos(a)*d+"px");
+    p.style.setProperty("--dy",Math.sin(a)*d+"px");
+    $("game").appendChild(p);setTimeout(()=>p.remove(),950);
+  }
+}
+function fishBurst(){
+  for(let i=0;i<5;i++){
+    const f=document.createElement("i");
+    f.className="fish";f.textContent="🐟";
+    f.style.left=(42+Math.random()*16)+"%";
+    f.style.top=(35+Math.random()*18)+"%";
+    f.style.setProperty("--fx",(-150+Math.random()*300)+"px");
+    f.style.setProperty("--fy",(-80-Math.random()*170)+"px");
+    $("game").appendChild(f);setTimeout(()=>f.remove(),1400);
+  }
+}
+
+function physicsScale(){
+  const r=laneRect();
+  return Math.max(.82,Math.min(1.12,Math.min(r.width/700,r.height/340)));
+}
+
+function knock(p,forceX=0,energy=1,delay=0){
+  if(!p.standing)return false;
+  p.standing=false;
+
+  const laneCenter=laneRect().width/2;
+  const fallback=p.x<laneCenter?-1:1;
+  const dir=Math.abs(forceX)>.04?Math.sign(forceX):fallback;
+  const fall=dir*(62+Math.min(1.7,energy)*17+Math.random()*12);
+
+  const timer=setTimeout(()=>{
+    p.el.style.setProperty("--fall",fall+"deg");
+    p.el.classList.add("fallen");
+    const r=laneRect();
+    sparks(r.left+p.x,r.top+p.y,energy>1?9:6);
+    AudioFx.hit();
+  },delay);
+  impactTimers.push(timer);
+  return true;
+}
+
+function propagateImpact(source,forceX,forceY,energy,depth=0){
+  if(depth>=4||energy<.14)return;
+
+  const magnitude=Math.hypot(forceX,forceY)||1;
+  const ux=forceX/magnitude;
+  const uy=forceY/magnitude;
+  const scale=physicsScale();
+  const maxDistance=90*scale;
+  const candidates=[];
+
+  penguins.forEach(target=>{
+    if(!target.standing)return;
+    const dx=target.x-source.x;
+    const dy=target.y-source.y;
+    const distance=Math.hypot(dx,dy);
+    if(distance<1||distance>maxDistance)return;
+
+    const tx=dx/distance;
+    const ty=dy/distance;
+    const alignment=ux*tx+uy*ty;
+
+    // Pins cannot transfer useful force far backward.
+    if(alignment<-.2)return;
+
+    const distanceFactor=1-distance/maxDistance;
+    const directionFactor=.45+.55*Math.max(0,alignment);
+    const transferred=energy*distanceFactor*directionFactor;
+    candidates.push({target,dx,dy,tx,ty,transferred});
+  });
+
+  candidates.sort((a,b)=>b.transferred-a.transferred);
+  const childLimit=energy>1.05?3:energy>.52?2:1;
+  let children=0;
+
+  for(const hit of candidates){
+    if(children>=childLimit)break;
+    if(hit.transferred<=.15||!hit.target.standing)continue;
+
+    const delay=75+depth*75+children*35;
+    if(knock(hit.target,hit.dx,hit.transferred,delay)){
+      children++;
+      // Most of the new motion follows the line between the two pins.
+      const nextX=ux*.15+hit.tx*.85;
+      const nextY=uy*.15+hit.ty*.85;
+      propagateImpact(hit.target,nextX,nextY,hit.transferred*.86,depth+1);
+    }
+  }
+}
+
+function bowl(){
+  cancelAnimationFrame(aimFrame);
+  state="rolling";
+  aimer.classList.remove("active");
+  sweetSpot.classList.remove("show");
+  setInstruction("Here comes the <strong>snowball!</strong>");
+  AudioFx.roll();
+  ball.classList.add("ball-spin");
+
+  const rect=laneRect();
+  const start={x:rect.left+rect.width/2,y:rect.top+rect.height*.88};
+  const endY=rect.top+rect.height*.03;
+  const travel=start.y-endY;
+  // The ball uses the exact same angle as the visible aiming line.
+  // No curve, steering, bounce, or random sideways movement is added.
+  const projectedEndX=start.x+Math.tan(aimAngle*Math.PI/180)*travel;
+  const topLaneHalfWidth=rect.width*.155;
+  const endX=Math.max(
+    rect.left+rect.width/2-topLaneHalfWidth,
+    Math.min(rect.left+rect.width/2+topLaneHalfWidth,projectedEndX)
+  );
+  const pathX=endX-start.x;
+  const pathY=endY-start.y;
+  const pathLength=Math.hypot(pathX,pathY)||1;
+  const directionX=pathX/pathLength;
+  const directionY=pathY/pathLength;
+  const startTime=performance.now();
+  const duration=1120;
+  const touched=new Set();
+  let ballEnergy=1;
+  let lastTrail=0;
+
+  function step(t){
+    const raw=Math.min(1,(t-startTime)/duration);
+    // Linear interpolation keeps the centre of the ball on one straight line.
+    const e=raw;
+    const x=start.x+pathX*e;
+    const y=start.y+pathY*e;
+    const ballScale=1-e*.48;
+    ball.style.left=x+"px";
+    ball.style.top=y+"px";
+    ball.style.transform=`translate(-50%,-50%) scale(${ballScale})`;
+
+    if(t-lastTrail>45){puff(x,y,2);lastTrail=t}
+
+    // Direct collisions are deliberately narrow. The final result comes from
+    // the path of the ball and decaying pin-to-pin momentum, not a random cap.
+    const scale=physicsScale();
+    const directHits=[];
+    penguins.forEach(p=>{
+      if(!p.standing||touched.has(p.id)||ballEnergy<=.2)return;
+      const px=rect.left+p.x;
+      const py=rect.top+p.y;
+      const distance=Math.hypot(x-px,y-py);
+      const collisionRadius=(24+5*p.scale)*scale;
+      if(distance<collisionRadius){
+        directHits.push({p,px,py,distance,collisionRadius});
+      }
+    });
+
+    // One physical contact at a time prevents one oversized frame from
+    // unrealistically clearing a whole row.
+    directHits.sort((a,b)=>a.distance-b.distance);
+    const hit=directHits[0];
+    if(hit){
+      touched.add(hit.p.id);
+      const quality=1-hit.distance/hit.collisionRadius;
+      const side=(hit.p.x-(x-rect.left))/hit.collisionRadius;
+      let impact=ballEnergy*(.72+.28*quality);
+
+      // A slightly off-centre hit on the head penguin is the bowling pocket.
+      // It transfers more useful sideways momentum than a dead-centre hit.
+      const isHeadPenguin=hit.p.isHead;
+      if(isHeadPenguin&&Math.abs(side)>.12&&Math.abs(side)<.75){
+        impact*=3.45;
+      }
+
+      if(knock(hit.p,side,impact,0)){
+        propagateImpact(
+          hit.p,
+          directionX+side*1.05,
+          directionY,
+          impact,
+          0
+        );
+      }
+
+      // The ball loses energy on every contact, so it cannot power through
+      // the entire formation unchanged.
+      ballEnergy*=Math.max(.42,.68-.1*quality);
+    }
+
+    if(raw<1){
+      requestAnimationFrame(step);
+    }else{
+      ball.classList.remove("ball-spin");
+      ball.style.opacity="0";
+      setTimeout(finishBowl,700);
+    }
+  }
+  requestAnimationFrame(step);
+}
+
+async function finishBowl(){
+  const knocked=penguins.filter(p=>!p.standing).length;
+  const standing=currentTotal-knocked;
+  if(knocked===0){
+    // A miss is still a valid subtraction question: total - 0 = total.
+    // Do not trap the child in a "too close / try again" loop.
+    await narrate("encouragement_1",{},2300,{replace:true});
+    showBanner("0 down — count them! 🐧");
+    setInstruction("None fell. How many are <strong>still standing?</strong>");
+    showMath(0,currentTotal);
+    return;
+  }
+
+  if(knocked===currentTotal){
+    AudioFx.strike();MascotCtrl.celebrate(2200);fishBurst();confetti(42);
+    showBanner("STRIKE! 🎉");
+    await narrate("all_knocked",{},2300,{replace:true});
+  }else{
+    showBanner(knocked+" down! 🐧");
+    await narrate("penguins_knocked",{},2300,{replace:true});
+  }
+
+  showMath(knocked,standing);
+}
+
+function buildAnswerButtons(correct,maxValue,onPick){
+  const options=[correct];
+  const nearby=[];
+  for(let distance=1;distance<=maxValue;distance++){
+    if(correct-distance>=0)nearby.push(correct-distance);
+    if(correct+distance<=maxValue)nearby.push(correct+distance);
+  }
+  shuffle(nearby).some(n=>{
+    if(options.length<3&&!options.includes(n))options.push(n);
+    return options.length===3;
+  });
+  while(options.length<3){
+    const n=Math.floor(Math.random()*(maxValue+1));
+    if(!options.includes(n))options.push(n);
+  }
+  shuffle(options);
+
+  answerRow.innerHTML="";
+  options.forEach(n=>{
+    const button=document.createElement("button");
+    button.className="answer";
+    button.type="button";
+    button.textContent=n;
+    button.addEventListener("pointerdown",event=>{
+      event.preventDefault();
+      event.stopPropagation();
+      onPick(button,n);
+    });
+    answerRow.appendChild(button);
+  });
+}
+
+function showMath(knocked,standing){
+  state="math";
+  wrongAttempts=0;
+  $("mathTitle").textContent="How many penguins are still standing?";
+  $("eqTotal").textContent=currentTotal;
+  $("eqOperator").textContent="−";
+  $("eqKnocked").textContent=knocked;
+  $("eqAnswer").textContent="?";
+  $("eqAnswer").style.color="";
+  startCountingWave(penguins.filter(p=>p.standing));
+
+  buildAnswerButtons(
+    standing,
+    currentTotal,
+    (button,value)=>answerMath(button,value,standing,knocked)
+  );
+
+  mathPanel.classList.remove("addition-question");
+  mathPanel.classList.add("subtraction-question","show");
+  narrateEquation(
+    currentTotal,
+    "minus",
+    knocked,
+    null,
+    {prefixKey:"math_prompt",replace:true}
+  );
+  setInstruction("Count the penguins that are <strong>still standing</strong>");
+}
+
+function answerMath(btn,value,correct,knocked){
+  if(state!=="math")return;
+  if(value===correct){
+    state="celebrating";
+    btn.classList.add("correct");
+    $("eqAnswer").textContent=correct;
+    $("eqAnswer").style.color="#35c776";
+    stopCountingWave();
+    AudioFx.correct();MascotCtrl.dance();sparks(innerWidth*.68,innerHeight*.44,18);
+    const phrase=knocked===currentTotal
+      ? "correct_1"
+      : ["correct_3","correct_4"][Math.floor(Math.random()*2)];
+    const spoken=narrateEquation(
+      currentTotal,
+      "minus",
+      knocked,
+      correct,
+      {suffixKey:phrase,replace:true}
+    );
+    showBanner(currentTotal+" − "+knocked+" = "+correct+" ✨");
+    setInstruction("Great counting! New penguins are coming...");
+    spoken.finally(()=>{
+      if(state==="celebrating")nextRound();
+    });
+  }else{
+    wrongAttempts++;
+    btn.classList.add("wrong");
+    AudioFx.wrong();MascotCtrl.sad();
+    // wrong_3 says "10 minus", so do not use it when totals vary.
+    const phrase=wrongAttempts%2===1?"wrong_1":"wrong_2";
+    narrateEquation(
+      currentTotal,
+      "minus",
+      knocked,
+      null,
+      {prefixKey:phrase,replace:true}
+    );
+    setTimeout(()=>btn.classList.remove("wrong"),420);
+    setInstruction("Touch each standing penguin with your eyes and <strong>count again</strong>",true);
+    if(wrongAttempts>=2){
+      [...answerRow.children].find(b=>Number(b.textContent)===correct)?.classList.add("hint");
+    }
+  }
+}
+
+function showBanner(){
+  // No text result callouts.
+}
+
+function shuffle(a){
+  for(let i=a.length-1;i>0;i--){
+    const j=Math.floor(Math.random()*(i+1));[a[i],a[j]]=[a[j],a[i]];
+  }
+  return a;
+}
+
+function startCountingWave(items){
+  const active=shuffle(items.filter(Boolean).slice());
+  const stepMs=165;
+  const cycleMs=Math.max(1850,active.length*stepMs+760);
+
+  active.forEach((penguin,index)=>{
+    const el=penguin.el||penguin;
+    el.classList.remove("count-me");
+    el.style.setProperty("--count-delay",(index*stepMs)+"ms");
+    el.style.setProperty("--count-cycle",cycleMs+"ms");
+    void el.offsetWidth;
+    el.classList.add("count-me");
+  });
+}
+
+function stopCountingWave(items=penguins){
+  items.forEach(penguin=>{
+    const el=penguin.el||penguin;
+    if(!el)return;
+    el.classList.remove("count-me");
+    el.style.removeProperty("--count-delay");
+    el.style.removeProperty("--count-cycle");
+  });
+}
+
+function confetti(count=30){
+  const colors=["#ffd54f","#ff7043","#64d8ff","#67db97","#c98cff"];
+  for(let i=0;i<count;i++){
+    const p=document.createElement("i");
+    p.className="spark";p.style.position="fixed";
+    p.style.left=Math.random()*100+"vw";p.style.top="-10px";
+    p.style.setProperty("--c",colors[i%colors.length]);
+    p.style.setProperty("--dx",(-35+Math.random()*70)+"px");
+    p.style.setProperty("--dy",(innerHeight+40)+"px");
+    p.style.animationDuration=(1.2+Math.random()*1.3)+"s";
+    $("game").appendChild(p);setTimeout(()=>p.remove(),2700);
+  }
+}
+
+document.addEventListener("pointerdown",unlockNarration,{capture:true,once:true});
+
+tapZone.addEventListener("pointerdown",e=>{
+  e.preventDefault();
+  // The arrow starts automatically and moves slowly. One tap releases the ball.
+  if(state==="aiming")bowl();
+});
+
+window.addEventListener("resize",()=>{
+  clearTimeout(resizeTimer);
+  resizeTimer=setTimeout(()=>nextRound(),180);
+});
+
+document.addEventListener("DOMContentLoaded",()=>{
+  makeStars();
+  setInstruction("Penguins are getting ready...");
+  // Attempt narration immediately. If a mobile browser blocks autoplay,
+  // the queued narration starts silently on the first normal game touch.
+  narrate("welcome",{},2400,{replace:true}).finally(()=>{
+    nextRound();
+  });
+});
+</script>
+</body>
+</html>

@@ -1,0 +1,522 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no, viewport-fit=cover">
+    <title>Animal Habitats Game</title>
+    <style>
+        * {
+            box-sizing: border-box;
+        }
+
+        body {
+            background-color: #edf6f2;
+            margin: 0;
+            padding: 0;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            width: 100vw;
+            height: 100vh;
+            overflow: hidden;
+            user-select: none;
+            -webkit-user-select: none;
+            font-family: 'Comic Sans MS', 'Comic Sans', cursive, sans-serif;
+        }
+
+        /* Portrait Orientation Warning Screen */
+        .portrait-warning {
+            display: none;
+            position: fixed;
+            top: 0;
+            left: 0;
+            width: 100%;
+            height: 100%;
+            background-color: #2c5e43;
+            color: white;
+            z-index: 200;
+            flex-direction: column;
+            align-items: center;
+            justify-content: center;
+            text-align: center;
+            padding: 20px;
+        }
+
+        .portrait-warning svg {
+            width: 80px;
+            height: 80px;
+            fill: white;
+            margin-bottom: 20px;
+            animation: rotate 2s ease-in-out infinite;
+        }
+
+        @keyframes rotate {
+            0% { transform: rotate(0deg); }
+            50% { transform: rotate(-90deg); }
+            100% { transform: rotate(0deg); }
+        }
+
+        @media (orientation: portrait) {
+            .portrait-warning {
+                display: flex;
+            }
+        }
+
+        /* Responsive Game Container */
+        .game-container {
+            position: relative;
+            aspect-ratio: 1920 / 1014;
+            width: 100vw;
+            height: calc(100vw * (1014 / 1920));
+            max-height: 100vh;
+            max-width: calc(100vh * (1920 / 1014));
+            background-image: url('habitats.webp');
+            background-size: 100% 100%;
+            background-repeat: no-repeat;
+            background-position: center;
+            box-shadow: 0 10px 30px rgba(0,0,0,0.15);
+            overflow: hidden;
+        }
+
+        /* Interaction Hotspots overlay */
+        .hotspot {
+            position: absolute;
+            cursor: pointer;
+            border: 4px solid transparent;
+            border-radius: 20px;
+            background-color: rgba(255, 255, 255, 0);
+            transition: all 0.2s ease;
+            -webkit-tap-highlight-color: transparent;
+            z-index: 20;
+            /* Flex layout to perfectly center the gold star stamp */
+            display: flex;
+            align-items: center;
+            justify-content: center;
+        }
+
+        .hotspot:hover {
+            background-color: rgba(255, 255, 255, 0.15);
+        }
+
+        /* Pulsing Glow for currently selected item */
+        .hotspot.selected {
+            border-color: #ffcc00;
+            background-color: rgba(255, 204, 0, 0.2);
+            animation: pulseGlow 1.2s infinite alternate;
+            z-index: 25;
+        }
+
+        @keyframes pulseGlow {
+            0% { box-shadow: 0 0 10px rgba(255, 204, 0, 0.5), inset 0 0 10px rgba(255, 204, 0, 0.3); transform: scale(1); }
+            100% { box-shadow: 0 0 25px rgba(255, 204, 0, 1), inset 0 0 20px rgba(255, 204, 0, 0.6); transform: scale(1.02); }
+        }
+
+        /* Jelly Pop Success State */
+        .hotspot.matched {
+            border-color: #4caf50;
+            background-color: rgba(76, 175, 80, 0.15);
+            box-shadow: inset 0 0 20px rgba(76, 175, 80, 0.4);
+            pointer-events: none;
+            animation: jellyPop 0.6s ease-out forwards;
+        }
+
+        @keyframes jellyPop {
+            0% { transform: scale(1); }
+            30% { transform: scale(1.1) rotate(-3deg); background-color: rgba(255, 255, 255, 0.6); }
+            60% { transform: scale(0.95) rotate(3deg); }
+            100% { transform: scale(1) rotate(0deg); background-color: rgba(76, 175, 80, 0.15); }
+        }
+
+        /* The Gold Star Stamp */
+        .star-stamp {
+            font-size: clamp(2rem, 6vw, 4rem);
+            pointer-events: none;
+            transform: scale(0);
+            animation: stampDrop 0.5s cubic-bezier(0.175, 0.885, 0.32, 1.275) 0.3s forwards;
+            filter: drop-shadow(0 4px 4px rgba(0,0,0,0.4));
+        }
+
+        @keyframes stampDrop {
+            0% { transform: scale(0) rotate(-30deg); opacity: 0; }
+            100% { transform: scale(1) rotate(0deg); opacity: 1; }
+        }
+
+        /* Error state for wrong match */
+        .hotspot.wrong {
+            animation: shake 0.4s ease;
+            border-color: #f44336;
+            background-color: rgba(244, 67, 54, 0.2);
+            box-shadow: 0 0 20px rgba(244, 67, 54, 0.8);
+        }
+
+        @keyframes shake {
+            0%, 100% { transform: translateX(0); }
+            20%, 60% { transform: translateX(-8px); }
+            40%, 80% { transform: translateX(8px); }
+        }
+
+        /* Particle System for happy feedback */
+        .particle {
+            position: absolute;
+            pointer-events: none;
+            font-size: 2rem;
+            z-index: 30;
+            animation: floatUp 1.2s ease-out forwards;
+            filter: drop-shadow(0px 3px 3px rgba(0,0,0,0.3));
+        }
+
+        @keyframes floatUp {
+            0% { transform: translate(-50%, -50%) scale(0.5); opacity: 1; }
+            50% { transform: translate(-50%, -100px) scale(1.2); opacity: 1; }
+            100% { transform: translate(-50%, -150px) scale(1); opacity: 0; }
+        }
+
+        /* Start Overlay Screen */
+        .start-overlay {
+            position: fixed;
+            top: 0; left: 0; width: 100%; height: 100%;
+            background-color: rgba(44, 94, 67, 0.96);
+            z-index: 100;
+            display: flex;
+            flex-direction: column;
+            align-items: center;
+            justify-content: center;
+            color: white;
+            text-align: center;
+        }
+
+        .btn {
+            background-color: #ffcc00;
+            color: #2c5e43;
+            border: none;
+            padding: 16px 45px;
+            font-size: 1.5rem;
+            font-weight: bold;
+            border-radius: 30px;
+            cursor: pointer;
+            box-shadow: 0 6px 0 #d4a000, 0 10px 20px rgba(0,0,0,0.3);
+            transition: transform 0.1s, box-shadow 0.1s;
+        }
+
+        .btn:active {
+            transform: translateY(6px);
+            box-shadow: 0 0 0 #d4a000, 0 4px 10px rgba(0,0,0,0.3);
+        }
+
+        /* Win Modal Overlay */
+        .modal {
+            display: none;
+            position: fixed;
+            top: 0; left: 0; width: 100%; height: 100%;
+            background: rgba(0,0,0,0.6);
+            align-items: center;
+            justify-content: center;
+            z-index: 150;
+        }
+
+        .modal-content {
+            background: white;
+            padding: 40px;
+            border-radius: 30px;
+            text-align: center;
+            box-shadow: 0 15px 50px rgba(0,0,0,0.5);
+            max-width: 500px;
+            width: 90%;
+            animation: bounceIn 0.8s cubic-bezier(0.34, 1.56, 0.64, 1);
+        }
+
+        @keyframes bounceIn {
+            0% { transform: scale(0.3); opacity: 0; }
+            100% { transform: scale(1); opacity: 1; }
+        }
+
+        .modal-content h2 {
+            color: #2c5e43;
+            margin-top: 0;
+            font-size: 2.5rem;
+            margin-bottom: 10px;
+        }
+
+        .modal-content p {
+            color: #555;
+            font-size: 1.3rem;
+            margin-bottom: 30px;
+        }
+
+        /* Confetti Fullscreen */
+        .confetti-piece {
+            position: fixed;
+            width: 15px; height: 15px;
+            z-index: 140;
+            animation: confettiFall linear forwards;
+        }
+
+        @keyframes confettiFall {
+            0% { transform: translateY(-20px) rotate(0deg); opacity: 1;}
+            100% { transform: translateY(110vh) rotate(720deg); opacity: 0;}
+        }
+    </style>
+</head>
+<body>
+
+    <!-- Device Rotation Alert -->
+    <div class="portrait-warning">
+        <svg viewBox="0 0 24 24">
+            <path d="M16,1H8C6.9,1,6,1.9,6,3v18c0,1.1,0.9,2,2,2h8c1.1,0,2-0.9,2-2V3C18,1.9,17.1,1,16,1z M16,19H8V5h8V19z"/>
+        </svg>
+        <h2>Please Rotate Your Device</h2>
+        <p>This game is designed for landscape mode screens.</p>
+    </div>
+
+    <!-- Start Overlay Screen -->
+    <div class="start-overlay" id="start-overlay">
+        <h2 style="font-size: 3rem; margin-bottom: 20px; text-shadow: 0 4px 10px rgba(0,0,0,0.4);">Animal Habitats</h2>
+        <p style="font-size: 1.2rem; margin-bottom: 40px; max-width: 600px;">Match the animal to its perfect home! Tap an animal, then tap where it lives.</p>
+        <button class="btn" onclick="startGame()">Let's Play!</button>
+    </div>
+
+    <!-- Interactive Game Board -->
+    <div class="game-container" id="game-board">
+        <!-- Interactive hotspots are mapped here via script -->
+    </div>
+
+    <!-- Win Modal Screen -->
+    <div class="modal" id="win-modal">
+        <div class="modal-content">
+            <h2>🎉 Fantastic! 🎉</h2>
+            <p>Every animal is safely back in their correct home!</p>
+            <button class="btn" onclick="resetGame()">Play Again</button>
+        </div>
+    </div>
+
+    <script>
+        // Game narration mappings
+        const narrationJSON = {
+            "welcome": { "m4a": "habitat_audio/welcome.m4a" },
+            "instructions": { "m4a": "habitat_audio/instructions.m4a" },
+            "correct_1": { "m4a": "habitat_audio/correct_1.m4a" },
+            "correct_2": { "m4a": "habitat_audio/correct_2.m4a" },
+            "correct_3": { "m4a": "habitat_audio/correct_3.m4a" },
+            "correct_4": { "m4a": "habitat_audio/correct_4.m4a" },
+            "wrong_1": { "m4a": "habitat_audio/wrong_1.m4a" },
+            "wrong_2": { "m4a": "habitat_audio/wrong_2.m4a" },
+            "wrong_3": { "m4a": "habitat_audio/wrong_3.m4a" },
+            "encouragement_1": { "m4a": "habitat_audio/encouragement_1.m4a" },
+            "encouragement_2": { "m4a": "habitat_audio/encouragement_2.m4a" },
+            "encouragement_3": { "m4a": "habitat_audio/encouragement_3.m4a" },
+            "win": { "m4a": "habitat_audio/win.m4a" },
+            "try_again": { "m4a": "habitat_audio/try_again.m4a" }
+        };
+
+        // Configuration now includes custom Emojis for the particle effects!
+        const cardsConfig = [
+            // Lion & Savannah
+            { id: 'A1', type: 'animal',  match: 'A3', emoji: '🦁', top: '13.5%', left: '6.5%',  width: '21%', height: '26%' },
+            { id: 'A3', type: 'habitat', match: 'A1', emoji: '☀️', top: '13.5%', left: '50.5%', width: '21%', height: '26%' },
+            
+            // Cow & Farm
+            { id: 'A2', type: 'animal',  match: 'A4', emoji: '🐮', top: '13.5%', left: '28.5%', width: '21%', height: '26%' },
+            { id: 'A4', type: 'habitat', match: 'A2', emoji: '🚜', top: '13.5%', left: '72.5%', width: '21%', height: '26%' },
+            
+            // Monkey & Jungle
+            { id: 'B1', type: 'animal',  match: 'B3', emoji: '🐵', top: '41.2%', left: '6.5%',  width: '21%', height: '26%' },
+            { id: 'B3', type: 'habitat', match: 'B1', emoji: '🌴', top: '41.2%', left: '50.5%', width: '21%', height: '26%' },
+            
+            // Fish & Reef
+            { id: 'B2', type: 'animal',  match: 'B4', emoji: '🐟', top: '41.2%', left: '28.5%', width: '21%', height: '26%' },
+            { id: 'B4', type: 'habitat', match: 'B2', emoji: '🌊', top: '41.2%', left: '72.5%', width: '21%', height: '26%' },
+            
+            // Penguin & Ice Caps
+            { id: 'C1', type: 'animal',  match: 'C3', emoji: '🐧', top: '69.0%', left: '6.5%',  width: '21%', height: '26%' },
+            { id: 'C3', type: 'habitat', match: 'C1', emoji: '❄️', top: '69.0%', left: '50.5%', width: '21%', height: '26%' },
+            
+            // Frog & Pond
+            { id: 'C2', type: 'animal',  match: 'C4', emoji: '🐸', top: '69.0%', left: '28.5%', width: '21%', height: '26%' },
+            { id: 'C4', type: 'habitat', match: 'C2', emoji: '🪷', top: '69.0%', left: '72.5%', width: '21%', height: '26%' }
+        ];
+
+        let selectedId = null;
+        let matchesFound = 0;
+        let currentNarration = null;
+
+        function playNarration(key, callback = null) {
+            if (currentNarration) {
+                currentNarration.pause();
+                currentNarration.currentTime = 0;
+            }
+            if (narrationJSON[key]) {
+                currentNarration = new Audio(narrationJSON[key].m4a);
+                currentNarration.play().catch(error => console.log("Audio blocked: ", error));
+                
+                if(callback) {
+                    currentNarration.onended = callback;
+                    currentNarration.onerror = callback; // Fallback if file missing
+                }
+            } else if (callback) {
+                setTimeout(callback, 1000);
+            }
+        }
+
+        function startGame() {
+            document.getElementById('start-overlay').style.display = 'none';
+            playNarration('welcome', () => {
+                playNarration('instructions');
+            });
+        }
+
+        function createBoard() {
+            const board = document.getElementById('game-board');
+            board.innerHTML = ''; // Clear previous board
+
+            cardsConfig.forEach(card => {
+                const element = document.createElement('div');
+                element.id = card.id;
+                element.className = 'hotspot';
+                element.style.top = card.top;
+                element.style.left = card.left;
+                element.style.width = card.width;
+                element.style.height = card.height;
+                
+                element.addEventListener('click', () => handleCardClick(card));
+                board.appendChild(element);
+            });
+        }
+
+        // Custom particles mapped to the specific animal/habitat emojis
+        function spawnParticles(card) {
+            const board = document.getElementById('game-board');
+            
+            // Calculate center of the hotspot
+            const cx = parseFloat(card.left) + (parseFloat(card.width) / 2);
+            const cy = parseFloat(card.top) + (parseFloat(card.height) / 2);
+            
+            // Spawn 3 custom emoji particles and 2 generic stars
+            const icons = [card.emoji, card.emoji, card.emoji, '✨', '⭐'];
+            
+            icons.forEach(icon => {
+                const particle = document.createElement('div');
+                particle.className = 'particle';
+                particle.innerText = icon;
+                
+                const offsetX = (Math.random() * 8) - 4; // Spread out
+                const offsetY = (Math.random() * 8) - 4;
+                
+                particle.style.left = (cx + offsetX) + '%';
+                particle.style.top = (cy + offsetY) + '%';
+                particle.style.animationDuration = (0.8 + Math.random() * 0.5) + 's';
+
+                board.appendChild(particle);
+                setTimeout(() => particle.remove(), 1500);
+            });
+        }
+
+        function triggerConfetti() {
+            const colors = ['#f44336', '#e91e63', '#9c27b0', '#3f51b5', '#2196f3', '#4caf50', '#ffeb3b', '#ff9800'];
+            for(let i = 0; i < 75; i++) {
+                const conf = document.createElement('div');
+                conf.className = 'confetti-piece';
+                conf.style.left = Math.random() * 100 + 'vw';
+                conf.style.backgroundColor = colors[Math.floor(Math.random() * colors.length)];
+                
+                // Randomize shape (circle or square)
+                if (Math.random() > 0.5) conf.style.borderRadius = '50%';
+                
+                conf.style.animationDuration = (2 + Math.random() * 3) + 's';
+                conf.style.animationDelay = (Math.random() * 0.5) + 's';
+                document.body.appendChild(conf);
+
+                setTimeout(() => conf.remove(), 5000);
+            }
+        }
+
+        function handleCardClick(clickedCard) {
+            const clickedElement = document.getElementById(clickedCard.id);
+
+            // Ignore if already matched
+            if (clickedElement.classList.contains('matched')) return;
+
+            // Pick up Card
+            if (selectedId === null) {
+                selectedId = clickedCard.id;
+                clickedElement.classList.add('selected');
+                return;
+            }
+
+            // Put down Card (Deselect)
+            if (selectedId === clickedCard.id) {
+                clickedElement.classList.remove('selected');
+                selectedId = null;
+                return;
+            }
+
+            const previousCard = cardsConfig.find(c => c.id === selectedId);
+            const previousElement = document.getElementById(previousCard.id);
+
+            // Check if it's a correct match
+            if (previousCard.type !== clickedCard.type && previousCard.match === clickedCard.id) {
+                
+                // 1. Trigger Animation & Color Change
+                previousElement.classList.remove('selected');
+                previousElement.classList.add('matched');
+                clickedElement.classList.add('matched');
+                
+                // 2. Add the Gold Star Stamp permanently to both tiles
+                previousElement.innerHTML = '<div class="star-stamp">⭐</div>';
+                clickedElement.innerHTML = '<div class="star-stamp">⭐</div>';
+
+                // 3. Erupt custom emoji particles
+                spawnParticles(previousCard);
+                spawnParticles(clickedCard);
+
+                matchesFound++;
+                selectedId = null;
+
+                if (matchesFound === 6) {
+                    setTimeout(() => {
+                        document.getElementById('win-modal').style.display = 'flex';
+                        triggerConfetti();
+                        playNarration('win');
+                    }, 1000);
+                } else {
+                    // Random positive feedback
+                    if (matchesFound % 2 === 0) {
+                        const encouragements = ['encouragement_1', 'encouragement_2', 'encouragement_3'];
+                        playNarration(encouragements[Math.floor(Math.random() * encouragements.length)]);
+                    } else {
+                        const correctBeeps = ['correct_1', 'correct_2', 'correct_3', 'correct_4'];
+                        playNarration(correctBeeps[Math.floor(Math.random() * correctBeeps.length)]);
+                    }
+                }
+            } else {
+                
+                // INCORRECT MATCH
+                previousElement.classList.remove('selected');
+                previousElement.classList.add('wrong');
+                clickedElement.classList.add('wrong');
+                
+                const incorrectTracks = ['wrong_1', 'wrong_2', 'wrong_3'];
+                playNarration(incorrectTracks[Math.floor(Math.random() * incorrectTracks.length)]);
+
+                selectedId = null;
+
+                // Remove red error shake after animation finishes
+                setTimeout(() => {
+                    previousElement.classList.remove('wrong');
+                    clickedElement.classList.remove('wrong');
+                }, 400);
+            }
+        }
+
+        function resetGame() {
+            matchesFound = 0;
+            selectedId = null;
+            document.getElementById('win-modal').style.display = 'none';
+            createBoard();
+            playNarration('try_again');
+        }
+
+        // Initialize board
+        createBoard();
+    </script>
+</body>
+</html>

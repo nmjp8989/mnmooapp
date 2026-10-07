@@ -1,0 +1,54 @@
+{
+  "welcome": {
+    "text": "Welcome to Action Pop! Follow the colors to build the pattern!",
+    "m4a": "ballonpop_audio/welcome.m4a"
+  },
+  "instructions": {
+    "text": "Check the track at the top. Shoot the exact color that comes next!",
+    "m4a": "ballonpop_audio/instructions.m4a"
+  },
+  "correct_1": {
+    "text": "Great match!",
+    "m4a": "ballonpop_audio/correct_1.m4a"
+  },
+  "correct_2": {
+    "text": "That's it, keep it going!",
+    "m4a": "ballonpop_audio/correct_2.m4a"
+  },
+  "wrong_1": {
+    "text": "Oops! Not that color!",
+    "m4a": "ballonpop_audio/wrong_1.m4a"
+  },
+  "wrong_2": {
+    "text": "Pattern broken! Let's start this sequence again.",
+    "m4a": "ballonpop_audio/wrong_2.m4a"
+  },
+  "pattern_complete_1": {
+    "text": "Pattern complete! Fantastic!",
+    "m4a": "ballonpop_audio/pattern_complete_1.m4a"
+  },
+  "pattern_complete_2": {
+    "text": "You mastered that sequence!",
+    "m4a": "ballonpop_audio/pattern_complete_2.m4a"
+  },
+  "level_up": {
+    "text": "Level up! Time for a new color pattern!",
+    "m4a": "ballonpop_audio/level_up.m4a"
+  },
+  "hint_red": {
+    "text": "You need a red one next!",
+    "m4a": "ballonpop_audio/hint_red.m4a"
+  },
+  "hint_blue": {
+    "text": "Find a blue balloon!",
+    "m4a": "ballonpop_audio/hint_blue.m4a"
+  },
+  "hint_yellow": {
+    "text": "Aim for yellow!",
+    "m4a": "ballonpop_audio/hint_yellow.m4a"
+  },
+  "hint_green": {
+    "text": "Shoot the green one!",
+    "m4a": "ballonpop_audio/hint_green.m4a"
+  }
+}

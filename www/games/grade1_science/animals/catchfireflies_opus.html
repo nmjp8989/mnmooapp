@@ -1,0 +1,661 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width,initial-scale=1,maximum-scale=1,user-scalable=no,viewport-fit=cover">
+<title>Firefly Jar — Catch &amp; Collect</title>
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+<link href="https://fonts.googleapis.com/css2?family=Fredoka:wght@400;600;700&family=Nunito:wght@400;600;700;800&display=swap" rel="stylesheet">
+<style>
+:root{
+  --accent:#66BB6A;--accent-light:#81C784;--accent-glow:rgba(102,187,106,.35);
+  --night-deep:#04061a;--night-mid:#0b1445;--night-top:#070830;
+  --card:rgba(255,255,255,.06);--card-r:20px;
+  --text:#f5f0e8;--text-dim:#7888aa;--text-bright:#fff;
+  --firefly:#ffe066;--firefly-glow:#ffaa00;--firefly-bright:#fff8dd;
+  --glass:rgba(180,210,255,.08);--glass-rim:#607090;
+  --grass1:#082a08;--grass2:#133d18;--grass3:#1d5522;
+  --hd:'Fredoka',sans-serif;--bd:'Nunito',sans-serif;
+  --overlay:rgba(4,6,26,.85);
+}
+*,*::before,*::after{box-sizing:border-box;margin:0;padding:0}
+html,body{width:100%;height:100%;height:100dvh;overflow:hidden;
+  touch-action:manipulation;-webkit-user-select:none;user-select:none;
+  overscroll-behavior:none;font-family:var(--bd);background:var(--night-deep);
+  color:var(--text);font-size:clamp(16px,4vw,24px)}
+
+@keyframes fadeIn{from{opacity:0}to{opacity:1}}
+@keyframes fadeUp{from{opacity:0;transform:translateY(20px)}to{opacity:1;transform:translateY(0)}}
+@keyframes popIn{0%{opacity:0;transform:scale(.7)}60%{transform:scale(1.1)}100%{opacity:1;transform:scale(1)}}
+@keyframes twinkle{0%,100%{opacity:.3}50%{opacity:1}}
+@keyframes titleGlow{0%,100%{text-shadow:0 0 30px rgba(255,170,0,.5)}50%{text-shadow:0 0 50px rgba(255,170,0,.7),0 0 90px rgba(255,170,0,.35)}}
+@keyframes jarPulse{0%,100%{opacity:.7;height:65%}50%{opacity:1;height:72%}}
+@keyframes fadeScale{from{opacity:0;transform:scale(.85)}to{opacity:1;transform:scale(1)}}
+@keyframes confettiFall{0%{transform:translateY(0) rotate(0);opacity:1}100%{transform:translateY(-110vh) rotate(720deg);opacity:0}}
+@keyframes slideUp{from{opacity:0;transform:translateY(40px)}to{opacity:1;transform:translateY(0)}}
+@keyframes slideDown{from{opacity:0;transform:translateY(-30px)}to{opacity:1;transform:translateY(0)}}
+@keyframes starReveal{0%{transform:scale(0) rotate(-20deg);opacity:0}60%{transform:scale(1.2) rotate(5deg)}100%{transform:scale(1) rotate(0);opacity:1}}
+@keyframes floatFirefly{0%{transform:translate(0,0)}25%{transform:translate(12px,-8px)}50%{transform:translate(-6px,-16px)}75%{transform:translate(-14px,4px)}100%{transform:translate(0,0)}}
+@keyframes dotPulse{0%,100%{opacity:.8;transform:translate(-50%,-50%) scale(1)}50%{opacity:1;transform:translate(-50%,-50%) scale(1.25)}}
+
+.game{position:relative;width:100%;height:100%;height:100dvh;overflow:hidden}
+
+/* ── Screens ── */
+.scr{position:absolute;inset:0;display:flex;flex-direction:column;
+  opacity:0;pointer-events:none;transition:opacity .4s ease;z-index:1;overflow-y:auto;overflow-x:hidden;
+  -webkit-overflow-scrolling:touch}
+.scr.active{opacity:1;pointer-events:auto;z-index:10}
+.scr-inner{display:flex;flex-direction:column;align-items:center;justify-content:center;
+  min-height:100%;width:100%;padding:clamp(10px,2vh,20px) clamp(12px,3vw,20px);flex-shrink:0}
+
+/* stars background */
+.stars{position:fixed;inset:0;overflow:hidden;pointer-events:none;z-index:0}
+.star{position:absolute;width:2px;height:2px;background:#fff;border-radius:50%}
+.star.twinkle{animation:twinkle 3s ease-in-out infinite}
+.moon{position:absolute;top:clamp(10px,2.5vh,30px);right:clamp(12px,4vw,44px);
+  width:clamp(36px,8vw,64px);height:clamp(36px,8vw,64px);border-radius:50%;
+  background:radial-gradient(circle at 35% 35%,#fffde8,#f0e68c 60%,#c8b850);
+  box-shadow:0 0 35px 8px rgba(255,253,220,.22),0 0 70px 25px rgba(255,253,220,.06);z-index:1}
+
+/* ── Buttons ── */
+.btn{font-family:var(--hd);font-size:clamp(17px,3.8vh,26px);font-weight:700;
+  padding:clamp(11px,2.5vh,20px) clamp(28px,6vw,50px);border:none;border-radius:50px;cursor:pointer;
+  background:var(--accent);color:#fff;box-shadow:0 5px 18px var(--accent-glow);
+  transition:all .15s ease;letter-spacing:.5px;min-height:48px;min-width:48px;
+  position:relative;z-index:20;-webkit-tap-highlight-color:transparent}
+.btn:active{transform:scale(.92)}
+.btn-sm{font-size:clamp(14px,3vh,20px);padding:clamp(9px,2vh,15px) clamp(20px,4.5vw,34px)}
+.btn-ghost{background:rgba(255,255,255,.08);color:var(--text);box-shadow:none;
+  border:2px solid rgba(255,255,255,.18)}
+
+/* ══════════════════════════════════════
+   WELCOME
+   ══════════════════════════════════════ */
+#welcome{background:linear-gradient(180deg,var(--night-top) 0%,var(--night-mid) 40%,#0a1a40)}
+.w-title{font-family:var(--hd);font-size:clamp(26px,6vh,46px);color:var(--firefly);
+  text-shadow:0 0 30px rgba(255,170,0,.5),0 0 60px rgba(255,170,0,.2);
+  margin-bottom:clamp(2px,.5vh,6px);animation:titleGlow 3s ease-in-out infinite}
+.w-sub{font-size:clamp(14px,3vh,22px);color:var(--text-dim);margin-bottom:clamp(14px,3vh,32px);
+  font-weight:600;text-align:center;line-height:1.35;max-width:340px}
+.w-jar{position:relative;width:clamp(80px,18vw,130px);height:clamp(105px,24vw,175px);margin-bottom:clamp(10px,2.5vh,24px)}
+.jar-body-w{position:absolute;bottom:0;width:100%;height:84%;border:3px solid var(--glass-rim);
+  border-radius:12px 12px 40px 40px;background:var(--glass);overflow:hidden}
+.jar-lid-w{position:absolute;top:0;left:50%;transform:translateX(-50%);width:58%;height:16%;
+  background:linear-gradient(180deg,#7a8aa0,#556575);border-radius:6px 6px 2px 2px;border:2px solid #8a9ab0}
+.jar-glow-anim{position:absolute;bottom:0;width:100%;height:65%;
+  background:linear-gradient(to top,rgba(255,224,102,.3),rgba(255,170,0,.08),transparent);
+  animation:jarPulse 2.5s ease-in-out infinite}
+.w-ff{position:absolute;width:clamp(6px,1.5vw,12px);height:clamp(6px,1.5vw,12px);
+  border-radius:50%;background:var(--firefly);box-shadow:0 0 7px 3px var(--firefly-glow),0 0 18px 5px rgba(255,170,0,.25)}
+.w-ff:nth-child(1){top:20%;left:18%;animation:floatFirefly 4s ease-in-out infinite}
+.w-ff:nth-child(2){top:38%;right:22%;animation:floatFirefly 5s ease-in-out infinite .5s}
+.w-ff:nth-child(3){top:58%;left:28%;animation:floatFirefly 4.5s ease-in-out infinite 1s}
+.w-ff:nth-child(4){top:28%;right:30%;animation:floatFirefly 5.5s ease-in-out infinite 1.5s}
+.w-ff:nth-child(5){top:68%;right:18%;animation:floatFirefly 4s ease-in-out infinite 2s}
+.w-hint{display:flex;align-items:center;gap:6px;font-size:clamp(12px,2.4vh,16px);color:var(--text-dim);margin-top:8px}
+
+/* ══════════════════════════════════════
+   CATCHING
+   ══════════════════════════════════════ */
+#catch{background:linear-gradient(180deg,var(--night-top) 0%,var(--night-mid) 30%,#0a1a3a 55%,#0a220f 82%,var(--grass1) 100%)}
+#catch-canvas{position:absolute;inset:0;z-index:8}
+.catch-grass{position:absolute;bottom:0;left:0;right:0;height:clamp(40px,10vh,80px);pointer-events:none;z-index:5}
+.catch-grass::before{content:'';position:absolute;bottom:0;left:0;right:0;height:100%;
+  background:linear-gradient(to top,var(--grass1),var(--grass2) 50%,transparent);opacity:.85}
+
+#catch-ui{position:absolute;top:env(safe-area-inset-top,0);top:0;left:0;right:0;
+  padding:clamp(4px,1vh,10px) 0 0;text-align:center;z-index:20;pointer-events:none}
+.catch-hud{display:flex;justify-content:center;align-items:center;gap:clamp(8px,2vw,18px)}
+.catch-level{font-family:var(--hd);font-size:clamp(14px,3.2vh,20px);color:var(--accent);font-weight:700}
+.catch-counter{font-size:clamp(14px,3.2vh,20px);color:var(--text-dim);font-weight:700}
+.catch-counter span{color:var(--firefly)}
+.catch-bar-wrap{margin:clamp(4px,.8vh,8px) auto 0;max-width:min(240px,55vw);pointer-events:auto}
+.catch-bar-bg{height:clamp(7px,1.4vh,12px);background:rgba(255,255,255,.08);border-radius:99px;overflow:hidden}
+.catch-bar-fill{height:100%;background:linear-gradient(90deg,var(--accent),var(--firefly));
+  border-radius:99px;width:0%;transition:width .5s ease;box-shadow:0 0 8px var(--accent-glow)}
+.catch-bar-label{font-size:clamp(10px,2vh,14px);color:var(--text-dim);margin-top:2px;font-weight:700}
+
+.catch-jar{position:absolute;bottom:clamp(8px,2.5vh,20px);left:50%;transform:translateX(-50%);z-index:10;pointer-events:none}
+.cj-body{position:relative;width:clamp(70px,15vw,115px);height:clamp(88px,19vw,148px);
+  border:2.5px solid var(--glass-rim);border-radius:10px 10px 36px 36px;
+  background:var(--glass);overflow:hidden;box-shadow:0 0 25px rgba(255,224,102,.06)}
+.cj-lid{position:absolute;top:-14px;left:50%;transform:translateX(-50%);width:52%;height:16px;
+  background:linear-gradient(180deg,#8898aa,#5a6a7a);border-radius:5px 5px 2px 2px;border:2px solid #99aabb;z-index:2}
+.cj-glow{position:absolute;bottom:0;left:0;right:0;height:0%;transition:height .8s ease;
+  background:linear-gradient(to top,rgba(255,224,102,.35),rgba(255,170,0,.08),transparent)}
+.btn-jar{position:absolute;bottom:clamp(10px,2vh,18px);right:clamp(10px,2.5vw,18px);z-index:30}
+
+/* ══════════════════════════════════════
+   JAR VIEW
+   ══════════════════════════════════════ */
+#jarview{background:linear-gradient(180deg,var(--night-top),#080e30 35%,#0a1540 65%,#0c1a40)}
+.jv-title{font-family:var(--hd);font-size:clamp(20px,5vh,36px);color:var(--firefly);text-align:center;margin-bottom:clamp(2px,.4vh,4px)}
+.jv-sub{font-size:clamp(12px,2.5vh,18px);color:var(--text-dim);text-align:center;font-weight:600;margin-bottom:clamp(6px,1.2vh,12px)}
+.jv-jar-wrap{display:flex;flex-direction:column;align-items:center;gap:clamp(6px,1.2vh,12px)}
+.jv-jar{position:relative;width:clamp(130px,30vw,210px);height:clamp(165px,34vw,265px);
+  border:3px solid var(--glass-rim);border-radius:16px 16px 56px 56px;
+  background:var(--glass);overflow:hidden;box-shadow:0 0 40px rgba(255,224,102,.08),inset 0 0 30px rgba(255,224,102,.03)}
+.jv-jar-lid{position:absolute;top:-20px;left:50%;transform:translateX(-50%);width:48%;height:22px;
+  background:linear-gradient(180deg,#8898aa,#5a6a7a);border-radius:6px 6px 3px 3px;border:2px solid #99aabb;z-index:2}
+.jv-glow{position:absolute;bottom:0;left:0;right:0;transition:height 1s ease;
+  background:linear-gradient(to top,rgba(255,224,102,.28),rgba(255,170,0,.06),transparent)}
+.jv-species{display:flex;flex-wrap:wrap;justify-content:center;gap:clamp(4px,1vw,10px);
+  max-width:360px;width:90%}
+.jv-sp{display:flex;align-items:center;gap:5px;font-size:clamp(11px,2.2vh,16px);
+  color:var(--text-dim);background:var(--card);padding:4px 10px;border-radius:10px;font-weight:700}
+.jv-sp .dot{width:9px;height:9px;border-radius:50%;flex-shrink:0}
+.jv-total{font-family:var(--hd);font-size:clamp(14px,3.2vh,22px);color:var(--text-dim);text-align:center}
+.jv-total span{color:var(--firefly)}
+
+/* ══════════════════════════════════════
+   OVERLAYS
+   ══════════════════════════════════════ */
+.ov{position:fixed;inset:0;background:var(--overlay);display:flex;flex-direction:column;
+  align-items:center;justify-content:center;z-index:50;opacity:0;pointer-events:none;
+  transition:opacity .4s ease;padding:clamp(10px,2vh,20px);overflow-y:auto}
+.ov.active{opacity:1;pointer-events:auto}
+.ov-inner{display:flex;flex-direction:column;align-items:center;text-align:center;
+  gap:clamp(4px,.8vh,10px);max-width:420px;width:90%;padding:8px 0}
+
+.ls-num{font-family:var(--hd);font-size:clamp(36px,9vh,64px);color:var(--firefly);
+  text-shadow:0 0 30px rgba(255,170,0,.5);animation:fadeScale .5s ease-out}
+.ls-label{font-size:clamp(15px,3.5vh,24px);color:var(--text-dim);font-weight:600}
+.ls-new{font-family:var(--hd);font-size:clamp(13px,2.8vh,20px);color:var(--accent);
+  background:rgba(102,187,106,.12);padding:6px 14px;border-radius:30px;margin-top:2px}
+
+.lc-hdr{font-family:var(--hd);font-size:clamp(20px,4.5vh,32px);color:var(--firefly);
+  text-shadow:0 0 15px rgba(255,170,0,.3);animation:slideDown .4s ease-out}
+.lc-jar{position:relative;width:clamp(85px,20vw,135px);height:clamp(106px,24vw,168px);
+  border:2.5px solid var(--glass-rim);border-radius:10px 10px 40px 40px;
+  background:var(--glass);overflow:hidden;box-shadow:0 0 30px rgba(255,224,102,.08);margin:3px 0}
+.lc-jar-lid{position:absolute;top:-14px;left:50%;transform:translateX(-50%);width:52%;height:16px;
+  background:linear-gradient(180deg,#8898aa,#5a6a7a);border-radius:5px 5px 2px 2px;border:2px solid #99aabb;z-index:2}
+.lc-jar-glow{position:absolute;bottom:0;left:0;right:0;transition:height .8s ease;
+  background:linear-gradient(to top,rgba(255,224,102,.3),rgba(255,170,0,.06),transparent)}
+.lc-stars{display:flex;gap:clamp(3px,.8vw,7px);margin:3px 0}
+.lc-stars .ls{font-size:clamp(1.2rem,3.5vh,2rem);animation:starReveal .4s ease-out backwards}
+.lc-stars .ls:nth-child(2){animation-delay:.15s}.lc-stars .ls:nth-child(3){animation-delay:.3s}
+.lc-stat{font-size:clamp(12px,2.5vh,18px);color:var(--text-dim);font-weight:600}
+.lc-stat span{color:var(--firefly)}
+.lc-new-spec{display:flex;align-items:center;gap:6px;font-size:clamp(12px,2.5vh,18px);
+  color:var(--accent);font-weight:700;background:rgba(102,187,106,.08);padding:5px 14px;border-radius:12px}
+.lc-fact{background:var(--card);border:1.5px solid rgba(255,255,255,.06);border-radius:14px;
+  padding:clamp(10px,2vh,18px);max-width:360px;font-size:clamp(12px,2.5vh,18px);line-height:1.4;
+  font-weight:600;animation:fadeUp .4s ease-out .2s backwards}
+.lc-fact .hl{color:var(--firefly);font-weight:800}
+.lc-btns{display:flex;gap:8px;flex-wrap:wrap;justify-content:center;margin-top:2px}
+
+/* ══════════════════════════════════════
+   LANDSCAPE + SHORT VIEWPORTS
+   ══════════════════════════════════════ */
+@media(max-height:440px){
+  body{font-size:clamp(14px,3.5vw,20px)}
+  .btn{font-size:clamp(14px,3vw,18px);padding:clamp(8px,1.5vh,12px) clamp(18px,4vw,28px);min-height:40px;border-radius:30px}
+  .btn-sm{font-size:clamp(12px,2.5vw,16px);padding:clamp(6px,1vh,10px) clamp(14px,3vw,22px)}
+
+  /* Welcome */
+  .w-title{font-size:clamp(20px,7vw,32px)}
+  .w-sub{font-size:clamp(12px,3vw,18px);margin-bottom:clamp(8px,2vh,18px)}
+  .w-jar{width:clamp(60px,14vw,100px);height:clamp(78px,18vw,130px);margin-bottom:clamp(6px,1.5vh,14px)}
+  .w-hint{margin-top:4px}
+
+  /* Catch */
+  .catch-jar{bottom:clamp(4px,1vh,10px)}
+  .cj-body{width:clamp(55px,12vw,90px);height:clamp(68px,15vw,112px)}
+  .cj-lid{top:-12px;height:13px}
+  .btn-jar{bottom:clamp(6px,1vh,10px);right:clamp(8px,2vw,14px)}
+
+  /* Jar view */
+  .jv-jar{width:clamp(100px,24vw,170px);height:clamp(125px,30vw,210px)}
+
+  /* Overlays */
+  .ls-num{font-size:clamp(30px,10vh,50px)}
+  .ls-label{font-size:clamp(13px,3.5vh,20px)}
+  .lc-hdr{font-size:clamp(17px,5vh,26px)}
+  .lc-jar{width:clamp(70px,18vw,110px);height:clamp(86px,22vw,136px)}
+  .lc-fact{padding:clamp(8px,1.5vh,14px);font-size:clamp(11px,2.5vh,16px)}
+  .lc-stars .ls{font-size:clamp(1rem,3vh,1.6rem)}
+}
+
+@media(min-height:441px) and (max-height:600px){
+  .w-title{font-size:clamp(24px,7vw,38px)}
+  .w-jar{width:clamp(80px,18vw,120px);height:clamp(100px,22vw,155px)}
+  .catch-jar{bottom:clamp(6px,1.5vh,14px)}
+  .cj-body{width:clamp(62px,14vw,100px);height:clamp(78px,17vw,128px)}
+  .lc-fact{padding:clamp(10px,2vh,16px)}
+}
+</style>
+</head>
+<body>
+<div class="game">
+
+<!-- ╔══ WELCOME ══╗ -->
+<div id="welcome" class="scr active">
+  <div class="stars" id="ws"></div>
+  <div class="scr-inner">
+    <div class="moon"></div>
+    <div style="position:absolute;inset:0;pointer-events:none;z-index:0">
+      <div class="w-ff"></div><div class="w-ff"></div><div class="w-ff"></div><div class="w-ff"></div><div class="w-ff"></div>
+    </div>
+    <div class="w-jar">
+      <div class="jar-lid-w"></div>
+      <div class="jar-body-w"><div class="jar-glow-anim"></div></div>
+    </div>
+    <h1 class="w-title">Firefly Jar</h1>
+    <p class="w-sub">Catch glowing fireflies, collect species, and learn cool facts!</p>
+    <button class="btn" id="btnStart">Start Catching!</button>
+    <div class="w-hint">Endless levels &bull; New species to discover</div>
+  </div>
+</div>
+
+<!-- ╔══ CATCH ══╗ -->
+<div id="catch" class="scr">
+  <div class="stars" id="cs"></div>
+  <div class="moon" style="top:8px;right:12px;width:34px;height:34px"></div>
+  <canvas id="catch-canvas"></canvas>
+  <div class="catch-grass"></div>
+  <div id="catch-ui">
+    <div class="catch-hud">
+      <div class="catch-level" id="hudLevel">Level 1</div>
+      <div class="catch-counter">Caught <span id="hudNum">0</span> / <span id="hudNeed">8</span></div>
+    </div>
+    <div class="catch-bar-wrap">
+      <div class="catch-bar-bg"><div class="catch-bar-fill" id="hudBar"></div></div>
+      <div class="catch-bar-label" id="hudBarLabel">0 / 8</div>
+    </div>
+  </div>
+  <div class="catch-jar" id="catchJar">
+    <div class="cj-lid"></div>
+    <div class="cj-body" id="cjBody"><div class="cj-glow" id="cjGlow"></div></div>
+  </div>
+  <button class="btn btn-ghost btn-sm btn-jar" id="btnJar">Jar</button>
+</div>
+
+<!-- ╔══ JAR VIEW ══╗ -->
+<div id="jarview" class="scr">
+  <div class="stars" id="js"></div>
+  <div class="scr-inner">
+    <div class="moon" style="top:8px;right:12px;width:34px;height:34px"></div>
+    <div class="jv-title">My Firefly Jar</div>
+    <div class="jv-sub" id="jvSub">Level 1 &bull; 0 fireflies</div>
+    <div class="jv-jar-wrap">
+      <div class="jv-jar" id="jvJar">
+        <div class="jv-jar-lid"></div>
+        <div class="jv-glow" id="jvGlow"></div>
+      </div>
+      <div class="jv-total">Total: <span id="jvTotal">0</span> fireflies</div>
+      <div class="jv-species" id="jvSpecies"></div>
+    </div>
+    <div style="display:flex;gap:8px;flex-wrap:wrap;justify-content:center;margin-top:6px">
+      <button class="btn btn-sm" id="btnBackCatch">Keep Catching!</button>
+      <button class="btn btn-sm btn-ghost" id="btnQuit">Home</button>
+    </div>
+  </div>
+</div>
+
+<!-- ╔══ LEVEL START OVERLAY ══╗ -->
+<div class="ov" id="ovStart">
+  <div class="ov-inner">
+    <div class="ls-num" id="ovLvl">1</div>
+    <div class="ls-label">Catch <span id="ovNeed">6</span> fireflies!</div>
+    <div class="ls-new" id="ovNew" style="display:none"></div>
+    <button class="btn" id="btnGo" style="margin-top:4px">Go!</button>
+  </div>
+</div>
+
+<!-- ╔══ LEVEL COMPLETE OVERLAY ══╗ -->
+<div class="ov" id="ovDone">
+  <div class="ov-inner">
+    <div class="lc-hdr" id="lcHdr">Level 1 Complete!</div>
+    <div class="lc-jar" id="lcJar">
+      <div class="lc-jar-lid"></div>
+      <div class="lc-jar-glow" id="lcGlow"></div>
+    </div>
+    <div class="lc-stars" id="lcStars"></div>
+    <div class="lc-stat" id="lcStat">Caught: <span>0</span> fireflies total</div>
+    <div class="lc-new-spec" id="lcNew" style="display:none">
+      <span id="lcNewE"></span><span id="lcNewT"></span>
+    </div>
+    <div class="lc-fact" id="lcFact">
+      <div style="font-size:clamp(1.4rem,3.5vh,2.2rem);margin-bottom:3px">💡</div>
+      <div class="f-text">Loading fact...</div>
+    </div>
+    <div class="lc-btns">
+      <button class="btn" id="btnNext">Next Level</button>
+      <button class="btn btn-sm btn-ghost" id="btnViewJar">View Jar</button>
+    </div>
+  </div>
+</div>
+
+</div>
+
+<script>
+/* ═══════════════════════════════════
+   AUDIO
+   ═══════════════════════════════════ */
+var AudioCtx=window.AudioContext||window.webkitAudioContext;
+var ac=null;
+function getAC(){try{if(!ac)ac=new AudioCtx();if(ac.state==='suspended')ac.resume();return ac}catch(e){return null}}
+function playTone(f,d,t,v){try{var x=getAC();if(!x)return;var o=x.createOscillator(),g=x.createGain();
+o.type=t||'sine';o.frequency.value=f;g.gain.setValueAtTime(v||.2,x.currentTime);
+g.gain.exponentialRampToValueAtTime(.001,x.currentTime+d);o.connect(g).connect(x.destination);o.start();o.stop(x.currentTime+d)}catch(e){}}
+var SFX={
+  click:function(){playTone(800,.07,'sine',.15)},
+  catchSfx:function(){playTone(880,.1,'sine',.2);setTimeout(function(){playTone(1100,.14,'sine',.15)},80)},
+  win:function(){[523,659,784,1047].forEach(function(f,i){setTimeout(function(){playTone(f,.25,'sine',.12)},i*150)})}
+};
+
+/* ═══════════════════════════════════
+   SPECIES
+   ═══════════════════════════════════ */
+var SPECIES=[
+  {name:'Classic Firefly',glow:[255,230,80],body:'#2e2a10',wing:'rgba(180,200,215,.18)',sz:[16,22],spd:[.5,1],wb:[.8,1.3],flash:[2000,3500],unlockLv:1},
+  {name:'Amber Glow',glow:[255,165,40],body:'#2d1a08',wing:'rgba(210,185,155,.2)',sz:[18,26],spd:[.35,.7],wb:[.5,.9],flash:[2500,4500],unlockLv:1},
+  {name:'Green Sparkle',glow:[80,255,110],body:'#122a12',wing:'rgba(140,220,150,.16)',sz:[12,18],spd:[1,1.7],wb:[1.3,2],flash:[700,1400],unlockLv:2},
+  {name:'Blue Ghost',glow:[120,195,255],body:'#101530',wing:'rgba(150,185,235,.14)',sz:[14,20],spd:[.25,.55],wb:[.6,1],flash:[4000,6500],unlockLv:3},
+  {name:'Golden Giant',glow:[255,195,40],body:'#382a06',wing:'rgba(235,215,160,.22)',sz:[22,30],spd:[.25,.5],wb:[.35,.65],flash:[3000,5000],unlockLv:4},
+  {name:'Tiny White',glow:[255,248,225],body:'#2a2a25',wing:'rgba(205,205,195,.12)',sz:[10,14],spd:[1.2,2.2],wb:[1.6,2.8],flash:[400,800],unlockLv:5},
+  {name:'Ruby Flash',glow:[255,100,100],body:'#2a0808',wing:'rgba(220,150,150,.15)',sz:[15,22],spd:[.6,1.1],wb:[.7,1.2],flash:[1200,2200],unlockLv:7},
+  {name:'Emerald Flash',glow:[40,240,120],body:'#0a2a15',wing:'rgba(100,220,160,.14)',sz:[14,20],spd:[.8,1.5],wb:[1,1.8],flash:[800,1500],unlockLv:9},
+  {name:'Lavender Dream',glow:[200,160,255],body:'#1a102a',wing:'rgba(190,170,230,.15)',sz:[16,24],spd:[.4,.9],wb:[.6,1.1],flash:[1800,3000],unlockLv:11},
+  {name:'Sunset Orange',glow:[255,140,60],body:'#2d1808',wing:'rgba(220,180,140,.16)',sz:[17,25],spd:[.5,1],wb:[.7,1.2],flash:[1500,2800],unlockLv:14},
+  {name:'Deep Sea Blue',glow:[60,180,255],body:'#081828',wing:'rgba(120,180,220,.14)',sz:[15,22],spd:[.4,.8],wb:[.6,1],flash:[2500,4200],unlockLv:17}
+];
+
+/* ═══════════════════════════════════
+   FACTS
+   ═══════════════════════════════════ */
+var FACTS=[
+  {icon:'🪲',text:'Fireflies are actually <span class="hl">beetles</span>, not flies!'},
+  {icon:'💡',text:'They make their own light! It\'s called <span class="hl">bioluminescence</span>.'},
+  {icon:'🌙',text:'Fireflies are <span class="hl">nocturnal</span> — they come out at night!'},
+  {icon:'💬',text:'They flash their lights to <span class="hl">talk to each other</span>!'},
+  {icon:'🔢',text:'Each species has its own <span class="hl">flash pattern</span>, like a secret code!'},
+  {icon:'❄️',text:'Firefly light is <span class="hl">cold light</span> — it makes no heat at all!'},
+  {icon:'🐛',text:'Baby fireflies are called <span class="hl">glowworms</span>, and they glow too!'},
+  {icon:'🌍',text:'Jellyfish, anglerfish, and even some mushrooms can <span class="hl">glow</span>!'}
+];
+
+/* ═══════════════════════════════════
+   GAME STATE
+   ═══════════════════════════════════ */
+var G={level:1,totalCaught:0,levelCaught:0,levelNeed:6,
+  speciesCounts:{},discoveredSpecies:{},factIdx:0,prevSpeciesSet:{},running:false};
+
+function getUnlockedSpecies(lv){var r=[];for(var i=0;i<SPECIES.length;i++){if(SPECIES[i].unlockLv<=lv)r.push(i)}return r}
+function getLevelNeed(lv){return Math.min(6+(lv-1)*2,20)}
+function getLevelSpecies(lv){
+  var all=getUnlockedSpecies(lv);if(all.length<=3)return all.slice();
+  var pick=Math.min(3+Math.floor(lv/5),all.length);
+  var s=all.slice();for(var i=s.length-1;i>0;i--){var j=Math.floor(Math.random()*(i+1));var t=s[i];s[i]=s[j];s[j]=t}
+  return s.slice(0,pick);
+}
+function getSpeedMul(lv){return 1+(lv-1)*.06}
+
+/* ═══════════════════════════════════
+   STARS
+   ═══════════════════════════════════ */
+function mkStars(id,n){
+  n=n||60;var c=document.getElementById(id);if(!c)return;c.innerHTML='';
+  for(var i=0;i<n;i++){
+    var s=document.createElement('div');s.className='star'+(Math.random()>.5?' twinkle':'');
+    s.style.left=Math.random()*100+'%';s.style.top=Math.random()*100+'%';
+    s.style.width=(1+Math.random()*2.5)+'px';s.style.height=s.style.width;
+    s.style.animationDelay=Math.random()*5+'s';
+    s.style.animationDuration=(2+Math.random()*4)+'s';
+    s.style.opacity=.2+Math.random()*.8;c.appendChild(s);
+  }
+}
+
+/* ═══════════════════════════════════
+   CONFETTI
+   ═══════════════════════════════════ */
+function confetti(){
+  var cols=['#66BB6A','#FFD54F','#42A5F5','#AB47BC','#FF7043','#ffe066','#ff7eb3','#80DEEA'];
+  for(var i=0;i<40;i++){
+    var el=document.createElement('div');el.style.position='fixed';
+    el.style.width=(7+Math.random()*7)+'px';el.style.height=el.style.width;
+    el.style.background=cols[i%cols.length];el.style.borderRadius=Math.random()>.5?'50%':'3px';
+    el.style.left=Math.random()*100+'%';el.style.top='100vh';
+    el.style.pointerEvents='none';el.style.zIndex='9998';
+    el.style.animation='confettiFall '+(1.5+Math.random())+'s ease-out '+Math.random()*.5+'s forwards';
+    document.body.appendChild(el);
+    (function(e){setTimeout(function(){e.remove()},2800)})(el);
+  }
+}
+
+/* ═══════════════════════════════════
+   SCREEN / OVERLAY
+   ═══════════════════════════════════ */
+function showScr(id){var s=document.querySelectorAll('.scr');for(var i=0;i<s.length;i++)s[i].classList.remove('active');document.getElementById(id).classList.add('active')}
+function showOv(id){document.getElementById(id).classList.add('active')}
+function hideOv(id){document.getElementById(id).classList.remove('active')}
+
+/* ═══════════════════════════════════
+   JAR DOTS
+   ═══════════════════════════════════ */
+function fillJarDots(container,counts,animate){
+  var old=container.querySelectorAll('.jdot');for(var i=0;i<old.length;i++)old[i].remove();
+  var yOff=container.offsetHeight*.08;
+  for(var spIdx in counts){
+    if(!counts.hasOwnProperty(spIdx))continue;var cnt=counts[spIdx];if(cnt<=0)continue;
+    var sp=SPECIES[spIdx];if(!sp)continue;var gc=sp.glow;var show=Math.min(cnt,10);
+    for(var j=0;j<show;j++){
+      var dot=document.createElement('div');dot.className='jdot';
+      var sz=5+Math.random()*5;var xp=12+Math.random()*76;var yp=yOff+Math.random()*Math.min(16,container.offsetHeight*.08);
+      dot.style.cssText='position:absolute;width:'+sz+'px;height:'+sz+'px;border-radius:50%;left:'+xp+'%;top:'+yp+'%;transform:translate(-50%,-50%);background:rgb('+gc[0]+','+gc[1]+','+gc[2]+');box-shadow:0 0 '+sz+'px '+(sz*.4)+'px rgba('+gc[0]+','+gc[1]+','+gc[2]+',.5),0 0 '+(sz*2.5)+'px '+sz+'px rgba('+gc[0]+','+gc[1]+','+gc[2]+',.2);'+(animate?'animation:dotPulse '+(2+Math.random()*2)+'s ease-in-out infinite '+Math.random()*2+'s':'');
+      container.appendChild(dot);
+    }
+    yOff+=18+Math.min(cnt,10)*2;
+  }
+}
+function fillCatchJarDots(container,counts){
+  var old=container.querySelectorAll('.jdot');for(var i=0;i<old.length;i++)old[i].remove();
+  for(var spIdx in counts){
+    if(!counts.hasOwnProperty(spIdx))continue;var cnt=counts[spIdx];if(cnt<=0)continue;
+    var sp=SPECIES[spIdx];if(!sp)continue;var gc=sp.glow;var show=Math.min(cnt,5);
+    for(var j=0;j<show;j++){
+      var dot=document.createElement('div');dot.className='jdot';
+      var sz=4+Math.random()*4;
+      dot.style.cssText='position:absolute;width:'+sz+'px;height:'+sz+'px;border-radius:50%;left:'+(15+Math.random()*70)+'%;top:'+(20+Math.random()*60)+'%;transform:translate(-50%,-50%);background:rgb('+gc[0]+','+gc[1]+','+gc[2]+');box-shadow:0 0 '+sz+'px '+(sz*.3)+'px rgba('+gc[0]+','+gc[1]+','+gc[2]+',.45);animation:dotPulse '+(2+Math.random()*2)+'s ease-in-out infinite '+Math.random()*2+'s';
+      container.appendChild(dot);
+    }
+  }
+}
+
+/* ═══════════════════════════════════
+   CATCHING ENGINE
+   ═══════════════════════════════════ */
+var catchRAF=null,flies=[],particles=[],cW=0,cH=0,jarTargetX=0,jarTargetY=0;
+
+function initCatch(){
+  showScr('catch');G.running=true;
+  requestAnimationFrame(function(){
+    var canvas=document.getElementById('catch-canvas');
+    var cont=document.getElementById('catch');
+    var rect=cont.getBoundingClientRect();
+    var dpr=window.devicePixelRatio||1;
+    cW=rect.width||window.innerWidth;cH=rect.height||window.innerHeight;
+    canvas.width=cW*dpr;canvas.height=cH*dpr;canvas.style.width=cW+'px';canvas.style.height=cH+'px';
+    var jr=document.getElementById('catchJar').getBoundingClientRect();
+    jarTargetX=jr.left-rect.left+jr.width/2;jarTargetY=jr.top-rect.top+jr.height/2;
+
+    G.levelNeed=getLevelNeed(G.level);G.levelCaught=0;
+    var lvSpecies=getLevelSpecies(G.level),spdMul=getSpeedMul(G.level),ffCount=G.levelNeed;
+    document.getElementById('hudLevel').textContent='Level '+G.level;
+    document.getElementById('hudNum').textContent='0';document.getElementById('hudNeed').textContent=G.levelNeed;
+    document.getElementById('hudBar').style.width='0%';document.getElementById('hudBarLabel').textContent='0 / '+G.levelNeed;
+    document.getElementById('cjGlow').style.height='0%';
+
+    flies=[];particles=[];
+    for(var i=0;i<ffCount;i++){
+      var spIdx=lvSpecies[i%lvSpecies.length],sp=SPECIES[spIdx];
+      flies.push({id:i,sp:sp,spIdx:spIdx,x:30+Math.random()*(cW-60),y:25+Math.random()*(cH*.5),
+        vx:(Math.random()-.5)*sp.spd[1]*1.4*spdMul,vy:(Math.random()-.5)*sp.spd[1]*spdMul,
+        wbAmp:sp.wb[0]+Math.random()*(sp.wb[1]-sp.wb[0]),wx:Math.random()*Math.PI*2,wy:Math.random()*Math.PI*2,
+        wsx:.006+Math.random()*.012,wsy:.008+Math.random()*.012,
+        sz:sp.sz[0]+Math.random()*(sp.sz[1]-sp.sz[0]),ang:Math.random()*Math.PI*2,phase:Math.random()*Math.PI*2,
+        fp:Math.random()*Math.PI*2,fs:Math.PI*2/(sp.flash[0]+Math.random()*(sp.flash[1]-sp.flash[0])),
+        caught:false,ca:0,sx:0,sy:0,trail:[],wp:Math.random()*Math.PI*2});
+    }
+    function handleTap(ex,ey){
+      var cr=canvas.getBoundingClientRect(),cx=ex-cr.left,cy=ey-cr.top,best=null,bd=1e9;
+      for(var j=0;j<flies.length;j++){var f=flies[j];if(f.caught||f.ca>0)continue;
+        var d=Math.hypot(f.x-cx,f.y-cy);if(d<f.sz*5&&d<bd){best=f;bd=d}}
+      if(best)doCatch(best);
+    }
+    canvas.onpointerdown=function(e){e.preventDefault();handleTap(e.clientX,e.clientY)};
+    canvas.ontouchstart=function(e){e.preventDefault();if(e.touches.length>0)handleTap(e.touches[0].clientX,e.touches[0].clientY)};
+    if(catchRAF)cancelAnimationFrame(catchRAF);catchRAF=requestAnimationFrame(catchLoop);
+  });
+}
+
+function doCatch(f){
+  f.caught=true;f.ca=.01;f.sx=f.x;f.sy=f.y;
+  G.levelCaught++;G.totalCaught++;
+  if(!G.speciesCounts[f.spIdx])G.speciesCounts[f.spIdx]=0;G.speciesCounts[f.spIdx]++;G.discoveredSpecies[f.spIdx]=true;
+  var gc=f.sp.glow;
+  for(var i=0;i<14;i++){var a=(Math.PI*2*i)/14+(Math.random()-.5)*.4,sp2=1.2+Math.random()*3;
+    particles.push({x:f.x,y:f.y,vx:Math.cos(a)*sp2,vy:Math.sin(a)*sp2-.5,life:1,dec:.018+Math.random()*.015,sz:2+Math.random()*4,r:gc[0],g:gc[1],b:gc[2]})}
+  SFX.catchSfx();
+  document.getElementById('hudNum').textContent=G.levelCaught;
+  document.getElementById('hudBar').style.width=(G.levelCaught/G.levelNeed*100)+'%';
+  document.getElementById('hudBarLabel').textContent=G.levelCaught+' / '+G.levelNeed;
+  document.getElementById('cjGlow').style.height=Math.min(88,G.levelCaught/G.levelNeed*75+12)+'%';
+  fillCatchJarDots(document.getElementById('cjBody'),G.speciesCounts);
+  if(G.levelCaught>=G.levelNeed)setTimeout(levelComplete,1000);
+}
+
+function calcBr(f,t){
+  var p=.5+.5*Math.sin(t*.001+f.phase),fr=Math.sin(t*.001*f.fs+f.fp);
+  if(fr>.6)return 1;if(fr>0)return .5+.3*p;return .25+.15*p;
+}
+
+function catchLoop(t){
+  if(!G.running){catchRAF=null;return}
+  catchRAF=requestAnimationFrame(catchLoop);
+  var canvas=document.getElementById('catch-canvas'),dpr=window.devicePixelRatio||1,
+    ctx=canvas.getContext('2d');ctx.setTransform(dpr,0,0,dpr,0,0);ctx.clearRect(0,0,cW,cH);
+  var i,f,sp,gc,br,sz;
+  for(i=0;i<flies.length;i++){f=flies[i];if(f.caught&&f.ca>=1)continue;
+    sp=f.sp;gc=sp.glow;br=calcBr(f,t);
+    if(!f.caught){f.trail.push({x:f.x,y:f.y});if(f.trail.length>14)f.trail.shift()}
+    for(var ti=0;ti<f.trail.length;ti++){var r2=ti/f.trail.length,a2=r2*.1,R2=f.sz*.2*r2;if(R2<.3)continue;
+      ctx.fillStyle='rgba('+gc[0]+','+gc[1]+','+gc[2]+','+a2+')';ctx.beginPath();ctx.arc(f.trail[ti].x,f.trail[ti].y,R2,0,Math.PI*2);ctx.fill()}}
+  for(i=0;i<flies.length;i++){f=flies[i];
+    if(f.caught){f.ca=Math.min(1,f.ca+.02);var es=f.ca*f.ca;f.x=f.sx+(jarTargetX-f.sx)*es;f.y=f.sy+(jarTargetY-f.sy)*es;if(f.ca>=1)continue}
+    else{f.wx+=f.wsx;f.wy+=f.wsy;var wxm=Math.sin(f.wx)*f.wbAmp,wym=Math.cos(f.wy)*f.wbAmp*.7;
+      f.x+=f.vx+wxm*.5;f.y+=f.vy+wym*.5;var m=f.sz*2;
+      if(f.x<m){f.x=m;f.vx=Math.abs(f.vx)}if(f.x>cW-m){f.x=cW-m;f.vx=-Math.abs(f.vx)}
+      if(f.y<m){f.y=m;f.vy=Math.abs(f.vy)}if(f.y>cH*.5){f.y=cH*.5;f.vy=-Math.abs(f.vy)}}
+    f.wp+=.15;sp=f.sp;gc=sp.glow;br=f.caught?Math.max(.3,1-f.ca):calcBr(f,t);sz=f.sz;
+    var fade=f.caught?(1-f.ca*.8):1;ctx.save();ctx.translate(f.x,f.y);ctx.rotate(f.ang);ctx.globalAlpha=fade;
+    var gl=ctx.createRadialGradient(0,0,0,0,0,sz*5);
+    gl.addColorStop(0,'rgba('+gc[0]+','+gc[1]+','+gc[2]+','+(0.32*br)+')');
+    gl.addColorStop(0.4,'rgba('+gc[0]+','+gc[1]+','+gc[2]+','+(0.08*br)+')');
+    gl.addColorStop(1,'rgba('+gc[0]+','+gc[1]+','+gc[2]+',0)');
+    ctx.fillStyle=gl;ctx.beginPath();ctx.arc(0,0,sz*5,0,Math.PI*2);ctx.fill();
+    var wf=Math.sin(f.wp)*.12;
+    ctx.fillStyle=sp.wing;ctx.save();ctx.rotate(-.3);ctx.beginPath();ctx.ellipse(0,-sz*.08,sz*.55,sz*(.2+wf),0,0,Math.PI*2);ctx.fill();ctx.restore();
+    ctx.save();ctx.rotate(.3);ctx.beginPath();ctx.ellipse(0,sz*.08,sz*.55,sz*(.2-wf),0,0,Math.PI*2);ctx.fill();ctx.restore();
+    ctx.fillStyle=sp.body;ctx.beginPath();ctx.ellipse(-sz*.1,0,sz*.2,sz*.11,0,0,Math.PI*2);ctx.fill();
+    ctx.beginPath();ctx.ellipse(sz*.1,0,sz*.26,sz*.13,0,0,Math.PI*2);ctx.fill();
+    var ag=ctx.createRadialGradient(sz*.16,0,0,sz*.16,0,sz*.42);
+    ag.addColorStop(0,'rgba('+gc[0]+','+gc[1]+','+gc[2]+','+(0.9*br)+')');
+    ag.addColorStop(0.35,'rgba('+gc[0]+','+gc[1]+','+gc[2]+','+(0.45*br)+')');
+    ag.addColorStop(1,'rgba('+gc[0]+','+gc[1]+','+gc[2]+',0)');
+    ctx.fillStyle=ag;ctx.beginPath();ctx.arc(sz*.16,0,sz*.42,0,Math.PI*2);ctx.fill();
+    ctx.fillStyle='rgba(255,255,245,'+(0.9*br)+')';ctx.beginPath();ctx.arc(sz*.2,0,sz*.09,0,Math.PI*2);ctx.fill();
+    ctx.fillStyle=sp.body;ctx.beginPath();ctx.arc(-sz*.3,0,sz*.09,0,Math.PI*2);ctx.fill();
+    ctx.fillStyle='rgba('+gc[0]+','+gc[1]+','+gc[2]+','+(0.4+0.3*br)+')';
+    ctx.beginPath();ctx.arc(-sz*.35,-sz*.045,sz*.02,0,Math.PI*2);ctx.fill();
+    ctx.beginPath();ctx.arc(-sz*.35,sz*.045,sz*.02,0,Math.PI*2);ctx.fill();ctx.restore();
+  }
+  for(i=particles.length-1;i>=0;i--){var p=particles[i];p.x+=p.vx;p.y+=p.vy;p.vy+=.02;p.life-=p.dec;
+    if(p.life<=0){particles.splice(i,1);continue}
+    ctx.fillStyle='rgba('+p.r+','+p.g+','+p.b+','+p.life+')';ctx.beginPath();ctx.arc(p.x,p.y,p.sz*p.life,0,Math.PI*2);ctx.fill();
+    ctx.fillStyle='rgba('+p.r+','+p.g+','+p.b+','+(p.life*.18)+')';ctx.beginPath();ctx.arc(p.x,p.y,p.sz*p.life*2.2,0,Math.PI*2);ctx.fill();
+  }
+}
+
+/* ═══════════════════════════════════
+   LEVEL COMPLETE
+   ═══════════════════════════════════ */
+function levelComplete(){
+  G.running=false;if(catchRAF){cancelAnimationFrame(catchRAF);catchRAF=null}
+  SFX.win();confetti();
+  var lvSpecies=getLevelSpecies(G.level),newThisLevel=[];
+  for(var i=0;i<lvSpecies.length;i++){if(!G.prevSpeciesSet[lvSpecies[i]])newThisLevel.push(lvSpecies[i]);G.prevSpeciesSet[lvSpecies[i]]=true}
+  document.getElementById('lcHdr').textContent='Level '+G.level+' Complete!';
+  document.getElementById('lcStat').innerHTML='Caught: <span>'+G.totalCaught+'</span> fireflies total';
+  G.level++;
+  var starsEl=document.getElementById('lcStars');starsEl.innerHTML='';
+  var starCount=G.levelCaught>=G.levelNeed?3:G.levelCaught>=G.levelNeed*.6?2:1;
+  for(var i=0;i<3;i++){var s=document.createElement('div');s.className='ls';s.textContent=i<starCount?'\u2B50':'\u2606';starsEl.appendChild(s)}
+  var newEl=document.getElementById('lcNew');
+  if(newThisLevel.length>0){newEl.style.display='flex';document.getElementById('lcNewE').textContent='\uD83E\uDEB2';
+    var names=[];for(var i=0;i<newThisLevel.length;i++)names.push(SPECIES[newThisLevel[i]].name);
+    document.getElementById('lcNewT').textContent='New: '+names.join(', ')+'!';
+  }else{newEl.style.display='none'}
+  var fact=FACTS[G.factIdx%FACTS.length];G.factIdx++;
+  document.getElementById('lcFact').innerHTML='<div style="font-size:clamp(1.4rem,3.5vh,2.2rem);margin-bottom:3px">'+fact.icon+'</div><div style="font-weight:600">'+fact.text+'</div>';
+  var lcJar=document.getElementById('lcJar'),lcGlow=document.getElementById('lcGlow');
+  fillJarDots(lcJar,G.speciesCounts,true);lcGlow.style.height=Math.min(85,G.levelCaught/G.levelNeed*75+10)+'%';
+  showOv('ovDone');
+}
+
+/* ═══════════════════════════════════
+   JAR VIEW
+   ═══════════════════════════════════ */
+function showJarView(){
+  hideOv('ovDone');hideOv('ovStart');G.running=false;
+  if(catchRAF){cancelAnimationFrame(catchRAF);catchRAF=null}
+  showScr('jarview');
+  var total=0;for(var k in G.speciesCounts)if(G.speciesCounts.hasOwnProperty(k))total+=G.speciesCounts[k];
+  document.getElementById('jvSub').textContent='Level '+G.level+' \u2022 '+total+' fireflies';
+  document.getElementById('jvTotal').textContent=G.totalCaught;
+  var jar=document.getElementById('jvJar'),glow=document.getElementById('jvGlow');
+  fillJarDots(jar,G.speciesCounts,true);glow.style.height=Math.min(85,total>0?60:5)+'%';
+  var spEl=document.getElementById('jvSpecies');spEl.innerHTML='';
+  for(var idx in G.speciesCounts){if(!G.speciesCounts.hasOwnProperty(idx))continue;var cnt=G.speciesCounts[idx];if(cnt<=0)continue;
+    var sp=SPECIES[idx],gc=sp.glow,d=document.createElement('div');d.className='jv-sp';
+    d.innerHTML='<div class="dot" style="background:rgb('+gc[0]+','+gc[1]+','+gc[2]+');box-shadow:0 0 6px rgba('+gc[0]+','+gc[1]+','+gc[2]+',.5)"></div>'+sp.name+' \u00D7'+cnt;spEl.appendChild(d)}
+}
+
+/* ═══════════════════════════════════
+   LEVEL FLOW
+   ═══════════════════════════════════ */
+function showLevelStart(){
+  hideOv('ovDone');hideOv('ovStart');
+  var need=getLevelNeed(G.level),lvSpecies=getLevelSpecies(G.level),newSpNames=[];
+  for(var i=0;i<lvSpecies.length;i++){var sp=SPECIES[lvSpecies[i]];if(sp.unlockLv===G.level)newSpNames.push(sp.name)}
+  document.getElementById('ovLvl').textContent=G.level;document.getElementById('ovNeed').textContent=need;
+  var newEl=document.getElementById('ovNew');
+  if(newSpNames.length>0){newEl.style.display='block';newEl.textContent='New species: '+newSpNames.join(', ')+'!'}
+  else{newEl.style.display='none'}
+  showOv('ovStart');
+}
+function startLevel(){hideOv('ovStart');initCatch()}
+function resetGame(){
+  G.level=1;G.totalCaught=0;G.levelCaught=0;G.speciesCounts={};G.discoveredSpecies={};
+  G.factIdx=0;G.prevSpeciesSet={};G.running=false;
+  if(catchRAF){cancelAnimationFrame(catchRAF);catchRAF=null}
+}
+
+/* ═══════════════════════════════════
+   INIT
+   ═══════════════════════════════════ */
+window.addEventListener('DOMContentLoaded',function(){
+  mkStars('ws');mkStars('cs');mkStars('js');
+  document.getElementById('btnStart').addEventListener('click',function(e){e.preventDefault();SFX.click();resetGame();showLevelStart()});
+  document.getElementById('btnGo').addEventListener('click',function(e){e.preventDefault();SFX.click();startLevel()});
+  document.getElementById('btnNext').addEventListener('click',function(e){e.preventDefault();SFX.click();showLevelStart()});
+  document.getElementById('btnViewJar').addEventListener('click',function(e){e.preventDefault();SFX.click();showJarView()});
+  document.getElementById('btnJar').addEventListener('click',function(e){e.preventDefault();SFX.click();showJarView()});
+  document.getElementById('btnBackCatch').addEventListener('click',function(e){e.preventDefault();SFX.click();if(G.running){showScr('catch')}else{showLevelStart()}});
+  document.getElementById('btnQuit').addEventListener('click',function(e){e.preventDefault();SFX.click();G.running=false;if(catchRAF){cancelAnimationFrame(catchRAF);catchRAF=null}hideOv('ovDone');hideOv('ovStart');showScr('welcome')});
+});
+</script>
+</body>
+</html>

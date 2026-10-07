@@ -1,0 +1,655 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8" />
+<meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1, user-scalable=no, viewport-fit=cover" />
+<title>Dino Dig Adventure</title>
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link href="https://fonts.googleapis.com/css2?family=Bangers&family=Nunito:wght@600;800&display=swap" rel="stylesheet">
+<style>
+:root{
+  --bg:#2a1810;--surface:#3d2517;--rock:#8c7b6b;--rock-dark:#5e4f42;--rock-crack:#ffcc44;
+  --accent:#ff6b35;--accent-glow:#ff9955;--green:#44cc66;--green-dark:#2a9944;
+  --text:#fff8e7;--text-muted:#c4a882;--quiz-bg:#1a1028;--correct:#22cc66;--wrong:#ee4444;
+  --sky-top:#1a0a2e;--sky-mid:#2d1b4e;--sky-bottom:#4a2a1a;
+  --slab:#f3ecdc;
+}
+*{margin:0;padding:0;box-sizing:border-box;-webkit-tap-highlight-color:transparent}
+body{
+  font-family:'Nunito',sans-serif;font-weight:600;
+  background:linear-gradient(180deg,var(--sky-top) 0%,var(--sky-mid) 40%,var(--sky-bottom) 100%);
+  color:var(--text);overflow:hidden;height:100dvh;width:100vw;
+  display:flex;align-items:center;justify-content:center;
+  user-select:none;-webkit-user-select:none;touch-action:manipulation;
+}
+body::before{content:'';position:fixed;inset:0;background:url("data:image/svg+xml,%3Csvg viewBox='0 0 256 256' xmlns='http://www.w3.org/2000/svg'%3E%3Cfilter id='n'%3E%3CfeTurbulence type='fractalNoise' baseFrequency='0.9' numOctaves='4' stitchTiles='stitch'/%3E%3C/filter%3E%3Crect width='100%25' height='100%25' filter='url(%23n)' opacity='0.5'/%3E%3C/svg%3E");background-size:128px;opacity:.04;pointer-events:none;z-index:999}
+.game-wrap{width:100%;max-width:480px;height:100dvh;position:relative;overflow:hidden}
+
+/* ===== SCREENS (Fixed clipping issue) ===== */
+.screen{
+  position:absolute;inset:0;display:none;flex-direction:column;
+  overflow-y:auto;overflow-x:hidden;
+  padding:14px;padding-bottom:calc(16px + env(safe-area-inset-bottom));z-index:1;
+}
+.screen.active{display:flex}
+/* This pseudo-element trick perfectly centers content vertically without clipping top when overflowing */
+.screen::before, .screen::after { content:''; margin:auto; }
+.scr{
+  width:100%;display:flex;flex-direction:column;align-items:center;gap:14px;
+  flex-shrink:0; /* prevents flex child from crushing */
+}
+
+/* ===== WELCOME ===== */
+.welcome-bg{position:absolute;inset:0;background:url('dino_tyrannosaurus.webp') center 60%/contain no-repeat;opacity:.07;filter:saturate(.6);pointer-events:none}
+.dino-preview{font-size:3.6rem;filter:drop-shadow(0 4px 12px rgba(0,0,0,.5));animation:eggBob 2.4s ease-in-out infinite}
+@keyframes eggBob{0%,100%{transform:translateY(0) rotate(-3deg)}50%{transform:translateY(-8px) rotate(3deg)}}
+.welcome-title{font-family:'Bangers',cursive;font-size:clamp(2.4rem,9vw,3.4rem);color:var(--accent);text-shadow:0 4px 0 #cc4400,0 6px 20px rgba(255,107,53,.4);letter-spacing:2px;text-align:center;line-height:1.05}
+.welcome-sub{font-size:1.05rem;color:var(--text-muted);text-align:center}
+.badge{font-size:.85rem;color:var(--accent-glow);background:rgba(255,107,53,.12);border:1px solid rgba(255,107,53,.3);padding:5px 14px;border-radius:999px;min-height:1.4em;text-align:center}
+.fossil-row{display:flex;gap:8px;margin:2px 0}
+.fossil-tile{width:38px;height:38px;border-radius:10px;background:radial-gradient(circle at 38% 32%,#a89888,var(--rock) 55%,var(--rock-dark));display:flex;align-items:center;justify-content:center;font-size:1.1rem;color:rgba(255,255,255,.55);box-shadow:inset 0 -3px 8px rgba(0,0,0,.35)}
+
+/* ===== BUTTON ===== */
+.btn{display:inline-flex;align-items:center;justify-content:center;gap:8px;padding:14px 34px;font-family:'Bangers',cursive;font-size:1.3rem;letter-spacing:1px;color:#fff;background:var(--accent);border:none;border-radius:14px;box-shadow:0 5px 0 #cc4400,0 8px 24px rgba(255,107,53,.35);cursor:pointer;user-select:none;-webkit-user-select:none;transition:transform .1s,box-shadow .1s;flex-shrink:0}
+.btn:active{transform:translateY(3px);box-shadow:0 2px 0 #cc4400,0 4px 16px rgba(255,107,53,.25)}
+
+/* ===== EXCAVATE (egg) ===== */
+.dig-name{font-family:'Bangers',cursive;font-size:clamp(1.4rem,5.5vw,1.9rem);color:var(--accent-glow);letter-spacing:1px;text-align:center;text-shadow:0 2px 10px rgba(255,107,53,.25)}
+.dig-progress{font-size:.9rem;color:var(--text-muted)}
+.dig-hint{font-size:1rem;color:var(--text-muted);min-height:1.3em;text-align:center;opacity:.9}
+
+.egg{
+  position:relative;width:clamp(150px,50vw,230px);height:clamp(190px,38vh,300px);
+  border-radius:50% 50% 50% 50%/60% 60% 40% 40%;
+  background:radial-gradient(circle at 38% 30%,#fffdf4,#f3e7c9 45%,#e6d2a3 80%,#d8bf86);
+  box-shadow:0 14px 34px rgba(0,0,0,.5),inset -10px -14px 26px rgba(150,110,50,.35),inset 8px 10px 22px rgba(255,255,255,.6);
+  cursor:pointer;animation:eggIdle 2.6s ease-in-out infinite;
+}
+@keyframes eggIdle{0%,100%{transform:translateY(0) rotate(-1.5deg)}50%{transform:translateY(-7px) rotate(1.5deg)}}
+.egg::before{content:'';position:absolute;inset:0;border-radius:inherit;z-index:1;pointer-events:none;opacity:.7;
+  background:
+    radial-gradient(circle at 30% 25%,rgba(120,180,150,.5) 0 4px,transparent 5px),
+    radial-gradient(circle at 62% 40%,rgba(120,180,150,.45) 0 5px,transparent 6px),
+    radial-gradient(circle at 45% 62%,rgba(120,180,150,.4) 0 4px,transparent 5px),
+    radial-gradient(circle at 70% 70%,rgba(120,180,150,.4) 0 3px,transparent 4px),
+    radial-gradient(circle at 25% 55%,rgba(120,180,150,.4) 0 3px,transparent 4px)}
+.egg::after{content:'';position:absolute;inset:0;border-radius:inherit;z-index:2;pointer-events:none;opacity:0;transition:opacity .3s;
+  background:radial-gradient(circle at 50% 48%,rgba(255,245,200,.95),rgba(255,200,90,.18) 65%,transparent 75%)}
+.egg.crack3::after{opacity:.35}.egg.crack4::after{opacity:.6}.egg.crack5::after{opacity:.92}
+.egg .cracks{position:absolute;inset:0;width:100%;height:100%;z-index:3;pointer-events:none;overflow:visible}
+.cracks path{fill:none;stroke:#3a2417;stroke-width:2.4;stroke-linecap:round;stroke-linejoin:round;opacity:0;transition:opacity .25s;filter:drop-shadow(0 1px 0 rgba(255,255,255,.4))}
+.egg.crack1 .c1,.egg.crack2 .c2,.egg.crack3 .c3,.egg.crack4 .c4,.egg.crack5 .c5{opacity:1}
+.egg-flash{position:absolute;inset:0;border-radius:inherit;z-index:4;pointer-events:none;opacity:0;
+  background:radial-gradient(circle at 50% 50%,#fff,rgba(255,240,180,.6) 50%,transparent 75%)}
+
+.egg.shake{animation:eggShake .3s ease}
+@keyframes eggShake{0%,100%{transform:translate(0,0) rotate(0)}20%{transform:translate(-5px,2px) rotate(-4deg)}40%{transform:translate(5px,-2px) rotate(4deg)}60%{transform:translate(-4px,3px) rotate(-3deg)}80%{transform:translate(4px,-1px) rotate(2deg)}}
+.egg.hatch{animation:eggHatch .6s ease forwards}
+.egg.hatch .egg-flash{animation:eggFlash .6s ease forwards}
+@keyframes eggHatch{0%{transform:scale(1) rotate(0)}15%{transform:scale(1.04) rotate(-5deg)}30%{transform:scale(1.04) rotate(5deg)}45%{transform:scale(1.08) rotate(-3deg)}60%{transform:scale(1.18);filter:brightness(1.6)}100%{transform:scale(1.7);opacity:0;filter:brightness(2)}}
+@keyframes eggFlash{0%{opacity:0}45%{opacity:0}72%{opacity:1}100%{opacity:0}}
+
+.meter{width:clamp(150px,50vw,230px);height:8px;border-radius:99px;background:rgba(255,255,255,.12);overflow:hidden;box-shadow:inset 0 1px 3px rgba(0,0,0,.4)}
+.meter-fill{height:100%;width:0;border-radius:99px;background:linear-gradient(90deg,var(--rock-crack),var(--accent));transition:width .25s ease}
+
+/* dust / spark */
+.particle{position:fixed;width:7px;height:7px;border-radius:50%;pointer-events:none;z-index:60;opacity:0}
+.particle.burst{animation:pBurst .55s ease-out forwards}
+@keyframes pBurst{0%{opacity:1;transform:translate(-50%,-50%) scale(1)}100%{opacity:0;transform:translate(calc(-50% + var(--px)),calc(-50% + var(--py))) scale(0)}}
+.spark{position:fixed;pointer-events:none;z-index:61;font-size:18px;transform:translate(-50%,-50%);animation:spk .45s ease-out forwards}
+@keyframes spk{0%{opacity:1;transform:translate(-50%,-50%) scale(.4) rotate(0)}100%{opacity:0;transform:translate(-50%,-160%) scale(1.2) rotate(40deg)}}
+
+/* ===== REVEAL ===== */
+#screen-reveal{justify-content:space-between;align-items:stretch;overflow:hidden;padding:0}
+#screen-reveal::before, #screen-reveal::after { display:none; }
+.reveal-img{position:absolute;inset:0;width:100%;height:100%;object-fit:contain;object-position:center 42%;background:var(--slab);pointer-events:none}
+.reveal-emoji-fb{position:absolute;inset:0;display:none;align-items:center;justify-content:center;font-size:7rem;background:var(--slab)}
+.reveal-top{position:relative;z-index:2;padding:calc(14px + env(safe-area-inset-top)) 16px 10px;display:flex;justify-content:center}
+.reveal-name{font-family:'Bangers',cursive;font-size:clamp(1.5rem,6.5vw,2.2rem);letter-spacing:2px;color:#fff;
+  background:rgba(20,10,30,.6);-webkit-backdrop-filter:blur(6px);backdrop-filter:blur(6px);
+  padding:8px 22px;border-radius:99px;box-shadow:0 4px 14px rgba(0,0,0,.3);text-align:center}
+.reveal-bottom{position:relative;z-index:2;display:flex;flex-direction:column;align-items:center;gap:12px;
+  padding:24px 16px calc(20px + env(safe-area-inset-bottom));
+  background:linear-gradient(0deg,rgba(20,10,30,.82),rgba(20,10,30,.4) 70%,transparent)}
+.reveal-meta{color:#ffe9cf;font-size:.98rem;text-align:center;text-shadow:0 1px 4px rgba(0,0,0,.5)}
+
+/* ===== LEARN ===== */
+.learn-name{font-family:'Bangers',cursive;font-size:1.5rem;color:var(--accent);letter-spacing:1px;text-align:center}
+.learn-portrait{position:relative;width:clamp(140px,44vw,200px);height:clamp(140px,30vh,200px);border-radius:18px;background:var(--slab);overflow:hidden;box-shadow:0 10px 30px rgba(0,0,0,.5),inset 0 0 0 3px rgba(255,255,255,.5);flex-shrink:0}
+.learn-portrait .slab-img{position:absolute;inset:0;width:100%;height:100%;object-fit:contain;animation:kenburns 7s ease-in-out infinite alternate}
+@keyframes kenburns{0%{transform:scale(1) translate(0,0)}100%{transform:scale(1.09) translate(-1.5%,-1%)}}
+.learn-portrait .spotlight{position:absolute;inset:0;pointer-events:none;background:radial-gradient(circle at 50% 45%,rgba(255,255,255,.35),transparent 55%);animation:drift 6s ease-in-out infinite alternate}
+@keyframes drift{0%{transform:translate(-12%,-8%)}100%{transform:translate(12%,10%)}}
+.learn-portrait .emoji-fb{position:absolute;inset:0;display:none;align-items:center;justify-content:center;font-size:clamp(3.5rem,14vw,5rem)}
+.fact-card{background:rgba(255,255,255,.06);border:1px solid rgba(255,255,255,.08);border-radius:16px;padding:18px 22px;max-width:380px;width:100%;text-align:center}
+.fact-text{font-size:clamp(1rem,3.8vw,1.15rem);color:var(--text);line-height:1.55;min-height:3.2em;display:flex;align-items:center;justify-content:center}
+.fact-dots{display:flex;gap:8px;justify-content:center;margin-top:14px}
+.fact-dot{width:10px;height:10px;border-radius:50%;background:rgba(255,255,255,.15);transition:background .3s,transform .3s}
+.fact-dot.active{background:var(--accent);transform:scale(1.25)}
+
+/* ===== QUIZ ===== */
+.quiz-screen{background:linear-gradient(180deg,var(--quiz-bg) 0%,#0d0818 100%)}
+.quiz-portrait{width:84px;height:84px;border-radius:16px;background:var(--slab);overflow:hidden;box-shadow:0 6px 18px rgba(0,0,0,.5),inset 0 0 0 3px rgba(255,255,255,.5);position:relative;flex-shrink:0}
+.quiz-portrait .slab-img{position:absolute;inset:0;width:100%;height:100%;object-fit:contain}
+.quiz-portrait .emoji-fb{position:absolute;inset:0;display:none;align-items:center;justify-content:center;font-size:2.4rem}
+.quiz-label{font-family:'Bangers',cursive;font-size:1.05rem;color:var(--accent);letter-spacing:2px}
+.quiz-question{font-size:clamp(1.05rem,4.4vw,1.25rem);color:var(--text);text-align:center;line-height:1.45;max-width:400px}
+.quiz-options{display:flex;flex-direction:column;gap:11px;width:100%;max-width:380px}
+.quiz-opt{padding:15px 18px;background:linear-gradient(180deg,rgba(255,255,255,.08),rgba(255,255,255,.03));border:2px solid rgba(255,255,255,.12);border-radius:14px;color:var(--text);font-family:'Nunito',sans-serif;font-size:1.02rem;font-weight:600;cursor:pointer;text-align:left;transition:border-color .2s,background .2s,transform .1s;user-select:none;-webkit-user-select:none;box-shadow:0 3px 0 rgba(0,0,0,.25)}
+.quiz-opt:active{transform:scale(.97)}
+.quiz-opt.correct{border-color:var(--correct)!important;background:rgba(34,204,102,.18)!important;animation:correctPop .4s ease}
+.quiz-opt.wrong{border-color:var(--wrong)!important;background:rgba(238,68,68,.14)!important;animation:wrongShake .4s ease}
+.quiz-opt.disabled{pointer-events:none;opacity:.5}
+@keyframes correctPop{0%,100%{transform:scale(1)}50%{transform:scale(1.03)}}
+@keyframes wrongShake{0%,100%{transform:translateX(0)}20%{transform:translateX(-6px)}40%{transform:translateX(6px)}60%{transform:translateX(-4px)}80%{transform:translateX(4px)}}
+
+/* ===== VICTORY ===== */
+.victory-emoji{font-size:4.4rem;animation:popIn .6s cubic-bezier(.34,1.56,.64,1)}
+.victory-title{font-family:'Bangers',cursive;font-size:clamp(1.9rem,8vw,2.7rem);color:var(--accent);text-shadow:0 3px 0 #cc4400,0 5px 16px rgba(255,107,53,.3);letter-spacing:2px;text-align:center}
+.victory-sub{font-size:1rem;color:var(--text-muted);text-align:center}
+.gallery{display:grid;grid-template-columns:repeat(3,1fr);gap:12px;width:min(86vw,330px)}
+.gal-item{display:flex;flex-direction:column;align-items:center;gap:4px;cursor:pointer;animation:popIn .4s cubic-bezier(.34,1.56,.64,1) both}
+.gal-frame{width:100%;aspect-ratio:1;border-radius:14px;background:var(--slab);overflow:hidden;position:relative;box-shadow:0 6px 16px rgba(0,0,0,.45),inset 0 0 0 3px rgba(255,255,255,.5);transition:transform .12s}
+.gal-item:active .gal-frame{transform:scale(.93)}
+.gal-frame .slab-img{position:absolute;inset:0;width:100%;height:100%;object-fit:contain}
+.gal-frame .emoji-fb{position:absolute;inset:0;display:none;align-items:center;justify-content:center;font-size:2rem}
+.gal-name{font-size:.72rem;color:var(--text-muted);text-align:center;line-height:1.1}
+@keyframes popIn{0%{transform:scale(0) rotate(-15deg);opacity:0}100%{transform:scale(1) rotate(0);opacity:1}}
+
+/* ===== MUTE ===== */
+.mute-btn{position:fixed;top:12px;right:12px;width:40px;height:40px;background:rgba(0,0,0,.5);border:1px solid rgba(255,255,255,.1);border-radius:50%;display:flex;align-items:center;justify-content:center;font-size:1.2rem;cursor:pointer;z-index:100;color:var(--text);transition:background .2s}
+.mute-btn:active{background:rgba(0,0,0,.7)}
+
+/* ===== LANDSCAPE & SHORT SCREEN FIXES ===== */
+@media (max-height: 600px) {
+  .dino-preview { display: none; }
+  .welcome-title { font-size: 2rem; }
+  .scr { gap: 8px; }
+  .egg { width: clamp(120px, 30vw, 160px); height: clamp(150px, 40vh, 200px); }
+  .learn-portrait { height: clamp(100px, 35vh, 150px); }
+  .fact-text { font-size: 1rem; min-height: 2.5em; }
+  .victory-emoji { display: none; }
+  
+  /* Guarantee Quiz fits perfectly on landscape without clipping */
+  .quiz-portrait { display: none; }
+  .quiz-options { gap: 8px; }
+  .quiz-opt { padding: 12px 16px; font-size: 0.95rem; }
+  .quiz-question { font-size: 1rem; margin-bottom: 4px; }
+}
+</style>
+</head>
+<body>
+
+<button class="mute-btn" onclick="toggleMute()" aria-label="Toggle sound"><span id="mute-icon">🔊</span></button>
+
+<div class="game-wrap">
+
+  <!-- ===== WELCOME ===== -->
+  <div class="screen active" id="screen-welcome">
+    <div class="welcome-bg"></div>
+    <div class="scr">
+      <div class="dino-preview">🥚</div>
+      <div class="welcome-title">DINO DIG<br>ADVENTURE</div>
+      <p class="welcome-sub">Tap the eggs to hatch real dinosaurs!</p>
+      <div class="fossil-row">
+        <div class="fossil-tile">?</div><div class="fossil-tile">?</div><div class="fossil-tile">?</div>
+        <div class="fossil-tile">?</div><div class="fossil-tile">?</div><div class="fossil-tile">?</div>
+      </div>
+      <div class="badge" id="welcome-badge"></div>
+      <button class="btn" onclick="startGame()">⛏️&nbsp; Start Digging</button>
+    </div>
+  </div>
+
+  <!-- ===== EXCAVATE (egg) ===== -->
+  <div class="screen" id="screen-excavate">
+    <div class="scr">
+      <div class="dig-name" id="dig-name">🥚 A mysterious egg</div>
+      <div class="dig-progress" id="dig-progress">Dinosaur 1 of 6</div>
+      <div class="egg" id="egg" onclick="tapRock(event)">
+        <svg class="cracks" viewBox="0 0 100 130" preserveAspectRatio="none">
+          <path class="c1" d="M50 6 L46 22 L54 34 L48 48"/>
+          <path class="c2" d="M10 56 L26 52 L34 64 L28 78 M90 50 L74 56 L70 70"/>
+          <path class="c3" d="M40 40 L50 54 L43 68 L55 80 L47 96"/>
+          <path class="c4" d="M18 92 L34 86 L40 100 L30 114 M82 88 L68 94 L73 108"/>
+          <path class="c5" d="M50 28 L38 44 L52 60 L40 76 L56 90 L46 106 L54 120 M30 30 L44 42 M70 32 L58 46"/>
+        </svg>
+        <div class="egg-flash"></div>
+      </div>
+      <div class="meter"><div class="meter-fill" id="meter-fill"></div></div>
+      <div class="dig-hint" id="dig-hint">Tap to crack it open!</div>
+    </div>
+  </div>
+
+  <!-- ===== REVEAL (full-screen image) ===== -->
+  <div class="screen" id="screen-reveal">
+    <img class="reveal-img" id="reveal-img" alt="" onerror="this.onerror=null;this.style.display='none';document.getElementById('reveal-emoji').style.display='flex'">
+    <div class="reveal-emoji-fb" id="reveal-emoji">🦖</div>
+    <div class="reveal-top"><div class="reveal-name" id="reveal-name">DINO</div></div>
+    <div class="reveal-bottom">
+      <div class="reveal-meta" id="reveal-meta"></div>
+      <button class="btn" onclick="startLearn()">📖&nbsp; Learn About Me!</button>
+    </div>
+  </div>
+
+  <!-- ===== LEARN ===== -->
+  <div class="screen" id="screen-learn">
+    <div class="scr">
+      <div class="learn-name" id="learn-name">DINO</div>
+      <div class="learn-portrait" id="learn-portrait">
+        <img class="slab-img" id="learn-img" alt="" onerror="this.onerror=null;this.style.display='none';this.parentNode.querySelector('.emoji-fb').style.display='flex'">
+        <div class="emoji-fb" id="learn-emoji">🦖</div>
+        <div class="spotlight"></div>
+      </div>
+      <div class="fact-card">
+        <div class="fact-text" id="fact-text">Loading fact…</div>
+        <div class="fact-dots" id="fact-dots"></div>
+      </div>
+      <button class="btn" id="learn-btn" style="display:none;"></button>
+    </div>
+  </div>
+
+  <!-- ===== QUIZ ===== -->
+  <div class="screen quiz-screen" id="screen-quiz">
+    <div class="scr">
+      <div class="quiz-portrait">
+        <img class="slab-img" id="quiz-img" alt="" onerror="this.onerror=null;this.style.display='none';this.parentNode.querySelector('.emoji-fb').style.display='flex'">
+        <div class="emoji-fb" id="quiz-emoji">🦖</div>
+      </div>
+      <div class="quiz-label">🧪 QUIZ TIME!</div>
+      <div class="quiz-question" id="quiz-question">Question?</div>
+      <div class="quiz-options" id="quiz-options"></div>
+    </div>
+  </div>
+
+  <!-- ===== VICTORY ===== -->
+  <div class="screen" id="screen-victory">
+    <div class="scr">
+      <div class="victory-emoji">🏆</div>
+      <div class="victory-title">DINO EXPERT!</div>
+      <p class="victory-sub">You hatched all 6 dinosaurs! Tap one to review.</p>
+      <div class="gallery" id="gallery"></div>
+      <button class="btn" onclick="restart()">🔄&nbsp; Dig Again</button>
+    </div>
+  </div>
+
+</div>
+
+<script>
+// ===================== AUDIO CONFIG =====================
+const AUDIO_DIR = 'dinohatch_audio/';
+let muted = false;
+
+const VOICES = {
+  welcome:   { text: "Welcome to Dino Dig Adventure! Let's dig up some dinosaurs!", m4a: `${AUDIO_DIR}welcome.m4a` },
+  digStart:  { text: "Tap the rock to crack it open! Keep tapping!", m4a: `${AUDIO_DIR}dig_start.m4a` },
+  dig2:      { text: "Keep going! The rock is cracking!", m4a: `${AUDIO_DIR}dig_2.m4a` },
+  dig4:      { text: "Almost there! One more tap!", m4a: `${AUDIO_DIR}dig_4.m4a` },
+  dig6:      { text: "The rock is breaking open!", m4a: `${AUDIO_DIR}dig_6.m4a` },
+  learnIntro:{ text: "Let's learn cool facts!", m4a: `${AUDIO_DIR}learn_intro.m4a` },
+  nextDino:  { text: "Great job! Let's find the next dinosaur!", m4a: `${AUDIO_DIR}next_dino.m4a` },
+  victory:   { text: "You discovered all 6 dinosaurs! You're a Dino Expert!", m4a: `${AUDIO_DIR}victory.m4a` },
+  tryAgain:  { text: "Want to dig again? Let's go!", m4a: `${AUDIO_DIR}try_again.m4a` },
+  dinosaurs: {
+    stegosaurus: {
+      reveal:      { text: "You found a Stegosaurus! Amazing discovery!", m4a: `${AUDIO_DIR}reveal_stegosaurus.m4a` },
+      learn1:      { text: "Stegosaurus had 17 bony plates on its back that could get up to 2 feet tall!", m4a: `${AUDIO_DIR}learn1_stegosaurus.m4a` },
+      learn2:      { text: "Its brain was only the size of a walnut, one of the smallest brains compared to body size.", m4a: `${AUDIO_DIR}learn2_stegosaurus.m4a` },
+      learn3:      { text: "It had 4 sharp spikes on its tail called a thagomizer to fight off predators!", m4a: `${AUDIO_DIR}learn3_stegosaurus.m4a` },
+      quizTime:    { text: "What were the spikes on Stegosaurus's tail called?", m4a: `${AUDIO_DIR}quiztime_stegosaurus.m4a` },
+      quizCorrect: { text: "That's right! Stegosaurus had a thagomizer on its tail!", m4a: `${AUDIO_DIR}correct_stegosaurus.m4a` },
+      quizWrong:   { text: "Good try! Stegosaurus had 4 sharp tail spikes called a thagomizer.", m4a: `${AUDIO_DIR}wrong_stegosaurus.m4a` }
+    },
+    triceratops: {
+      reveal:      { text: "You found a Triceratops! Amazing discovery!", m4a: `${AUDIO_DIR}reveal_triceratops.m4a` },
+      learn1:      { text: "Triceratops means three-horned face. It had two big horns above its eyes and one on its nose!", m4a: `${AUDIO_DIR}learn1_triceratops.m4a` },
+      learn2:      { text: "Its huge neck frill could be over 3 feet wide and was used for protection and showing off.", m4a: `${AUDIO_DIR}learn2_triceratops.m4a` },
+      learn3:      { text: "Triceratops had up to 800 teeth arranged in groups called batteries that were constantly replaced!", m4a: `${AUDIO_DIR}learn3_triceratops.m4a` },
+      quizTime:    { text: "What does Triceratops mean?", m4a: `${AUDIO_DIR}quiztime_triceratops.m4a` },
+      quizCorrect: { text: "That's right! Triceratops means three-horned face!", m4a: `${AUDIO_DIR}correct_triceratops.m4a` },
+      quizWrong:   { text: "Good try! Triceratops means three-horned face.", m4a: `${AUDIO_DIR}wrong_triceratops.m4a` }
+    },
+    pteranodon: {
+      reveal:      { text: "You found a Pteranodon! Amazing discovery!", m4a: `${AUDIO_DIR}reveal_pteranodon.m4a` },
+      learn1:      { text: "Pteranodon wasn't actually a dinosaur, it was a flying reptile called a pterosaur!", m4a: `${AUDIO_DIR}learn1_pteranodon.m4a` },
+      learn2:      { text: "Its wingspan could reach 23 feet wide, that's wider than a giraffe is tall!", m4a: `${AUDIO_DIR}learn2_pteranodon.m4a` },
+      learn3:      { text: "Pteranodon had a long pointed crest on the back of its head that helped it steer while flying!", m4a: `${AUDIO_DIR}learn3_pteranodon.m4a` },
+      quizTime:    { text: "What type of creature was Pteranodon?", m4a: `${AUDIO_DIR}quiztime_pteranodon.m4a` },
+      quizCorrect: { text: "That's right! Pteranodon was a flying reptile called a pterosaur!", m4a: `${AUDIO_DIR}correct_pteranodon.m4a` },
+      quizWrong:   { text: "Good try! Pteranodon was a flying reptile called a pterosaur.", m4a: `${AUDIO_DIR}wrong_pteranodon.m4a` }
+    },
+    tyrannosaurus: {
+      reveal:      { text: "You found a Tyrannosaurus Rex! Amazing discovery!", m4a: `${AUDIO_DIR}reveal_tyrannosaurus.m4a` },
+      learn1:      { text: "T-Rex had the strongest bite of any land animal ever. It could crush bones with 12,800 pounds of force!", m4a: `${AUDIO_DIR}learn1_tyrannosaurus.m4a` },
+      learn2:      { text: "Despite its tiny arms, each arm could still curl about 430 pounds!", m4a: `${AUDIO_DIR}learn2_tyrannosaurus.m4a` },
+      learn3:      { text: "T-Rex could smell prey from miles away thanks to huge olfactory bulbs in its brain!", m4a: `${AUDIO_DIR}learn3_tyrannosaurus.m4a` },
+      quizTime:    { text: "What was T-Rex's most powerful feature?", m4a: `${AUDIO_DIR}quiztime_tyrannosaurus.m4a` },
+      quizCorrect: { text: "That's right! T-Rex had a bone-crushing bite!", m4a: `${AUDIO_DIR}correct_tyrannosaurus.m4a` },
+      quizWrong:   { text: "Good try! T-Rex's most powerful feature was its bone-crushing bite.", m4a: `${AUDIO_DIR}wrong_tyrannosaurus.m4a` }
+    },
+    brachiosaurus: {
+      reveal:      { text: "You found a Brachiosaurus! Amazing discovery!", m4a: `${AUDIO_DIR}reveal_brachiosaurus.m4a` },
+      learn1:      { text: "Brachiosaurus could reach 85 feet high, as tall as a 4-story building, thanks to its long neck!", m4a: `${AUDIO_DIR}learn1_brachiosaurus.m4a` },
+      learn2:      { text: "It weighed about 62 tons, that's as heavy as 10 African elephants!", m4a: `${AUDIO_DIR}learn2_brachiosaurus.m4a` },
+      learn3:      { text: "Unlike most dinosaurs, its front legs were longer than its back legs, giving it a giraffe-like stance!", m4a: `${AUDIO_DIR}learn3_brachiosaurus.m4a` },
+      quizTime:    { text: "How tall could Brachiosaurus reach?", m4a: `${AUDIO_DIR}quiztime_brachiosaurus.m4a` },
+      quizCorrect: { text: "That's right! Brachiosaurus could reach as tall as a 4-story building!", m4a: `${AUDIO_DIR}correct_brachiosaurus.m4a` },
+      quizWrong:   { text: "Good try! Brachiosaurus could reach 85 feet high, as tall as a 4-story building.", m4a: `${AUDIO_DIR}wrong_brachiosaurus.m4a` }
+    },
+    oviraptor: {
+      reveal:      { text: "You found an Oviraptor! Amazing discovery!", m4a: `${AUDIO_DIR}reveal_oviraptor.m4a` },
+      learn1:      { text: "Oviraptor means egg thief, but scientists now know it was guarding its own eggs, not stealing them!", m4a: `${AUDIO_DIR}learn1_oviraptor.m4a` },
+      learn2:      { text: "It had a parrot-like beak perfect for cracking tough food like shellfish and seeds.", m4a: `${AUDIO_DIR}learn2_oviraptor.m4a` },
+      learn3:      { text: "Oviraptor had a colorful crest on its head like a cassowary, and may have had feathers too!", m4a: `${AUDIO_DIR}learn3_oviraptor.m4a` },
+      quizTime:    { text: "What does Oviraptor mean?", m4a: `${AUDIO_DIR}quiztime_oviraptor.m4a` },
+      quizCorrect: { text: "That's right! Oviraptor means egg thief!", m4a: `${AUDIO_DIR}correct_oviraptor.m4a` },
+      quizWrong:   { text: "Good try! Oviraptor means egg thief.", m4a: `${AUDIO_DIR}wrong_oviraptor.m4a` }
+    }
+  }
+};
+
+const currentAudio = new Audio(); currentAudio.preload = 'auto';
+const preloadAudio = new Audio(); preloadAudio.preload = 'auto';
+let voiceTimer; // fallback timer if audio fails
+
+// Upgraded audio handler ensuring onended reliably triggers completion without cutting off
+function playAudio(src, onComplete) {
+  clearTimeout(voiceTimer);
+  if(muted) {
+    if(onComplete) voiceTimer = setTimeout(onComplete, 4000);
+    return;
+  }
+  currentAudio.pause();
+  currentAudio.currentTime = 0;
+  currentAudio.src = src;
+  
+  const finish = () => {
+      clearTimeout(voiceTimer);
+      currentAudio.onended = null;
+      if(onComplete) onComplete();
+  };
+  
+  currentAudio.onended = finish;
+  
+  currentAudio.play().then(() => {
+      // Safety fallback timer just in case audio gets stuck and onended never fires
+      voiceTimer = setTimeout(finish, 15000); 
+  }).catch(() => {
+      // If browser blocks audio entirely, fallback to manual timer
+      if(onComplete) voiceTimer = setTimeout(finish, 4000);
+  });
+}
+
+function playVoice(key, dinoId, onComplete){
+  let entry = (dinoId && VOICES.dinosaurs[dinoId]) ? VOICES.dinosaurs[dinoId][key] : null;
+  if(!entry) entry = VOICES[key];
+  if(entry && entry.m4a) {
+      playAudio(entry.m4a, onComplete);
+  } else {
+      if (onComplete) {
+          clearTimeout(voiceTimer);
+          voiceTimer = setTimeout(onComplete, 4000);
+      }
+  }
+}
+
+function preload(src){ preloadAudio.src=src; preloadAudio.load(); }
+function toggleMute(){ 
+    muted = !muted; 
+    document.getElementById('mute-icon').textContent = muted ? '🔇' : '🔊'; 
+    if(muted) {
+        currentAudio.pause(); 
+        if(currentAudio.onended) {
+            let cb = currentAudio.onended;
+            currentAudio.onended = null;
+            cb(); // Immediately trigger progression to not leave game hanging
+        }
+    } 
+}
+
+// ---- synth SFX ----
+const SFX = (() => {
+  let ctx;
+  function c(){ if(!ctx) ctx=new (window.AudioContext||window.webkitAudioContext)(); if(ctx.state==='suspended') ctx.resume(); return ctx; }
+  function tone(f,d,t='sine',v=.2,when=0){ if(muted) return; const x=c(),o=x.createOscillator(),g=x.createGain(); o.type=t; o.frequency.value=f; const s=x.currentTime+when; g.gain.setValueAtTime(v,s); g.gain.exponentialRampToValueAtTime(.001,s+d); o.connect(g).connect(x.destination); o.start(s); o.stop(s+d); }
+  function noise(d,v=.12,hi=1200){ if(muted) return; const x=c(),b=x.createBuffer(1,x.sampleRate*d,x.sampleRate),data=b.getChannelData(0); for(let i=0;i<data.length;i++) data[i]=Math.random()*2-1; const src=x.createBufferSource(); src.buffer=b; const g=x.createGain(); g.gain.setValueAtTime(v,x.currentTime); g.gain.exponentialRampToValueAtTime(.001,x.currentTime+d); const f=x.createBiquadFilter(); f.type='highpass'; f.frequency.value=hi; src.connect(f).connect(g).connect(x.destination); src.start(); }
+  return {
+    clink(){ tone(880,.05,'square',.07); tone(1320,.05,'square',.05,.02); },
+    dust(){ noise(.12,.05,900); },
+    correct(){ tone(660,.12,'sine',.16); tone(990,.16,'sine',.14,.09); },
+    wrong(){ tone(180,.25,'sawtooth',.12); },
+    fanfare(){ [523,659,784,1047].forEach((f,i)=>tone(f,.22,'triangle',.16,i*.11)); }
+  };
+})();
+
+// ===================== GAME DATA =====================
+const dinos = [
+  { id:'stegosaurus', name:'Stegosaurus', emoji:'🦕', era:'155 million years ago', diet:'Plant eater (herbivore)',
+    facts:[ 'Stegosaurus had 17 bony plates on its back that could get up to 2 feet tall!', 'Its brain was only the size of a walnut — one of the smallest brains compared to body size.', 'It had 4 sharp spikes on its tail called a "thagomizer" to fight off predators!' ],
+    quiz:{ q:"What were the spikes on Stegosaurus's tail called?", opts:['Thagomizer','Tail sword','Spike club','Tail armor'], a:0 } },
+  { id:'triceratops', name:'Triceratops', emoji:'🦏', era:'68 million years ago', diet:'Plant eater (herbivore)',
+    facts:[ 'Triceratops means "three-horned face" — it had two big horns above its eyes and one on its nose!', 'Its huge neck frill could be over 3 feet wide and was used for protection and showing off.', 'Triceratops had up to 800 teeth arranged in groups called batteries that were constantly replaced!' ],
+    quiz:{ q:'What does "Triceratops" mean?', opts:['Three-horned face','Big lizard','Armored beast','Strong head'], a:0 } },
+  { id:'pteranodon', name:'Pteranodon', emoji:'🦅', era:'86 million years ago', diet:'Fish eater (piscivore)',
+    facts:[ "Pteranodon wasn't actually a dinosaur — it was a flying reptile called a pterosaur!", "Its wingspan could reach 23 feet wide — that's wider than a giraffe is tall!", 'Pteranodon had a long pointed crest on the back of its head that helped it steer while flying!' ],
+    quiz:{ q:'What type of creature was Pteranodon?', opts:['Flying reptile (pterosaur)','Bird','Dinosaur','Bat'], a:0 } },
+  { id:'tyrannosaurus', name:'Tyrannosaurus Rex', emoji:'🦖', era:'68 million years ago', diet:'Meat eater (carnivore)',
+    facts:[ 'T-Rex had the strongest bite of any land animal ever — it could crush bones with 12,800 pounds of force!', 'Despite its tiny arms, each arm could still curl about 430 pounds!', 'T-Rex could smell prey from miles away thanks to huge olfactory bulbs in its brain!' ],
+    quiz:{ q:"What was T-Rex's most powerful feature?", opts:['Its bone-crushing bite','Its speed','Its long arms','Its claws'], a:0 } },
+  { id:'brachiosaurus', name:'Brachiosaurus', emoji:'🦕', era:'154 million years ago', diet:'Plant eater (herbivore)',
+    facts:[ 'Brachiosaurus could reach 85 feet high — as tall as a 4-story building — thanks to its long neck!', "It weighed about 62 tons — that's as heavy as 10 African elephants!", 'Unlike most dinosaurs, its front legs were longer than its back legs, giving it a giraffe-like stance!' ],
+    quiz:{ q:'How tall could Brachiosaurus reach?', opts:['As tall as a 4-story building','As tall as a house','As tall as a tree','As tall as a bus'], a:0 } },
+  { id:'oviraptor', name:'Oviraptor', emoji:'🐔', era:'75 million years ago', diet:'Omnivore (plants & eggs)',
+    facts:[ 'Oviraptor means "egg thief" but scientists now know it was guarding its OWN eggs, not stealing them!', 'It had a parrot-like beak perfect for cracking tough food like shellfish and seeds.', 'Oviraptor had a colorful crest on its head like a cassowary, and may have had feathers too!' ],
+    quiz:{ q:'What does "Oviraptor" mean?', opts:['Egg thief','Small hunter','Fast runner','Sharp beak'], a:0 } }
+];
+
+const IMG = id => `dino_${id}.webp`;
+const DUST_COLS = ['#9a8775','#857363','#7a6857','#8f7d6c','#6f5e4f'];
+const TAPS = 10;
+
+let shuffled=[], dinoIndex=0, tapCount=0, factIndex=0, currentDino=null;
+let active=false, revealed=false, reviewMode=false;
+
+const $ = id => document.getElementById(id);
+const shuffleArray = arr => { let a=[...arr], i=a.length; while(i){ let j=Math.floor(Math.random()*i--); [a[i],a[j]]=[a[j],a[i]]; } return a; };
+const getCurrentDino = () => shuffled[dinoIndex];
+
+function showScreen(id){ document.querySelectorAll('.screen').forEach(s=>s.classList.remove('active')); $(id).classList.add('active'); }
+
+// ---- museum persistence ----
+function getDiscovered(){ try{ return JSON.parse(localStorage.getItem('dinoMuseum')||'[]'); }catch(e){ return []; } }
+function addDiscovered(id){ const s=getDiscovered(); if(!s.includes(id)){ s.push(id); try{ localStorage.setItem('dinoMuseum',JSON.stringify(s)); }catch(e){} } }
+function updateWelcomeBadge(){
+  const n=getDiscovered().length;
+  $('welcome-badge').textContent = n>0 ? `🏆 ${n} / 6 in your museum` : '6 dinosaurs waiting to hatch';
+}
+
+// ---- image helper ----
+function setImg(imgId, emojiId, dino){
+  const img=$(imgId), fb=$(emojiId);
+  img.style.display='block'; fb.style.display='none';
+  img.onerror=function(){ this.onerror=null; this.style.display='none'; fb.style.display='flex'; };
+  img.src=IMG(dino.id); img.alt=dino.name; fb.textContent=dino.emoji;
+}
+
+// ---- particles ----
+function spawnDust(x,y){
+  for(let i=0;i<5;i++){
+    const p=document.createElement('div'); p.className='particle';
+    const a=Math.random()*Math.PI*2, d=18+Math.random()*34;
+    p.style.cssText=`left:${x}px;top:${y}px;background:${DUST_COLS[i%DUST_COLS.length]};--px:${Math.cos(a)*d}px;--py:${Math.sin(a)*d}px;`;
+    document.body.appendChild(p); void p.offsetWidth; p.classList.add('burst');
+    setTimeout(()=>p.remove(),600);
+  }
+}
+function spark(x,y){
+  const s=document.createElement('div'); s.className='spark'; s.textContent='⛏️';
+  s.style.left=x+'px'; s.style.top=y+'px'; document.body.appendChild(s);
+  setTimeout(()=>s.remove(),460);
+}
+
+// ===================== FLOW =====================
+function startGame(){
+  playVoice('welcome');
+  shuffled=shuffleArray(dinos); dinoIndex=0;
+  startExcavate();
+}
+
+function startExcavate(){
+  tapCount=0; revealed=false; active=true;
+  currentDino=getCurrentDino();
+  showScreen('screen-excavate');
+
+  $('dig-name').textContent='🥚 A mysterious egg';
+  $('dig-progress').textContent=`Dinosaur ${dinoIndex+1} of ${dinos.length}`;
+  $('dig-hint').textContent='Tap to crack it open!';
+
+  const egg=$('egg');
+  egg.className='egg';
+  $('meter-fill').style.width='0%';
+
+  playVoice('digStart');
+  const dv=VOICES.dinosaurs[currentDino.id]; if(dv&&dv.reveal) preload(dv.reveal.m4a);
+}
+
+function tapRock(ev){
+  if(!active || revealed) return;
+  tapCount++;
+
+  const egg=$('egg');
+  egg.classList.remove('shake'); void egg.offsetWidth; egg.classList.add('shake');
+  setTimeout(()=>egg.classList.remove('shake'),300);
+
+  if(ev){ spark(ev.clientX, ev.clientY); spawnDust(ev.clientX, ev.clientY); }
+  SFX.clink();
+
+  if(tapCount===2) playVoice('dig2');
+  else if(tapCount===4) playVoice('dig4');
+  else if(tapCount===8) playVoice('dig6');
+
+  const lvl = tapCount>=9?5 : tapCount>=8?4 : tapCount>=6?3 : tapCount>=4?2 : tapCount>=2?1 : 0;
+  for(let n=1;n<=5;n++) egg.classList.toggle('crack'+n, n<=lvl);
+
+  $('meter-fill').style.width = Math.min(100, tapCount/TAPS*100)+'%';
+  $('dig-hint').textContent = tapCount>=8 ? 'Almost there!' : tapCount>=4 ? 'Keep tapping!' : tapCount>=2 ? "It's cracking!" : 'Tap to crack it open!';
+
+  if(tapCount>=TAPS) finishHatch();
+}
+
+function finishHatch(){
+  revealed=true; active=false;
+  const egg=$('egg');
+  egg.classList.add('hatch');
+  SFX.fanfare();
+  addDiscovered(currentDino.id);
+  setTimeout(showReveal, 620);
+}
+
+function showReveal(){
+  showScreen('screen-reveal');
+  setImg('reveal-img','reveal-emoji',currentDino);
+  $('reveal-name').textContent=currentDino.name.toUpperCase();
+  $('reveal-meta').textContent=`${currentDino.era}  •  ${currentDino.diet}`;
+  playVoice('reveal', currentDino.id);
+}
+
+// ===================== LEARN =====================
+function startLearn(review=false){
+  reviewMode=review; factIndex=0;
+  showScreen('screen-learn');
+  $('learn-name').textContent=currentDino.name.toUpperCase();
+  setImg('learn-img','learn-emoji',currentDino);
+  playVoice('learnIntro');
+  showFact();
+}
+
+function showFact(){
+  $('fact-text').textContent=currentDino.facts[factIndex];
+  const dots=$('fact-dots'); dots.innerHTML='';
+  currentDino.facts.forEach((_,i)=>{ const d=document.createElement('div'); d.className='fact-dot'+(i===factIndex?' active':''); dots.appendChild(d); });
+  
+  const img=$('learn-img'); img.style.animation='none'; void img.offsetWidth; img.style.animation='';
+  
+  const btn=$('learn-btn');
+  btn.style.display = 'none'; // hide button while automatically reading through facts
+
+  const autoAdvanceToNextFact = () => {
+    if(factIndex < currentDino.facts.length - 1){
+      factIndex++;
+      showFact();
+    } else {
+      // Reached the final fact, display the interactive button to continue
+      btn.style.display = 'inline-flex';
+      btn.innerHTML = reviewMode ? '⬅ Back to Museum' : '🧪 Quiz Time!'; 
+      btn.onclick = reviewMode ? () => showVictory(true) : startQuiz;
+    }
+  };
+  
+  // This triggers exactly when the audio file actually finishes reading!
+  playVoice('learn'+(factIndex+1), currentDino.id, autoAdvanceToNextFact);
+}
+
+// ===================== QUIZ =====================
+function startQuiz(){
+  // Stop audio instantly if a user clicks mid-sentence
+  clearTimeout(voiceTimer);
+  currentAudio.pause();
+  currentAudio.onended = null;
+  
+  showScreen('screen-quiz');
+  setImg('quiz-img','quiz-emoji',currentDino);
+  playVoice('quizTime', currentDino.id);
+  
+  const quiz=currentDino.quiz;
+  $('quiz-question').textContent=quiz.q;
+  const opts=$('quiz-options'); opts.innerHTML='';
+  const idx=[...Array(quiz.opts.length).keys()].sort(()=>Math.random()-0.5);
+  idx.forEach(i=>{
+    const b=document.createElement('button'); b.className='quiz-opt'; b.textContent=quiz.opts[i];
+    b.onclick=()=>handleAnswer(b, i===quiz.a); opts.appendChild(b);
+  });
+}
+
+function handleAnswer(btn, correct){
+  document.querySelectorAll('.quiz-opt').forEach(b=>{
+    b.classList.add('disabled');
+    if(b!==btn && b.textContent===currentDino.quiz.opts[currentDino.quiz.a]) b.classList.add('correct');
+  });
+  if(correct){ btn.classList.add('correct'); SFX.correct(); playVoice('quizCorrect', currentDino.id); }
+  else { btn.classList.add('wrong'); SFX.wrong(); playVoice('quizWrong', currentDino.id); }
+  setTimeout(()=>{
+    if(dinoIndex<shuffled.length-1){ dinoIndex++; playVoice('nextDino'); setTimeout(startExcavate,1400); }
+    else showVictory();
+  },2400);
+}
+
+// ===================== VICTORY / GALLERY =====================
+function showVictory(silent=false){
+  clearTimeout(voiceTimer);
+  currentAudio.pause();
+  currentAudio.onended = null;
+  
+  if(!silent) playVoice('victory');
+  showScreen('screen-victory');
+  const g=$('gallery'); g.innerHTML='';
+  shuffled.forEach((d,i)=>{
+    const item=document.createElement('div'); item.className='gal-item'; item.style.animationDelay=(i*0.08)+'s';
+    const frame=document.createElement('div'); frame.className='gal-frame';
+    const img=document.createElement('img'); img.className='slab-img'; img.alt=d.name;
+    const fb=document.createElement('div'); fb.className='emoji-fb'; fb.textContent=d.emoji;
+    img.onerror=function(){ this.onerror=null; this.style.display='none'; fb.style.display='flex'; };
+    img.src=IMG(d.id);
+    frame.appendChild(img); frame.appendChild(fb);
+    const name=document.createElement('div'); name.className='gal-name'; name.textContent=d.name;
+    item.appendChild(frame); item.appendChild(name);
+    item.onclick=()=>{ currentDino=d; startLearn(true); };
+    g.appendChild(item);
+  });
+}
+function restart(){ playVoice('tryAgain'); setTimeout(startGame,800); }
+
+// ===================== INIT =====================
+updateWelcomeBadge();
+</script>
+</body>
+</html>

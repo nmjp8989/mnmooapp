@@ -1,0 +1,188 @@
+================================================================================
+MNMOO - GRADE 1 GAME EXPANSION PLAN
+================================================================================
+
+Current State:
+- 51 games across Math (20), Language (18), Science (13) in games/grade1_*/
+- Each game is standalone HTML (_opus.html) with voice JSON + MP3 audio
+- Main app (code.html) is a platformer runner, separate from game launcher
+- Games load via iframe overlay in www/index.html
+- Android deployment via Capacitor
+
+================================================================================
+PHASE 1: SPACE BACKGROUND & TOPIC MAP
+================================================================================
+
+
+
+ 
+ 
+
+================================================================================
+PHASE 2: ANTHROPIC COW CHARACTER
+================================================================================
+
+ 
+
+================================================================================
+PHASE 3: UI LAYOUT IMPROVEMENTS
+================================================================================
+
+3.1 Move Question Area Higher
+    - In each game HTML, adjust question positioning
+    - Target: upper 40% of screen (currently center/lower)
+    - Ensure text remains readable at all phone sizes
+    - Files to update: all 51 *_opus.html files
+
+3.2 Create Portal Transition Effect
+    - When tapping a topic, show portal opening animation
+    - Portal: circular expanding ring with glow effect
+    - CSS animation (no heavy JS)
+    - Duration: ~500ms
+    - Add to www/index.html game launch sequence
+
+3.3 Game Opening Sequence
+    - After portal opens, fade in the game
+    - Show topic name + cow mascot briefly
+    - Then show start screen
+
+================================================================================
+PHASE 4: LEVEL LOCKING SYSTEM
+================================================================================
+
+4.1 Define Level Order
+    - Create a JSON config mapping topic dependencies
+    - Example: Math path → addsubtract → compare → patternmatch → ...
+    - Each subject has its own progression path
+
+4.2 Store Completion State
+    - Use localStorage to track completed topics
+    - Key format: mnmoo_completed_{subject}_{topic}
+    - Store: completion status, score, stars earned
+
+4.3 Lock Visual Treatment
+    - Locked topics: greyed out, lock icon overlay
+    - Tap locked topic: show "Complete [previous topic] first!"
+    - Unlocked topics: full color, glow effect
+
+4.4 Implement in Topic Map
+    - On map load, check localStorage for each topic
+    - Apply locked/unlocked class to topic cards
+    - Disable tap on locked topics
+
+================================================================================
+PHASE 5: GAME FLOW & SCORING
+================================================================================
+
+5.1 Short Game Snap Format
+    - Each game round: 5-10 questions max
+    - Timer: 30-60 seconds per round
+    - Quick score display at end
+
+5.2 Score Display
+    - Show stars (1-3) based on performance
+    - Show percentage correct
+    - Show encouraging message
+
+5.3 Continue Flow
+    - After score screen, show "Next Question" or "Next Topic"
+    - Auto-advance to next topic in path (if unlocked)
+    - Or return to topic map
+
+5.4 Score Persistence
+    - Save best score per topic to localStorage
+    - Show high score badge on topic map
+    - Track total stars across all topics
+
+================================================================================
+PHASE 6: QUESTION VALIDATION
+================================================================================
+
+6.1 Review All Questions
+    - Audit each game's question bank
+    - Check age-appropriateness for Grade 1 (ages 6-7)
+    - Verify difficulty progression within each topic
+
+6.2 Question Format Standards
+    - Text: max 10 words per question
+    - Answers: max 6 words per answer choice
+    - No tricky wording
+    - Visual/audio cues where possible
+
+6.3 Fix Unsuitable Questions
+    - Remove questions requiring reading above Grade 1 level
+    - Simplify complex instructions
+    - Add emoji/picture hints
+
+================================================================================
+PHASE 7: MUSIC & AUDIO
+================================================================================
+
+7.1 Background Music
+    - Create/find looping background track
+    - Calm, playful, suitable for learning
+    - Loop seamlessly
+    - Volume: 30% (under voice)
+
+7.2 Sound Effects
+    - Correct answer: positive chime
+    - Wrong answer: gentle buzz
+    - Level complete: fanfare
+    - Star earned: sparkle sound
+    - Portal open: whoosh
+
+7.3 Music Controls
+    - Add mute/unmute button (persistent across sessions)
+    - Save preference to localStorage
+    - Default: music ON
+
+7.4 Audio Integration
+    - Add music to each game HTML
+    - Add SFX to correct/wrong handlers
+    - Add music to topic map screen
+
+================================================================================
+PHASE 8: POLISH & DEPLOYMENT
+================================================================================
+
+8.1 Visual Polish
+    - Consistent fonts across all games (Fredoka + Nunito)
+    - Consistent color scheme
+    - Smooth animations (60fps)
+    - Touch feedback on all tappable elements
+
+8.2 Performance
+    - Optimize images (WebP where possible)
+    - Lazy load game assets
+    - Minimize reflows in game loops
+
+8.3 Testing
+    - Test all 51 games on Android device
+    - Test level locking flow
+    - Test score persistence
+    - Test audio playback
+    - Test on different screen sizes
+
+8.4 Build & Deploy
+    - Run: npm run build && npx cap sync android
+    - Test on physical device
+    - Verify: no black screens, audio plays, scores save
+
+================================================================================
+FILE MANIFEST
+================================================================================
+
+New files to create:
+  games/assets/bg-space.png          — space background
+  games/assets/sprites/*.png         — topic sprites (21 files)
+  games/assets/cow/*.png             — cow animation sprites
+  games/assets/music/loop.mp3        — background music
+  games/assets/sfx/*.mp3             — sound effects
+  games/config/topics.json           — topic order + dependencies
+
+Files to modify:
+  www/index.html                     — topic map, portal, cow, level locks
+  games/grade1_*/*/*_opus.html       — question position, audio, scores (51 files)
+  games/grade1_*/*_voices.json       — voice lines for cow (51 files)
+
+================================================================================

@@ -1,0 +1,512 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width,initial-scale=1,maximum-scale=1,user-scalable=no,viewport-fit=cover">
+<title>My Body</title>
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+<link href="https://fonts.googleapis.com/css2?family=Fredoka:wght@400;600;700&family=Nunito:wght@400;600;700;800&display=swap" rel="stylesheet">
+<style>
+:root{
+  --green:#43A047;--green-l:#66BB6A;--green-p:#E8F5E9;
+  --blue:#1E88E5;--blue-l:#42A5F5;
+  --orange:#FF9800;--pink:#EF5350;--gold:#FFB300;
+  --bg-a:#E3F2FD;--bg-b:#F1F8E9;
+  --imgbg:#f4f7f8;            /* matches the generated image background */
+  --card:#FFF;--card-r:22px;
+  --shadow:0 8px 32px rgba(0,0,0,.10);
+  --txt:#263238;--mute:#78909C;
+  --ok:#00C853;--bad:#FF5252;
+}
+*,*::before,*::after{box-sizing:border-box;margin:0;padding:0}
+html,body{
+  width:100vw;min-height:100vh;min-height:100dvh;
+  font-family:'Nunito',sans-serif;
+  background:linear-gradient(160deg,var(--bg-a),var(--bg-b));
+  user-select:none;-webkit-user-select:none;
+  touch-action:manipulation;overscroll-behavior:none;overflow:hidden;
+}
+h1,h2,h3{font-family:'Fredoka',sans-serif;font-weight:700}
+
+.screen{position:absolute;inset:0;display:flex;flex-direction:column;align-items:center;justify-content:center;transition:opacity .35s}
+.screen.hidden{display:none;pointer-events:none}
+
+/* ═══ START ═══ */
+#start-screen{background:linear-gradient(160deg,var(--bg-a),var(--bg-b));gap:2vh;padding:2vh}
+.start-card{
+  background:var(--card);border-radius:var(--card-r);box-shadow:var(--shadow);
+  padding:3vh 5vw;text-align:center;max-width:420px;width:90vw;
+  display:flex;flex-direction:column;align-items:center;gap:1.2vh;
+}
+.start-img{width:min(170px,42vw);margin-bottom:.5vh;animation:sFloat 3s ease-in-out infinite;border-radius:16px}
+@keyframes sFloat{0%,100%{transform:translateY(0)}50%{transform:translateY(-8px)}}
+.start-title{font-size:clamp(1.6rem,6vh,2.6rem);color:var(--green)}
+.start-sub{font-size:clamp(.9rem,3vh,1.2rem);color:var(--mute);line-height:1.5;margin-bottom:.5vh}
+.btn{
+  font-family:'Fredoka',sans-serif;font-weight:600;border:none;cursor:pointer;
+  border-radius:16px;min-height:50px;padding:14px 28px;
+  font-size:clamp(1rem,3.5vh,1.3rem);
+  transition:transform .12s,box-shadow .12s;
+  display:inline-flex;align-items:center;gap:8px;
+}
+.btn:active{transform:scale(.94)}
+.btn-green{background:var(--green);color:#fff;box-shadow:0 6px 20px rgba(67,160,71,.35)}
+.btn-green:hover{background:#388E3C}
+.btn-blue{background:var(--blue);color:#fff;box-shadow:0 6px 20px rgba(30,136,229,.35)}
+.btn-blue:hover{background:#1565C0}
+.btn-ghost{background:var(--card);color:var(--mute);border:2px solid #CFD8DC;font-size:clamp(.8rem,2.2vh,1rem);padding:10px 20px}
+.btn-ghost:hover{border-color:#90A4AE;color:var(--txt)}
+
+/* ═══ GAME (full-screen white canvas) ═══ */
+#game-screen{background:var(--imgbg);justify-content:flex-start;padding:0}
+.game-header{
+  display:flex;align-items:center;gap:1vw;width:100%;
+  padding:1.2vh 3vw;flex-shrink:0;
+  background:rgba(255,255,255,.78);backdrop-filter:blur(10px);-webkit-backdrop-filter:blur(10px);
+  border-bottom:1px solid rgba(0,0,0,.05);
+  transition:opacity .3s,max-height .3s,padding .3s;
+}
+.prompt-pill{
+  flex:1;text-align:center;font-family:'Fredoka',sans-serif;
+  font-size:clamp(1rem,3.8vh,1.5rem);font-weight:600;color:var(--txt);
+  background:var(--card);border-radius:14px;padding:10px 16px;
+  box-shadow:0 2px 10px rgba(0,0,0,.06);transition:background .3s,color .3s;
+  display:flex;align-items:center;justify-content:center;min-height:44px;
+}
+.prompt-pill.ok{background:#E8F5E9;color:var(--ok)}
+.prompt-pill.ng{background:#FFEBEE;color:var(--bad)}
+.prompt-pill .hl{color:var(--green);font-weight:700;text-decoration:underline;text-underline-offset:3px;text-decoration-thickness:2.5px}
+.score-badge{font-family:'Fredoka',sans-serif;font-weight:700;font-size:clamp(1rem,3.5vh,1.4rem);color:var(--gold);min-width:48px;text-align:center}
+
+.game-content{flex:1;display:flex;align-items:center;justify-content:center;width:100%;min-height:0;position:relative;overflow:hidden}
+.char-wrap{position:relative;width:100%;height:100%;display:flex;align-items:center;justify-content:center;padding:0}
+
+/* Container is locked to the image's aspect ratio (set in JS) so the
+   image and the SVG overlay always map 1:1. */
+.char-container{position:relative;display:flex;animation:cFloat 4s ease-in-out infinite}
+@keyframes cFloat{0%,100%{transform:translateY(0)}50%{transform:translateY(-5px)}}
+.char-img{width:100%;height:100%;display:block;pointer-events:none;border-radius:8px}
+
+/* SVG overlay: viewBox 0 0 1 1, stretched to the same box as the image */
+#charSvg{position:absolute;inset:0;width:100%;height:100%;pointer-events:none;overflow:visible}
+.tap{pointer-events:all;cursor:pointer}
+.hs{
+  fill:transparent;stroke:transparent;stroke-width:3;
+  vector-effect:non-scaling-stroke;pointer-events:all;
+  transition:fill .15s ease,stroke .15s ease;
+}
+.tap:hover .hs{fill:rgba(255,255,255,.32);stroke:rgba(67,160,71,.75)}
+.tap.hint .hs{animation:hGlow 1s ease-in-out infinite}
+@keyframes hGlow{
+  0%,100%{fill:rgba(255,215,0,.18);stroke:rgba(255,193,7,.65)}
+  50%{fill:rgba(255,215,0,.52);stroke:rgba(255,193,7,1)}
+}
+.tap.correct-flash .hs{animation:aOk .6s ease}
+@keyframes aOk{0%{fill:rgba(0,200,83,0)}40%{fill:rgba(0,200,83,.55);stroke:rgba(0,200,83,.95)}100%{fill:rgba(0,200,83,0);stroke:transparent}}
+.tap.wrong-flash .hs{animation:aBad .45s ease}
+@keyframes aBad{0%,100%{fill:rgba(255,82,82,0)}50%{fill:rgba(255,82,82,.5);stroke:rgba(255,82,82,.95)}}
+
+/* ═══ DOTS ═══ */
+.dots-row{display:flex;gap:6px;padding:.8vh 0;flex-wrap:wrap;justify-content:center;flex-shrink:0}
+.dot{
+  width:clamp(22px,4vh,30px);height:clamp(22px,4vh,30px);border-radius:50%;background:#E0E0E0;
+  display:flex;align-items:center;justify-content:center;
+  font-size:clamp(.55rem,1.4vh,.75rem);font-weight:700;color:#B0BEC5;transition:all .3s;
+}
+.dot.done{background:var(--ok);color:#fff;transform:scale(1.1)}
+.dot.act{background:var(--green-l);color:#fff;animation:dPulse 1.2s ease-in-out infinite}
+@keyframes dPulse{0%,100%{transform:scale(1)}50%{transform:scale(1.15)}}
+
+/* ═══ EFFECTS ═══ */
+.float-label{
+  position:fixed;pointer-events:none;z-index:80;background:var(--card);border-radius:14px;padding:8px 18px;
+  box-shadow:0 4px 18px rgba(0,0,0,.14);font-family:'Fredoka',sans-serif;font-weight:700;
+  font-size:clamp(1.1rem,4vh,1.6rem);color:var(--green);animation:lIn .4s ease-out forwards;
+}
+@keyframes lIn{0%{opacity:0;transform:translateY(12px) scale(.7)}60%{opacity:1;transform:translateY(-4px) scale(1.08)}100%{opacity:1;transform:translateY(0) scale(1)}}
+.sparkle{position:fixed;pointer-events:none;z-index:75;font-size:clamp(14px,2.8vh,22px);animation:spA .75s ease-out forwards}
+@keyframes spA{0%{opacity:1;transform:scale(0) rotate(0)}50%{opacity:1;transform:scale(1.4) rotate(180deg)}100%{opacity:0;transform:scale(.4) rotate(360deg)}}
+.tap-ripple{position:fixed;pointer-events:none;z-index:90;width:40px;height:40px;border-radius:50%;border:3px solid var(--green-l);animation:rip .5s ease-out forwards;transform:translate(-50%,-50%)}
+@keyframes rip{0%{opacity:1;transform:translate(-50%,-50%) scale(0)}100%{opacity:0;transform:translate(-50%,-50%) scale(2.5)}}
+.fb-pop{position:fixed;top:50%;left:50%;transform:translate(-50%,-50%) scale(0);font-family:'Fredoka',sans-serif;font-weight:700;font-size:clamp(2.5rem,9vh,4.5rem);z-index:120;pointer-events:none}
+.fb-pop.go{animation:fbP .85s ease forwards}
+@keyframes fbP{0%{opacity:0;transform:translate(-50%,-50%) scale(.3)}20%{opacity:1;transform:translate(-50%,-50%) scale(1.2)}35%{transform:translate(-50%,-50%) scale(1)}70%{opacity:1}100%{opacity:0;transform:translate(-50%,-65%) scale(.7)}}
+
+.audio-ind{position:fixed;bottom:1.5vh;right:1.5vw;z-index:90;width:36px;height:36px;border-radius:50%;background:rgba(255,255,255,.85);border:2px solid #CFD8DC;display:flex;align-items:center;justify-content:center;cursor:pointer;font-size:14px;transition:all .2s;box-shadow:0 2px 8px rgba(0,0,0,.1)}
+.audio-ind:hover{background:#fff;border-color:var(--green-l)}
+.audio-ind.off{opacity:.5}
+.audio-ind.playing{border-color:var(--green);animation:aPulse 1s ease-in-out infinite}
+@keyframes aPulse{0%,100%{box-shadow:0 0 0 0 rgba(67,160,71,.3)}50%{box-shadow:0 0 0 8px rgba(67,160,71,0)}}
+
+.floating-back{position:fixed;top:1.5vh;left:1.5vw;z-index:95;width:44px;height:44px;border-radius:50%;background:rgba(255,255,255,.9);border:2px solid #CFD8DC;display:flex;align-items:center;justify-content:center;cursor:pointer;font-size:20px;color:var(--mute);box-shadow:0 3px 14px rgba(0,0,0,.12);transition:all .2s;opacity:0;pointer-events:none;transform:scale(.7)}
+.floating-back.show{opacity:1;pointer-events:auto;transform:scale(1)}
+.floating-back:hover{background:#fff;border-color:var(--blue-l);color:var(--blue)}
+
+#game-screen.explore-mode .game-header{max-height:0;padding:0;overflow:hidden;border:none;opacity:0}
+#game-screen.explore-mode .dots-row{display:none}
+
+/* ═══ END ═══ */
+#end-screen{background:linear-gradient(160deg,var(--bg-a),var(--bg-b));gap:1.5vh;padding:2vh}
+.end-card{background:var(--card);border-radius:var(--card-r);box-shadow:var(--shadow);padding:3vh 5vw;text-align:center;max-width:440px;width:90vw;display:flex;flex-direction:column;align-items:center;gap:1vh;animation:ePop .5s ease-out}
+@keyframes ePop{0%{transform:scale(.6);opacity:0}60%{transform:scale(1.08)}100%{transform:scale(1);opacity:1}}
+.end-emoji{font-size:clamp(3rem,10vh,5.5rem)}
+.end-title{font-size:clamp(1.5rem,5.5vh,2.4rem);color:var(--green)}
+.end-score{font-size:clamp(2.5rem,8vh,4rem);font-family:'Fredoka',sans-serif;font-weight:700;color:var(--txt);margin:.3vh 0}
+.end-score em{font-style:normal;color:var(--green)}
+.end-stars{font-size:clamp(1.8rem,5vh,2.8rem);letter-spacing:4px;margin:.3vh 0}
+.end-msg{font-size:clamp(.9rem,3vh,1.15rem);color:var(--mute);line-height:1.4;margin-bottom:.5vh}
+.end-btns{display:flex;gap:12px;flex-wrap:wrap;justify-content:center}
+.confetti-piece{position:fixed;pointer-events:none;z-index:200;width:10px;height:10px;animation:cFall var(--dur) ease-out var(--delay) forwards}
+@keyframes cFall{0%{opacity:1;transform:translateY(0) rotate(0)}100%{opacity:0;transform:translateY(105vh) rotate(var(--rot))}}
+
+/* DEBUG: uncomment to SEE the tap shapes while tuning coordinates
+.hs{fill:rgba(255,0,0,.25)!important;stroke:rgba(255,0,0,.6)!important}
+*/
+</style>
+</head>
+<body>
+
+<!-- ═══ START ══ -->
+<div id="start-screen" class="screen">
+  <div class="start-card">
+    <img class="start-img" src="body_character.webp" alt="Body character">
+    <h1 class="start-title">My Body</h1>
+    <p class="start-sub">Explore and learn all about body parts!</p>
+    <button class="btn btn-blue" onclick="startExplore()">&#x1F50D; Explore</button>
+    <button class="btn btn-green" onclick="startQuiz()">&#x1F3AF; Quiz Me!</button>
+  </div>
+</div>
+
+<button class="floating-back" id="floatingBack" onclick="goHome()">&#x2190;</button>
+
+<!-- ═══ GAME ══ -->
+<div id="game-screen" class="screen hidden">
+  <div class="game-header" id="gameHeader">
+    <button class="btn btn-ghost" onclick="goHome()">&#x2190; Home</button>
+    <div class="prompt-pill" id="prompt">Tap any part!</div>
+    <div class="score-badge" id="scoreBadge"></div>
+  </div>
+  <div class="game-content">
+    <div class="char-wrap" id="charWrap">
+      <div class="char-container" id="charContainer">
+        <img class="char-img" src="body_character.webp" alt="Body character" id="charImg">
+        <svg id="charSvg" viewBox="0 0 1 1" preserveAspectRatio="none" xmlns="http://www.w3.org/2000/svg"></svg>
+      </div>
+    </div>
+  </div>
+  <div class="dots-row" id="dotsRow"></div>
+</div>
+
+<!-- ═══ END ═══ -->
+<div id="end-screen" class="screen hidden">
+  <div class="end-card">
+    <div class="end-emoji" id="endEmoji">&#x1F389;</div>
+    <h1 class="end-title" id="endTitle">Great Job!</h1>
+    <div class="end-stars" id="endStars"></div>
+    <div class="end-score" id="endScore"></div>
+    <p class="end-msg" id="endMsg"></p>
+    <div class="end-btns">
+      <button class="btn btn-green" onclick="startQuiz()">&#x1F504; Play Again</button>
+      <button class="btn btn-ghost" onclick="goHome()">&#x1F3E0; Home</button>
+    </div>
+  </div>
+</div>
+
+<div id="fbPop" class="fb-pop"></div>
+<div class="audio-ind" id="audioToggle" onclick="toggleAudio()" title="Toggle sound">&#x1F50A;</div>
+
+<script>
+// ═══════════════════════════════════════════════
+//  PHRASE CONFIG (existing bodyparts2_opus audio)
+// ═══════════════════════════════════════════════
+const PHRASES = {
+  welcome:{text:"Welcome back! Ready to explore your body?",m4a:"bodyparts2_audio/welcome.m4a"},
+  explore_mode:{text:"Explore mode! Tap any body part to learn its name.",m4a:"bodyparts2_audio/explore_mode.m4a"},
+  quiz_mode:{text:"Quiz time! Can you find all the body parts?",m4a:"bodyparts2_audio/quiz_mode.m4a"},
+  part_name_hair:{text:"Hair!",m4a:"bodyparts2_audio/part_name_hair.m4a"},
+  part_name_eyes:{text:"Eyes!",m4a:"bodyparts2_audio/part_name_eyes.m4a"},
+  part_name_nose:{text:"Nose!",m4a:"bodyparts2_audio/part_name_nose.m4a"},
+  part_name_mouth:{text:"Mouth!",m4a:"bodyparts2_audio/part_name_mouth.m4a"},
+  part_name_ears:{text:"Ears!",m4a:"bodyparts2_audio/part_name_ears.m4a"},
+  part_name_arms:{text:"Arms!",m4a:"bodyparts2_audio/part_name_arms.m4a"},
+  part_name_hands:{text:"Hands!",m4a:"bodyparts2_audio/part_name_hands.m4a"},
+  part_name_belly:{text:"Belly!",m4a:"bodyparts2_audio/part_name_belly.m4a"},
+  part_name_legs:{text:"Legs!",m4a:"bodyparts2_audio/part_name_legs.m4a"},
+  part_name_feet:{text:"Feet!",m4a:"bodyparts2_audio/part_name_feet.m4a"},
+  tap_learn:{text:"That's right! Tap another to learn more.",m4a:"bodyparts2_audio/tap_learn.m4a"},
+  quiz_find_hair:{text:"Can you find the hair?",m4a:"bodyparts2_audio/quiz_find_hair.m4a"},
+  quiz_find_eyes:{text:"Can you find the eyes?",m4a:"bodyparts2_audio/quiz_find_eyes.m4a"},
+  quiz_find_nose:{text:"Can you find the nose?",m4a:"bodyparts2_audio/quiz_find_nose.m4a"},
+  quiz_find_mouth:{text:"Can you find the mouth?",m4a:"bodyparts2_audio/quiz_find_mouth.m4a"},
+  quiz_find_ears:{text:"Can you find the ears?",m4a:"bodyparts2_audio/quiz_find_ears.m4a"},
+  quiz_find_arms:{text:"Can you find the arms?",m4a:"bodyparts2_audio/quiz_find_arms.m4a"},
+  quiz_find_hands:{text:"Can you find the hands?",m4a:"bodyparts2_audio/quiz_find_hands.m4a"},
+  quiz_find_belly:{text:"Can you find the belly?",m4a:"bodyparts2_audio/quiz_find_belly.m4a"},
+  quiz_find_legs:{text:"Can you find the legs?",m4a:"bodyparts2_audio/quiz_find_legs.m4a"},
+  quiz_find_feet:{text:"Can you find the feet?",m4a:"bodyparts2_audio/quiz_find_feet.m4a"},
+  correct_1:{text:"Yes! That's right!",m4a:"bodyparts2_audio/correct_1.m4a"},
+  correct_2:{text:"You got it! It's right there!",m4a:"bodyparts2_audio/correct_2.m4a"},
+  wrong_1:{text:"Not quite! That's not it.",m4a:"bodyparts2_audio/wrong_1.m4a"},
+  wrong_2:{text:"Try again! Look for it.",m4a:"bodyparts2_audio/wrong_2.m4a"},
+  win:{text:"Amazing! You found every body part! You're brilliant!",m4a:"bodyparts2_audio/win.m4a"},
+  try_again:{text:"Nice effort! Want to try again?",m4a:"bodyparts2_audio/try_again.m4a"},
+};
+
+// ═══════════════════════════════════════════════
+//  AUDIO ENGINE
+// ═══════════════════════════════════════════════
+const AudioEngine = (() => {
+  let ctx, mp3Enabled=true, current=null, queue=[];
+  function getCtx(){if(!ctx)ctx=new (window.AudioContext||window.webkitAudioContext)();if(ctx.state==='suspended')ctx.resume();return ctx;}
+  function synthTone(f,d,t='sine',v=0.25){const c=getCtx(),o=c.createOscillator(),g=c.createGain();o.type=t;o.frequency.value=f;g.gain.setValueAtTime(v,c.currentTime);g.gain.exponentialRampToValueAtTime(0.001,c.currentTime+d);o.connect(g).connect(c.destination);o.start();o.stop(c.currentTime+d);}
+  function playNext(){if(!queue.length){setPlaying(false);return;}const k=queue.shift(),e=PHRASES[k];if(!e||!e.m4a){playNext();return;}setPlaying(true);const a=new Audio(e.m4a);current=a;a.addEventListener('ended',()=>{current=null;playNext();});a.addEventListener('error',()=>{current=null;playNext();});a.play().catch(()=>{current=null;playNext();});}
+  function enqueue(...k){queue.push(...k);if(!current)playNext();}
+  function stopAll(){queue=[];if(current){try{current.pause();current.currentTime=0;}catch(e){}current=null;}setPlaying(false);}
+  function setPlaying(on){const el=document.getElementById('audioToggle');if(el)el.classList.toggle('playing',on);}
+  return {
+    tap(){synthTone(700,0.07,'sine',0.15);},
+    correct(){synthTone(880,0.1);setTimeout(()=>synthTone(1100,0.15),80);},
+    wrong(){synthTone(200,0.25,'sawtooth',0.12);},
+    win(){[523,659,784,1047].forEach((f,i)=>setTimeout(()=>synthTone(f,0.2,'sine',0.2),i*110));},
+    say(...k){if(mp3Enabled)enqueue(...k);},
+    stop(){stopAll();},
+    toggle(){mp3Enabled=!mp3Enabled;if(!mp3Enabled)stopAll();return mp3Enabled;},
+    isOn(){return mp3Enabled;},
+  };
+})();
+
+// ═══════════════════════════════════════════════
+//  BODY PARTS  (quiz order + names)
+// ═══════════════════════════════════════════════
+const PARTS = [
+  {id:'hair',name:'Hair'},{id:'eyes',name:'Eyes'},{id:'nose',name:'Nose'},
+  {id:'mouth',name:'Mouth'},{id:'ears',name:'Ears'},{id:'arms',name:'Arms'},
+  {id:'hands',name:'Hands'},{id:'belly',name:'Belly'},{id:'legs',name:'Legs'},
+  {id:'feet',name:'Feet'},
+];
+
+// ═══════════════════════════════════════════════
+//  TAP SHAPES  — coordinates are FRACTIONS (0..1) of the image
+//  width (x / rx / w) and height (y / ry / h).  They are traced to
+//  each body part's contour so ONLY that area highlights.
+//  Tweak these numbers to fine-tune; use the DEBUG css block to view.
+// ═══════════════════════════════════════════════
+const SHAPES = {
+  hair:[
+    {t:'e',cx:.50,cy:.100,rx:.115,ry:.062},   // top hair dome / bangs
+    {t:'e',cx:.398,cy:.180,rx:.024,ry:.052},  // left temple/sideburn
+    {t:'e',cx:.602,cy:.180,rx:.024,ry:.052},  // right temple/sideburn
+  ],
+  ears:[
+    {t:'e',cx:.392,cy:.250,rx:.020,ry:.046},
+    {t:'e',cx:.608,cy:.250,rx:.020,ry:.046},
+  ],
+  eyes:[
+    {t:'e',cx:.459,cy:.240,rx:.026,ry:.046},
+    {t:'e',cx:.541,cy:.240,rx:.026,ry:.046},
+  ],
+  nose:[ {t:'e',cx:.499,cy:.283,rx:.024,ry:.030} ],
+  mouth:[ {t:'e',cx:.499,cy:.320,rx:.032,ry:.024} ],
+  belly:[ {t:'e',cx:.500,cy:.532,rx:.100,ry:.125} ],           // blue torso
+  arms:[
+    {t:'p',pts:[[.400,.420],[.360,.452],[.335,.512],[.315,.578],[.348,.596],[.372,.535],[.402,.495]]}, // L sleeve+forearm
+    {t:'p',pts:[[.600,.420],[.640,.452],[.665,.512],[.685,.578],[.652,.596],[.628,.535],[.598,.495]]}, // R sleeve+forearm
+  ],
+  hands:[
+    {t:'e',cx:.312,cy:.602,rx:.042,ry:.056},
+    {t:'e',cx:.688,cy:.602,rx:.042,ry:.056},
+  ],
+  legs:[
+    {t:'r',x:.400,y:.650,w:.092,h:.215,rx:.030,ry:.050},
+    {t:'r',x:.508,y:.650,w:.092,h:.215,rx:.030,ry:.050},
+  ],
+  feet:[
+    {t:'e',cx:.427,cy:.888,rx:.048,ry:.042},
+    {t:'e',cx:.573,cy:.888,rx:.048,ry:.042},
+  ],
+};
+// z-order (later = on top): inner / smaller parts drawn last
+const ORDER = ['belly','arms','legs','hair','feet','hands','ears','eyes','nose','mouth'];
+
+// ═══════════════════════════════════════════════
+//  STATE
+// ═══════════════════════════════════════════════
+let mode='explore', queue=[], qIdx=0, wrongs=0, score=0, active=false;
+let NATW=0, NATH=0;
+
+// ═══════════════════════════════════════════════
+//  HELPERS
+// ═══════════════════════════════════════════════
+const $=id=>document.getElementById(id);
+const shuffle=a=>{a=[...a];for(let i=a.length-1;i>0;i--){const j=Math.random()*(i+1)|0;[a[i],a[j]]=[a[j],a[i]];}return a;};
+
+function showScreen(id){['start-screen','game-screen','end-screen'].forEach(s=>$(s).classList.toggle('hidden',s!==id));}
+function clearFx(){
+  document.querySelectorAll('.float-label,.sparkle,.tap-ripple').forEach(e=>e.remove());
+  document.querySelectorAll('.tap').forEach(p=>p.classList.remove('hint','correct-flash','wrong-flash'));
+}
+function renderDots(){ $('dotsRow').innerHTML = queue.map((_,i)=>`<div class="dot" id="dp${i}">${i+1}</div>`).join(''); }
+function clearDots(){ $('dotsRow').innerHTML=''; }
+function dotState(i,cls){ const d=$('dp'+i); if(d) d.className='dot '+cls; }
+function showFb(emoji){const f=$('fbPop');f.textContent=emoji;f.className='fb-pop';void f.offsetWidth;f.className='fb-pop go';setTimeout(()=>{f.className='fb-pop';},900);}
+function sparkles(x,y,n=6){const em=['✨','⭐','💫','🌟'];for(let i=0;i<n;i++){const el=document.createElement('div');el.className='sparkle';el.textContent=em[i%em.length];el.style.left=(x+(Math.random()-.5)*80)+'px';el.style.top=(y+(Math.random()-.5)*60)+'px';el.style.animationDelay=(i*.08)+'s';document.body.appendChild(el);setTimeout(()=>el.remove(),900);}}
+function label(x,y,text){const el=document.createElement('div');el.className='float-label';el.textContent=text;document.body.appendChild(el);const r=el.getBoundingClientRect();el.style.left=(x-r.width/2)+'px';el.style.top=(y-r.height-16)+'px';setTimeout(()=>el.remove(),2000);}
+function ripple(x,y){const el=document.createElement('div');el.className='tap-ripple';el.style.left=x+'px';el.style.top=y+'px';document.body.appendChild(el);setTimeout(()=>el.remove(),500);}
+function confetti(n=35){const cols=['#FF6B4A','#42A5F5','#66BB6A','#FFD54F','#AB47BC','#FF7043','#26C6DA','#FFEE58'];for(let i=0;i<n;i++){const el=document.createElement('div');el.className='confetti-piece';const sz=6+Math.random()*8;Object.assign(el.style,{width:sz+'px',height:sz+'px',background:cols[i%cols.length],borderRadius:Math.random()>.5?'50%':'2px',left:Math.random()*100+'vw',top:'-10px','--dur':(1.2+Math.random())+'s','--delay':(Math.random()*.4)+'s','--rot':(360+Math.random()*720)+'deg'});document.body.appendChild(el);setTimeout(()=>el.remove(),2500);}}
+
+// ═══════════════════════════════════════════════
+//  BUILD SVG TAP SHAPES (once)
+// ═══════════════════════════════════════════════
+function shapeSVG(s){
+  if(s.t==='e') return `<ellipse class="hs" cx="${s.cx}" cy="${s.cy}" rx="${s.rx}" ry="${s.ry}"/>`;
+  if(s.t==='r') return `<rect class="hs" x="${s.x}" y="${s.y}" width="${s.w}" height="${s.h}" rx="${s.rx}" ry="${s.ry}"/>`;
+  if(s.t==='p') return `<polygon class="hs" points="${s.pts.map(p=>p[0]+','+p[1]).join(' ')}"/>`;
+  return '';
+}
+function buildSvg(){
+  const svg=$('charSvg');
+  svg.innerHTML = ORDER.map(id=>{
+    const inner=(SHAPES[id]||[]).map(shapeSVG).join('');
+    return `<g class="tap" data-part="${id}">${inner}</g>`;
+  }).join('');
+}
+
+// ═══════════════════════════════════════════════
+//  FIT container to image aspect ratio (keeps overlay aligned)
+// ═══════════════════════════════════════════════
+function fit(){
+  if(!NATW||!NATH) return;
+  const wrap=$('charWrap'), c=$('charContainer');
+  const aw=wrap.clientWidth, ah=wrap.clientHeight;
+  if(!aw||!ah) return;
+  const ar=NATW/NATH;
+  let w,h;
+  if(aw/ah > ar){ h=ah; w=h*ar; } else { w=aw; h=w/ar; }
+  c.style.width=w+'px'; c.style.height=h+'px';
+}
+
+// ═══════════════════════════════════════════════
+//  AUDIO TOGGLE
+// ═══════════════════════════════════════════════
+function toggleAudio(){const on=AudioEngine.toggle();$('audioToggle').innerHTML=on?'🔊':'';$('audioToggle').classList.toggle('off',!on);}
+
+// ═══════════════════════════════════════════════
+//  NAVIGATION
+// ═══════════════════════════════════════════════
+function goHome(){
+  AudioEngine.stop();AudioEngine.tap();active=false;
+  clearFx();clearDots();
+  $('game-screen').classList.remove('explore-mode');
+  $('floatingBack').classList.remove('show');
+  showScreen('start-screen');
+}
+function startExplore(){
+  AudioEngine.stop();AudioEngine.tap();
+  mode='explore';active=true;clearDots();
+  $('scoreBadge').textContent='';
+  $('prompt').innerHTML='Tap any part!';$('prompt').className='prompt-pill';
+  $('game-screen').classList.add('explore-mode');
+  $('floatingBack').classList.add('show');
+  showScreen('game-screen');
+  requestAnimationFrame(fit);
+  AudioEngine.say('explore_mode');
+}
+function startQuiz(){
+  AudioEngine.stop();AudioEngine.tap();
+  mode='quiz';queue=shuffle(PARTS);qIdx=0;wrongs=0;score=0;active=true;
+  $('scoreBadge').textContent='⭐ 0';
+  $('game-screen').classList.remove('explore-mode');
+  $('floatingBack').classList.remove('show');
+  renderDots();
+  showScreen('game-screen');
+  requestAnimationFrame(fit);
+  AudioEngine.say('quiz_mode');
+  setTimeout(askNext,1200);
+}
+function askNext(){
+  if(qIdx>=queue.length){endQuiz();return;}
+  const p=queue[qIdx];
+  $('prompt').innerHTML='Find the <span class="hl">'+p.name+'</span>!';
+  $('prompt').className='prompt-pill';
+  dotState(qIdx,'act');wrongs=0;
+  document.querySelectorAll('.tap').forEach(el=>el.classList.remove('hint'));
+  AudioEngine.say('quiz_find_'+p.id);
+}
+
+// ═══════════════════════════════════════════════
+//  TAP HANDLING (delegated on the SVG)
+// ═══════════════════════════════════════════════
+$('charSvg').addEventListener('click', e=>{
+  if(!active) return;
+  const g=e.target.closest('.tap');
+  if(!g) return;
+  const partId=g.dataset.part;
+  const cx=e.clientX, cy=e.clientY;
+  ripple(cx,cy);AudioEngine.tap();
+  if(mode==='explore') handleExplore(partId,g,cx,cy);
+  else if(partId===queue[qIdx].id) onCorrect(g,cx,cy);
+  else onWrong(g);
+});
+
+function handleExplore(partId,el,cx,cy){
+  const part=PARTS.find(p=>p.id===partId);if(!part)return;
+  clearFx();AudioEngine.stop();
+  el.classList.add('correct-flash');
+  setTimeout(()=>el.classList.remove('correct-flash'),650);
+  label(cx,cy,part.name);sparkles(cx,cy,7);
+  AudioEngine.say('part_name_'+part.id,'tap_learn');
+}
+function onCorrect(el,cx,cy){
+  active=false;AudioEngine.correct();AudioEngine.stop();
+  el.classList.add('correct-flash');
+  $('prompt').classList.add('ok');
+  showFb('⭐');sparkles(cx,cy,8);
+  score++;$('scoreBadge').textContent='⭐ '+score;
+  dotState(qIdx,'done');
+  AudioEngine.say(Math.random()<0.5?'correct_1':'correct_2');
+  qIdx++;
+  setTimeout(()=>{el.classList.remove('correct-flash');$('prompt').classList.remove('ok');active=true;askNext();},1100);
+}
+function onWrong(el){
+  wrongs++;AudioEngine.wrong();AudioEngine.stop();
+  el.classList.add('wrong-flash');
+  $('prompt').classList.add('ng');showFb('❌');
+  AudioEngine.say(Math.random()<0.5?'wrong_1':'wrong_2');
+  setTimeout(()=>{el.classList.remove('wrong-flash');$('prompt').classList.remove('ng');},500);
+  if(wrongs>=2){
+    const t=document.querySelector(`.tap[data-part="${queue[qIdx].id}"]`);
+    if(t)t.classList.add('hint');
+  }
+}
+
+// ═══════════════════════════════════════════════
+//  END
+// ═══════════════════════════════════════════════
+function endQuiz(){
+  active=false;
+  $('game-screen').classList.remove('explore-mode');
+  $('floatingBack').classList.remove('show');
+  AudioEngine.win();confetti(40);showScreen('end-screen');
+  const pct=score/PARTS.length;let emoji,title,msg,stars;
+  if(pct>=0.9){emoji='🏆';title='Body Expert!';msg='You found every body part! Absolutely brilliant!';stars='⭐⭐⭐';AudioEngine.say('win');}
+  else if(pct>=0.7){emoji='🎉';title='Great Job!';msg='You know most body parts really well!';stars='⭐⭐';AudioEngine.say('win');}
+  else if(pct>=0.4){emoji='👍';title='Good Try!';msg='Try Explore mode to learn the parts first!';stars='⭐';AudioEngine.say('try_again');}
+  else{emoji='💪';title='Keep Learning!';msg='Explore the body parts, then try the quiz again!';stars='';AudioEngine.say('try_again');}
+  $('endEmoji').textContent=emoji;$('endTitle').textContent=title;$('endStars').textContent=stars;
+  $('endScore').innerHTML='<em>'+score+'</em> / '+PARTS.length;$('endMsg').textContent=msg;
+}
+
+// ═══════════════════════════════════════════════
+//  INIT
+// ═══════════════════════════════════════════════
+const img=$('charImg');
+function onImgReady(){ NATW=img.naturalWidth; NATH=img.naturalHeight; buildSvg(); fit(); }
+if(img.complete && img.naturalWidth) onImgReady();
+else img.addEventListener('load', onImgReady);
+window.addEventListener('resize', fit);
+window.addEventListener('orientationchange', ()=>setTimeout(fit,150));
+showScreen('start-screen');
+</script>
+</body>
+</html>

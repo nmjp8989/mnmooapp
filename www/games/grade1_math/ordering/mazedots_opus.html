@@ -1,0 +1,230 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Star Hop - Grade 1 Math Game</title>
+    <style>
+        body {
+            margin: 0;
+            padding: 0;
+            background-color: #0b0c10;
+            color: white;
+            font-family: 'Comic Sans MS', 'Chalkboard SE', sans-serif;
+            display: flex;
+            flex-direction: column;
+            align-items: center;
+            overflow: hidden;
+        }
+
+        #ui-bar {
+            width: 100%;
+            padding: 20px;
+            text-align: center;
+            background-color: #1f2833;
+            box-shadow: 0 4px 8px rgba(0,0,0,0.5);
+            z-index: 10;
+        }
+
+        #message {
+            font-size: 24px;
+            color: #66fcf1;
+            margin: 0;
+        }
+
+        #game-board {
+            position: relative;
+            width: 100vw;
+            height: 80vh;
+            background-image: radial-gradient(circle, #1a1a2e, #0f0f1a);
+        }
+
+        .star {
+            position: absolute;
+            width: 60px;
+            height: 60px;
+            background-color: #ffd700;
+            border-radius: 50%;
+            display: flex;
+            justify-content: center;
+            align-items: center;
+            color: #000;
+            font-size: 28px;
+            font-weight: bold;
+            cursor: pointer;
+            box-shadow: 0 0 15px #ffd700;
+            transition: transform 0.2s, background-color 0.3s;
+            user-select: none;
+            z-index: 2;
+        }
+
+        .star:hover {
+            transform: scale(1.1);
+        }
+
+        .star.solved {
+            background-color: #45a29e;
+            box-shadow: 0 0 20px #45a29e;
+            color: white;
+            cursor: default;
+        }
+
+        #astro-frog {
+            position: absolute;
+            font-size: 50px;
+            z-index: 5;
+            transition: top 0.5s ease-in-out, left 0.5s ease-in-out;
+            pointer-events: none; /* So we can click stars behind the frog */
+            transform: translate(-50%, -50%); /* Center frog on coordinate */
+        }
+
+        /* Wiggle animation for wrong answers */
+        @keyframes wiggle {
+            0% { transform: translateX(0); }
+            25% { transform: translateX(-10px); }
+            50% { transform: translateX(10px); }
+            75% { transform: translateX(-10px); }
+            100% { transform: translateX(0); }
+        }
+
+        .shake {
+            animation: wiggle 0.4s ease-in-out;
+            background-color: #ff4c4c !important;
+            box-shadow: 0 0 15px #ff4c4c !important;
+        }
+
+        button {
+            margin-top: 10px;
+            padding: 10px 20px;
+            font-size: 18px;
+            background-color: #66fcf1;
+            color: #0b0c10;
+            border: none;
+            border-radius: 5px;
+            cursor: pointer;
+            font-weight: bold;
+            display: none; /* Hidden until game over */
+        }
+
+        button:hover {
+            background-color: #45a29e;
+            color: white;
+        }
+    </style>
+</head>
+<body>
+
+    <div id="ui-bar">
+        <h2 id="message">Help Astro-Frog! Click the stars in order from smallest to biggest.</h2>
+        <button id="restart-btn" onclick="initGame()">Play Again</button>
+    </div>
+
+    <div id="game-board">
+        <div id="astro-frog">🐸</div>
+    </div>
+
+    <script>
+        const board = document.getElementById('game-board');
+        const frog = document.getElementById('astro-frog');
+        const messageDisplay = document.getElementById('message');
+        const restartBtn = document.getElementById('restart-btn');
+
+        let currentLevelNumbers = [];
+        let sortedNumbers = [];
+        let currentStep = 0;
+
+        function generateRandomNumbers(count, max) {
+            let nums = new Set();
+            while(nums.size < count) {
+                nums.add(Math.floor(Math.random() * max) + 1);
+            }
+            return Array.from(nums);
+        }
+
+        function initGame() {
+            // Reset game state
+            board.innerHTML = '<div id="astro-frog">🐸</div>'; // Clear stars, keep frog
+            const newFrog = document.getElementById('astro-frog');
+            currentStep = 0;
+            restartBtn.style.display = 'none';
+            messageDisplay.innerText = "Help Astro-Frog! Click the stars in order from smallest to biggest.";
+
+            // Position frog at the bottom starting point
+            newFrog.style.left = '50vw';
+            newFrog.style.top = '70vh';
+
+            // Generate 5 unique numbers between 1 and 20
+            currentLevelNumbers = generateRandomNumbers(5, 20);
+            sortedNumbers = [...currentLevelNumbers].sort((a, b) => a - b);
+
+            // Create stars
+            currentLevelNumbers.forEach((num) => {
+                createStar(num);
+            });
+        }
+
+        function createStar(number) {
+            const star = document.createElement('div');
+            star.classList.add('star');
+            star.innerText = number;
+
+            // Random position (keeping away from extreme edges)
+            const randomLeft = Math.floor(Math.random() * 80) + 10; 
+            const randomTop = Math.floor(Math.random() * 50) + 10;
+
+            star.style.left = randomLeft + 'vw';
+            star.style.top = randomTop + 'vh';
+
+            star.addEventListener('click', () => handleStarClick(star, number, randomLeft, randomTop));
+
+            board.appendChild(star);
+        }
+
+        function handleStarClick(starElement, number, leftPos, topPos) {
+            // Ignore if already solved
+            if (starElement.classList.contains('solved')) return;
+
+            const targetNumber = sortedNumbers[currentStep];
+
+            if (number === targetNumber) {
+                // Correct jump!
+                const activeFrog = document.getElementById('astro-frog');
+                
+                // Move frog (adjusting slightly for center positioning)
+                activeFrog.style.left = (leftPos + 3) + 'vw'; 
+                activeFrog.style.top = (topPos + 3) + 'vh';
+
+                // Update star visuals
+                starElement.classList.add('solved');
+                
+                currentStep++;
+                messageDisplay.innerText = "Great jump! What comes next?";
+
+                // Check win condition
+                if (currentStep === sortedNumbers.length) {
+                    setTimeout(() => {
+                        messageDisplay.innerText = "Blast off! You made a beautiful constellation! 🚀🌕";
+                        restartBtn.style.display = 'inline-block';
+                    }, 500);
+                }
+            } else {
+                // Wrong jump
+                if (number < targetNumber) {
+                    messageDisplay.innerText = "Boing! We need to go up in order. Find a bigger number.";
+                } else {
+                    messageDisplay.innerText = "Oops! That star is too big. Look for a smaller number next.";
+                }
+
+                // Play wiggle animation
+                starElement.classList.add('shake');
+                setTimeout(() => {
+                    starElement.classList.remove('shake');
+                }, 400); // Remove class after animation finishes
+            }
+        }
+
+        // Start the game for the first time
+        initGame();
+    </script>
+</body>
+</html>

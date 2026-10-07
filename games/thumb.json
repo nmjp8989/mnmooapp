@@ -1,0 +1,62 @@
+[
+  {
+    "path": "grade1_language/compound_words/train_word_opus.html",
+    "file": "wordtrain.webp",
+    "prompt": "Colorful children's game thumbnail: a cheerful cartoon train chugging along tracks, each train car carrying a word block ('SUN' on one car, 'FLOWER' on the next) that link together to form compound words, puffs of steam with letters floating in them, green hills and blue sky background, playful kid-friendly style, title 'Word Train'"
+  },
+  {
+    "path": "grade1_language/compound_words/word_factory_opus.html",
+    "file": "wordfactory.webp",
+    "prompt": "Colorful children's game thumbnail: a whimsical cartoon factory with conveyor belts carrying word blocks, two words ('SUN' + 'FLOWER') joining together on a machine to create 'SUNFLOWER' with a sunflower emoji popping out, gears spinning, factory lights glowing green, industrial gray and bright accent colors, playful kid-friendly style, title 'Word Factory'"
+  },
+  {
+    "path": "grade1_language/contractions/balloon_pop_opus.html",
+    "file": "contractionclouds.webp",
+    "prompt": "Colorful children's game thumbnail: fluffy white clouds in a bright blue sky, each cloud has a word pair ('do not' and 'don't'), a pin about to pop the correct contraction cloud, rainbow and sunshine in background, floating letters, playful kid-friendly style, title 'Contraction Clouds'"
+  },
+  {
+    "path": "grade1_language/contractions/monster_opus.html",
+    "file": "monstermunch.webp",
+    "prompt": "Colorful children's game thumbnail: a big friendly green cartoon monster with a huge grin, holding contraction cookies ('can't', 'won't', 'I'm') on a plate, cookie crumbs around its mouth, a kitchen counter with more word cookies, warm orange and green colors, playful kid-friendly style, title 'Hungry Contraction Monster'"
+  },
+  {
+    "path": "grade1_language/nouns_adjectives/whack_a_mole_opus.html",
+    "file": "whackaword.webp",
+    "prompt": "Colorful children's game thumbnail: cute cartoon moles popping out of garden holes, each mole holding a word card — some nouns ('cat', 'ball') and some adjectives ('big', 'red'), a foam mallet targeting the right type, grassy field with flowers, bright green and brown colors, playful kid-friendly style, title 'Whack-a-Word'"
+  },
+  {
+    "path": "grade1_language/nouns_adjectives/cosmos_opus.html",
+    "file": "cosmiccargo.webp",
+    "prompt": "Colorful children's game thumbnail: a cute cartoon spaceship in outer space, word-labeled cargo crates floating around (some labeled 'NOUN', others 'ADJECTIVE'), a friendly alien sorting them into two space containers, stars and colorful nebula background, deep space purple and teal colors, playful kid-friendly style, title 'Cosmic Cargo Sorting'"
+  },
+  {
+    "path": "grade1_language/plurals/ocean_opus.html",
+    "file": "oceanplurals.webp",
+    "prompt": "Colorful children's game thumbnail: a cute cartoon octopus captain with a pirate hat underwater, holding word cards with plural words ('fish/fishes', 'shell/shells'), colorful coral reef and bubbles, treasure chest with letter tiles, bright aqua and coral ocean colors, playful kid-friendly style, title 'Ocean Plurals'"
+  },
+  {
+    "path": "grade1_language/plurals/guess_opus.html",
+    "file": "pluralpicker.webp",
+    "prompt": "Colorful children's game thumbnail: a fun quiz show scene with a spotlight, a word card showing 'CAT' transforming into 'CATS' with sparkle effects, three answer buttons below, a friendly host character, confetti and star decorations, bright gold and blue stage colors, playful kid-friendly style, title 'Plural Picker'"
+  },
+  {
+    "path": "grade1_language/reading_basics/readingbasic_opus.html",
+    "file": "readingstars.webp",
+    "prompt": "Colorful children's game thumbnail: a magical open book with ABC letters floating out of it surrounded by golden stars, picture cards (apple, ball, cat) matching to their words, a cute owl wearing reading glasses perched on the book, warm golden light and sparkles, playful kid-friendly style, title 'Reading Stars'"
+  },
+  {
+    "path": "grade1_language/reading_basics/readingbasics2_opus.html",
+    "file": "readingadventure.webp",
+    "prompt": "Colorful children's game thumbnail: three adventure islands connected by a rainbow bridge — one island has letter blocks, another has picture-word matching cards, the third has a treasure chest of completed words, a cute explorer character on the journey, bright tropical colors, playful kid-friendly style, title 'Reading Adventure'"
+  },
+  {
+    "path": "grade1_science/animals/identify_opus.html",
+    "file": "guesstheanimal.webp",
+    "prompt": "Colorful children's game thumbnail: a magnifying glass revealing a mystery animal silhouette with a big question mark, four cute cartoon animals around it (lion, penguin, dolphin, owl) as answer choices, safari and nature background, paw prints scattered around, bright jungle green and golden colors, playful kid-friendly style, title 'Guess the Animal'"
+  },
+  {
+    "path": "grade1_science/Bodyparts/bodyparts_opus.html",
+    "file": "mybody.webp",
+    "prompt": "Colorful children's game thumbnail: a friendly cartoon kid character with labeled body parts — arrows pointing to head, arms, legs, hands, feet — each label in a colorful bubble, the character waving happily, soft pastel medical/educational background, bright primary colors, playful kid-friendly style, title 'My Body'"
+  }
+]

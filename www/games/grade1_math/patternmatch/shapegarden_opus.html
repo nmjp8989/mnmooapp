@@ -1,0 +1,608 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width,initial-scale=1,maximum-scale=1,user-scalable=no,viewport-fit=cover">
+<title>Pattern Garden</title>
+<link rel="icon" href="data:,">
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+<link href="https://fonts.googleapis.com/css2?family=Fredoka:wght@400;600;700&family=Nunito:wght@400;600;700;800&display=swap" rel="stylesheet">
+<style>
+*,*::before,*::after{box-sizing:border-box;margin:0;padding:0}
+:root{
+  --opus-accent:#FF6B4A;--opus-accent-light:#FF8A6E;
+  --opus-bg-start:#FFF5F0;--opus-bg-end:#F0F4FF;
+  --opus-card:#FFFFFF;--opus-card-radius:20px;
+  --opus-card-shadow:0 8px 24px rgba(0,0,0,.10);
+  --opus-text:#2D3436;--opus-text-light:#636E72;
+  --opus-correct:#00C853;--opus-wrong:#FF5252;
+  --opus-gold:#FFD54F;--opus-cyan:#42A5F5;
+  --opus-font-heading:'Fredoka',sans-serif;
+  --opus-font-body:'Nunito',sans-serif;
+}
+html,body{
+  width:100vw;height:100vh;height:100dvh;
+  max-height:100vh;max-height:100dvh;
+  overflow:hidden;margin:0;padding:0;
+  touch-action:manipulation;-webkit-user-select:none;user-select:none;
+  overscroll-behavior:none;font-family:var(--opus-font-body);color:var(--opus-text);
+}
+
+@keyframes opus-pop-in{0%{opacity:0;transform:scale(.7)}60%{transform:scale(1.08)}100%{opacity:1;transform:scale(1)}}
+@keyframes opus-confetti{0%{transform:translateY(0) rotate(0);opacity:1}100%{transform:translateY(-120vh) rotate(720deg);opacity:0}}
+@keyframes opus-pulse{0%,100%{transform:scale(1)}50%{transform:scale(1.05)}}
+@keyframes opus-glow{0%,100%{box-shadow:0 0 0 rgba(255,107,74,0)}50%{box-shadow:0 0 16px rgba(255,107,74,.4)}}
+@keyframes opus-idle-bob{0%,100%{transform:translateY(0)}50%{transform:translateY(-5px)}}
+@keyframes opus-sway{0%,100%{transform:rotate(-2deg)}50%{transform:rotate(2deg)}}
+@keyframes opus-slot-pop{0%{transform:scale(1)}40%{transform:scale(1.25)}100%{transform:scale(1)}}
+@keyframes opus-wrong-shake{0%,100%{transform:translateX(0)}20%{transform:translateX(-6px)}40%{transform:translateX(6px)}60%{transform:translateX(-4px)}80%{transform:translateX(4px)}}
+@keyframes cloud-drift{from{transform:translateX(0)}to{transform:translateX(calc(100vw + 200px))}}
+@keyframes seed-fall{0%{opacity:1;transform:translateY(0) rotate(0)}100%{opacity:0;transform:translateY(30px) rotate(180deg)}}
+
+.game-wrapper{
+  width:100%;height:100%;height:100dvh;
+  display:flex;flex-direction:column;align-items:center;justify-content:flex-start;
+  position:relative;overflow:hidden;
+  background:linear-gradient(135deg,var(--opus-bg-start),var(--opus-bg-end));
+}
+
+/* START SCREEN STYLES */
+#startOverlay {
+  position: absolute; inset: 0; z-index: 100;
+  background: rgba(0,0,0,0.8); color: white;
+  display: flex; flex-direction: column; align-items: center; justify-content: center;
+  font-family: var(--opus-font-heading); font-size: clamp(20px, 4vw, 32px); cursor: pointer;
+}
+#startOverlay button {
+  margin-top: 20px; padding: 15px 40px; font-size: clamp(18px, 3vw, 24px); font-weight: bold;
+  background: var(--opus-accent); color: white; border: none; border-radius: 50px;
+  cursor: pointer; box-shadow: 0 4px 12px rgba(255,107,74,0.4); font-family: var(--opus-font-heading);
+  transition: transform 0.2s;
+}
+#startOverlay button:hover { transform: scale(1.05); }
+#startOverlay button:active { transform: scale(0.95); }
+
+.sky-layer{position:absolute;inset:0;pointer-events:none;z-index:0;overflow:hidden}
+.sun{position:absolute;top:3%;right:8%;width:clamp(46px,8vw,72px);aspect-ratio:1;z-index:1}
+.sun-body{width:100%;height:100%;background:radial-gradient(circle,#FFF176 30%,#FFD23F 65%,#FFB300 100%);
+  border-radius:50%;box-shadow:0 0 28px rgba(255,210,63,.5),0 0 56px rgba(255,210,63,.2);
+  animation:opus-pulse 4s ease-in-out infinite}
+.sun-face{position:absolute;top:30%;left:28%;width:44%;height:35%}
+.sun-eye{position:absolute;width:11%;height:22%;background:#8B6914;border-radius:50%;top:0}
+.sun-eye.l{left:18%}.sun-eye.r{right:18%}
+.sun-smile{position:absolute;bottom:0;left:50%;transform:translateX(-50%);width:32%;height:35%;
+  border:clamp(2px,.4vw,3px) solid #8B6914;border-top:none;border-radius:0 0 50% 50%}
+
+.cloud{position:absolute;z-index:1;animation:cloud-drift linear infinite}
+.cloud-shape{background:rgba(255,255,255,.82);border-radius:50px;position:relative}
+.cloud-shape::before,.cloud-shape::after{content:'';position:absolute;background:rgba(255,255,255,.82);border-radius:50%}
+.c1{top:5%;left:-15%;animation-duration:36s}
+.c1 .cloud-shape{width:96px;height:30px}
+.c1 .cloud-shape::before{width:40px;height:40px;top:-18px;left:12px}
+.c1 .cloud-shape::after{width:54px;height:46px;top:-26px;left:36px}
+.c2{top:12%;left:-12%;animation-duration:46s;animation-delay:12s}
+.c2 .cloud-shape{width:70px;height:22px}
+.c2 .cloud-shape::before{width:32px;height:32px;top:-14px;left:6px}
+.c2 .cloud-shape::after{width:42px;height:36px;top:-18px;left:24px}
+.c3{top:3%;left:-10%;animation-duration:30s;animation-delay:20s}
+.c3 .cloud-shape{width:84px;height:26px}
+.c3 .cloud-shape::before{width:36px;height:36px;top:-16px;left:10px}
+.c3 .cloud-shape::after{width:48px;height:40px;top:-22px;left:32px}
+
+.ground{position:absolute;bottom:0;left:0;right:0;height:34%;z-index:1;
+  background:linear-gradient(180deg,#C8E6C9 0%,#A5D6A7 25%,#81C784 60%,#66BB6A 100%);pointer-events:none}
+.ground::before{content:'';position:absolute;top:-18px;left:0;right:0;height:36px;
+  background:linear-gradient(180deg,transparent,#C8E6C9);border-radius:50% 50% 0 0/100% 100% 0 0}
+.ground-fence{position:absolute;top:8px;left:0;right:0;height:32px;z-index:2;display:flex;align-items:flex-end;overflow:hidden;opacity:.45}
+.fpost{width:8px;height:28px;background:linear-gradient(90deg,#D4A04E,#C08B3A,#D4A04E);
+  border-radius:2px 2px 0 0;flex-shrink:0;margin:0 22px}
+.frail{position:absolute;left:0;right:0;height:3px;background:#C08B3A;border-radius:1px}
+.fr1{top:6px}.fr2{top:18px}
+
+.garden-deco{position:absolute;z-index:2;pointer-events:none;animation:opus-sway 3.5s ease-in-out infinite}
+.garden-deco svg{display:block}
+
+.mascot-game {
+  position: absolute;
+  bottom: 20%;
+  left: 15%;
+  z-index: 14;
+  pointer-events: none;
+  transform-origin: bottom left;
+}
+.mascot-container {
+  transform: scale(1.2);
+  transform-origin: bottom left;
+}
+.mascot-sprite {
+  width: 72px;
+  height: 128px;
+  image-rendering: pixelated;
+  transform: translateZ(0);
+}
+.mascot-sprite.idle {
+  background-image: url('../../../games/assets/cow/idle.webp');
+  background-size: 216px 128px;
+  animation: spIdle 0.6s steps(3) infinite;
+}
+@keyframes spIdle { 100% { background-position: -216px 0; } }
+.mascot-sprite.dancing {
+  background-image: url('../../../games/assets/cow/rhythm.webp');
+  background-size: 432px 128px;
+}
+.mascot-sprite.sad {
+  background-image: url('../../../games/assets/cow/sadface.webp');
+  background-size: 144px 128px;
+  animation: spSad 0.5s steps(2) infinite;
+}
+@keyframes spSad { 100% { background-position: -144px 0; } }
+
+.pattern-area{
+  position:relative;z-index:10;display:flex;flex-direction:column;align-items:center;
+  gap:clamp(4px,1vh,8px);flex-shrink:0;margin-top:clamp(40px,12vh,80px);
+}
+.pattern-card{
+  background:var(--opus-card);border-radius:var(--opus-card-radius);
+  padding:clamp(10px,2vh,18px) clamp(16px,4vw,32px);box-shadow:var(--opus-card-shadow);
+}
+.pattern-row{display:flex;gap:clamp(6px,1.5vw,12px);align-items:center;justify-content:center;flex-wrap:wrap}
+
+.slot{
+  width:clamp(56px,11vw,80px);aspect-ratio:1;border-radius:clamp(14px,2.5vh,22px);
+  display:flex;align-items:center;justify-content:center;
+  position:relative;transition:transform .2s ease,box-shadow .2s ease;
+  min-width:44px;min-height:44px;
+}
+
+.slot.end-of-unit {
+  margin-right: clamp(14px, 3vw, 24px);
+}
+.slot.end-of-unit::after {
+  content: '';
+  position: absolute;
+  right: calc(clamp(14px, 3vw, 24px) / -2 - 1px);
+  top: 15%;
+  width: 3px;
+  height: 70%;
+  background: rgba(0, 0, 0, 0.12);
+  border-radius: 2px;
+}
+
+.slot.filled{background:rgba(0,0,0,.04);border:2px solid rgba(0,0,0,.06);box-shadow:0 2px 8px rgba(0,0,0,.06)}
+.slot.filled svg{width:78%;height:78%;filter:drop-shadow(0 1px 3px rgba(0,0,0,.12))}
+.slot.empty{
+  background:rgba(255,255,255,.6);border:2.5px dashed rgba(0,0,0,.12);
+  box-shadow:inset 0 2px 8px rgba(0,0,0,.04);
+}
+.slot.empty.active{
+  border-color:var(--opus-accent);border-style:dashed;
+  background:rgba(255,107,74,.08);
+  animation:opus-glow 1.2s ease-in-out infinite;transform:scale(1.06);
+}
+.slot.correct{animation:opus-slot-pop .45s cubic-bezier(.34,1.56,.64,1)}
+.slot.wrong{animation:opus-wrong-shake .4s ease}
+
+.palette-area{
+  position:relative;z-index:15;display:flex;flex-direction:column;align-items:center;
+  gap:clamp(4px,1vh,8px);margin-top:auto;margin-bottom:clamp(20px,6vh,40px);flex-shrink:0;
+}
+.palette-tray{
+  display:flex;gap:clamp(8px,2vw,16px);align-items:center;
+  padding:clamp(8px,1.5vh,14px) clamp(16px,4vw,28px);
+  background:var(--opus-card);border-radius:18px;box-shadow:var(--opus-card-shadow);
+}
+.pal-shape{
+  width:clamp(60px,12vw,84px);aspect-ratio:1;
+  min-width:44px;min-height:44px;border-radius:clamp(14px,2.5vh,22px);cursor:pointer;
+  display:flex;align-items:center;justify-content:center;
+  background:rgba(0,0,0,.03);border:2px solid rgba(0,0,0,.06);
+  transition:transform .15s,filter .15s;
+  animation:opus-idle-bob 2.4s ease-in-out infinite;
+}
+.pal-shape:nth-child(2){animation-delay:.3s}
+.pal-shape:nth-child(3){animation-delay:.6s}
+.pal-shape:nth-child(4){animation-delay:.9s}
+.pal-shape:nth-child(5){animation-delay:1.2s}
+.pal-shape:nth-child(6){animation-delay:1.5s}
+.pal-shape svg{width:78%;height:78%;filter:drop-shadow(0 2px 4px rgba(0,0,0,.15))}
+.pal-shape:active,.pal-shape.pressed{transform:scale(1.15);filter:brightness(1.1);animation:none}
+.pal-shape.pop-in{animation:opus-pop-in .35s cubic-bezier(.34,1.56,.64,1) both}
+
+.flash-overlay{position:absolute;inset:0;pointer-events:none;z-index:25;opacity:0;transition:opacity .15s}
+.flash-overlay.correct{background:rgba(0,200,83,.12);opacity:1}
+.flash-overlay.wrong{background:rgba(255,82,82,.12);opacity:1}
+.flash-overlay.gold{background:rgba(255,213,79,.15);opacity:1}
+
+@media(orientation:landscape) and (max-height:450px){
+  .pattern-area{margin-top: clamp(20px,6vh,40px);}
+  .pattern-card{padding:6px 14px 8px}
+  .slot{width:clamp(48px,9vh,64px)}
+  .palette-area{margin-bottom: clamp(12px, 3vh, 24px);}
+  .palette-tray{padding:6px 14px}
+  .pal-shape{width:clamp(52px,10vh,72px)}
+}
+</style>
+</head>
+<body>
+
+<div class="game-wrapper" id="gameWrapper">
+  <!-- START OVERLAY -->
+  <div id="startOverlay">
+    <h1>Pattern Garden</h1>
+    <button id="startBtn">Play Game</button>
+  </div>
+
+  <div class="sky-layer">
+    <div class="sun"><div class="sun-body"></div><div class="sun-face">
+      <div class="sun-eye l"></div><div class="sun-eye r"></div><div class="sun-smile"></div></div></div>
+    <div class="cloud c1"><div class="cloud-shape"></div></div>
+    <div class="cloud c2"><div class="cloud-shape"></div></div>
+    <div class="cloud c3"><div class="cloud-shape"></div></div>
+  </div>
+  <div class="ground">
+    <div class="ground-fence" id="fence"><div class="frail fr1"></div><div class="frail fr2"></div></div>
+  </div>
+
+  <div class="mascot-game" id="mascotGame">
+    <div class="mascot-container">
+      <div class="mascot-sprite idle" id="gameSprite"></div>
+    </div>
+  </div>
+
+  <div class="pattern-area">
+    <div class="pattern-card"><div class="pattern-row" id="patternRow"></div></div>
+  </div>
+
+  <div class="palette-area">
+    <div class="palette-tray" id="palTray"></div>
+  </div>
+
+  <div class="flash-overlay" id="flashOverlay"></div>
+</div>
+
+<script>
+// --- NARRATION DATA & PLAYER ---
+const NARRATION = {
+  "welcome": {
+    "text": "Welcome to the Pattern Garden! Let's build a beautiful repeating chain!",
+    "m4a": "shapegarden_audio/garden_welcome.m4a"
+  },
+  "instructions": {
+    "text": "Look closely at the pattern groups. Find the matching shape that completes the next block!",
+    "m4a": "shapegarden_audio/garden_instructions.m4a"
+  },
+  "correct_1": {
+    "text": "Splendid! That matches the repetition rule perfectly!",
+    "m4a": "shapegarden_audio/garden_match.m4a"
+  },
+  "level_complete": {
+    "text": "Look at that! The whole pattern block is blooming in balance!",
+    "m4a": "shapegarden_audio/garden_bloom.m4a"
+  },
+  "level_up": {
+    "text": "Wonderful progress! Let's discover a more advanced pattern rhythm!",
+    "m4a": "shapegarden_audio/garden_next.m4a"
+  },
+  "wrong_1": {
+    "text": "Not quite! Look back at the first completed group to see the pattern sequence.",
+    "m4a": "shapegarden_audio/garden_hint.m4a"
+  }
+};
+
+let currentAudio = null;
+
+function playNarration(key) {
+  if (!NARRATION[key]) return;
+  
+  // Stop previous audio if it's still playing
+  if (currentAudio) {
+    currentAudio.pause();
+    currentAudio.currentTime = 0;
+  }
+  
+  currentAudio = new Audio(NARRATION[key].m4a);
+  currentAudio.play().catch(e => console.log("Audio play prevented:", e));
+}
+
+// --- MASCOT ANIMATIONS ---
+const MascotCtrl = (() => {
+  const FRAME_W = 72;
+  let cycleTimer = null;
+  let sadTimer = null;
+
+  function setSprite(el, state, frameIdx) {
+    if (!el) return;
+    el.className = 'mascot-sprite ' + state;
+    if (state === 'dancing' && frameIdx !== undefined) {
+      el.style.backgroundPosition = `-${frameIdx * FRAME_W}px 0px`;
+    } else {
+      el.style.backgroundPosition = '';
+    }
+  }
+
+  function clearTimers() {
+    clearTimeout(cycleTimer);
+    clearTimeout(sadTimer);
+  }
+
+  function applyIdle(el) { if (el) { clearTimers(); setSprite(el, 'idle'); } }
+  function applySad(el, dur) {
+    if (!el) return;
+    clearTimers(); setSprite(el, 'sad');
+    sadTimer = setTimeout(() => setSprite(el, 'idle'), dur);
+  }
+  function applyDance(el, frames, interval) {
+    if (!el) return;
+    clearTimers(); let i = 0;
+    function next() {
+      if (i >= frames.length) { setSprite(el, 'idle'); return; }
+      setSprite(el, 'dancing', frames[i]); i++;
+      cycleTimer = setTimeout(next, interval);
+    }
+    next();
+  }
+  function applyCelebrate(el, dur) {
+    if (!el) return;
+    clearTimers(); const allFrames = [0, 1, 2, 3, 4, 5]; let i = 0; const start = Date.now();
+    function loop() {
+      if (Date.now() - start > dur) { setSprite(el, 'idle'); return; }
+      setSprite(el, 'dancing', allFrames[i % 6]); i++;
+      cycleTimer = setTimeout(loop, 180);
+    }
+    loop();
+  }
+
+  function eachSprite(fn) {
+    const gameEl = document.getElementById('gameSprite');
+    if (gameEl) fn(gameEl);
+  }
+
+  return {
+    idle()       { eachSprite(el => applyIdle(el)); },
+    sad(dur=1500){ eachSprite(el => applySad(el, dur)); },
+    danceQuick() { eachSprite(el => applyDance(el, [0,1,2,3], 120)); },
+    celebrate(dur=2200) { eachSprite(el => applyCelebrate(el, dur)); }
+  };
+})();
+
+// --- SOUND EFFECTS ---
+const OpusAudio = (() => {
+  let ctx;
+  function getCtx() {
+    if (!ctx) ctx = new (window.AudioContext || window.webkitAudioContext)();
+    if (ctx.state === 'suspended') ctx.resume();
+    return ctx;
+  }
+  function tone(freq, dur, type = 'sine', vol = 0.3) {
+    const c = getCtx(), o = c.createOscillator(), g = c.createGain();
+    o.type = type; o.frequency.value = freq;
+    g.gain.setValueAtTime(vol, c.currentTime);
+    g.gain.exponentialRampToValueAtTime(0.001, c.currentTime + dur);
+    o.connect(g).connect(c.destination);
+    o.start(); o.stop(c.currentTime + dur);
+  }
+  return {
+    click()   { tone(800, 0.08, 'sine', 0.2) },
+    correct() { tone(880, 0.1); setTimeout(() => tone(1100, 0.15), 100) },
+    wrong()   { tone(200, 0.3, 'sawtooth', 0.15) },
+    pattern() { [650, 850, 1050, 1250].forEach((f, i) => setTimeout(() => tone(f, 0.15, 'triangle', 0.18), i * 80)) },
+    levelUp() { [550, 680, 810, 940, 1100].forEach((f, i) => setTimeout(() => tone(f, 0.18, 'sine', 0.2), i * 90)) }
+  };
+})();
+
+function opusConfetti(count = 30) {
+  const colors = ['#FF6B4A', '#42A5F5', '#66BB6A', '#FFD54F', '#AB47BC', '#FF7043'];
+  for (let i = 0; i < count; i++) {
+    const el = document.createElement('div');
+    Object.assign(el.style, {
+      position: 'fixed', width: '10px', height: '10px',
+      background: colors[i % colors.length],
+      borderRadius: Math.random() > .5 ? '50%' : '2px',
+      left: Math.random() * 100 + 'vw', top: '100vh',
+      pointerEvents: 'none', zIndex: '9999',
+      animation: `opus-confetti ${1.5 + Math.random()}s ease-out ${Math.random() * .5}s forwards`
+    });
+    document.body.appendChild(el);
+    setTimeout(() => el.remove(), 2500);
+  }
+}
+
+// --- SHAPES & LEVELS ---
+const SHAPES = {
+  circle:   { id:'circle',   label:'Circle',   svg:`<svg viewBox="0 0 50 50"><circle cx="25" cy="25" r="20" fill="#FF6B6B" stroke="#D94444" stroke-width="2.5"/><circle cx="18" cy="18" r="5" fill="rgba(255,255,255,.3)"/></svg>` },
+  triangle: { id:'triangle', label:'Triangle', svg:`<svg viewBox="0 0 50 50"><polygon points="25,5 46,44 4,44" fill="#51CF66" stroke="#35A04A" stroke-width="2.5" stroke-linejoin="round"/></svg>` },
+  square:   { id:'square',   label:'Square',   svg:`<svg viewBox="0 0 50 50"><rect x="5" y="5" width="40" height="40" rx="5" fill="#4ECDC4" stroke="#2FA89F" stroke-width="2.5"/></svg>` },
+  star:     { id:'star',     label:'Star',     svg:`<svg viewBox="0 0 50 50"><polygon points="25,3 31,18 48,19 36,30 39,46 25,38 11,46 14,30 2,19 19,18" fill="#FFD43B" stroke="#D4AA00" stroke-width="2" stroke-linejoin="round"/></svg>` },
+  heart:    { id:'heart',    label:'Heart',    svg:`<svg viewBox="0 0 50 50"><path d="M25 44C25 44 5 32 5 17C5 9 11 3 18 3C22 3 25 6 25 10C25 6 28 3 32 3C39 3 45 9 45 17C45 32 25 44 25 44Z" fill="#F06595" stroke="#CC4477" stroke-width="2.5"/></svg>` }
+};
+
+const LEVELS = [
+  { gen(){ const[a,b]=rPick2(); return{pattern:[a,b],reps:3,unitLength:2} } },
+  { gen(){ const[a,b]=rPick2(); return{pattern:[a,a,b],reps:3,unitLength:3} } },
+  { gen(){ const[a,b]=rPick2(); return{pattern:[a,a,b,b],reps:2,unitLength:4} } },
+  { gen(){ const[a,b,c]=rPick3(); return{pattern:[a,b,c],reps:3,unitLength:3} } },
+  { gen(){ const[a,b]=rPick2(); return{pattern:[a,b,b,a],reps:2,unitLength:4} } },
+  { gen(){ const[a,b,c]=rPick3(); return{pattern:[a,a,b,c],reps:2,unitLength:4} } },
+  { gen(){ const[a,b,c]=rPick3(); return{pattern:[a,b,a,c],reps:2,unitLength:4} } },
+  { gen(){ const s=shuffle(Object.keys(SHAPES)); return{pattern:[s[0],s[1],s[2],s[3]],reps:2,unitLength:4} } },
+  { gen(){ const[a,b,c]=rPick3(); return{pattern:[a,b,c,b,a],reps:2,unitLength:5} } },
+  { gen(){ const s=shuffle(Object.keys(SHAPES)); return{pattern:[s[0],s[1],s[2],s[3],s[4]],reps:2,unitLength:5} } },
+];
+
+let level = 0, roundData = null, emptySlots = [], curEmpty = 0, busy = false;
+const $ = id => document.getElementById(id);
+
+function shuffle(a) { const b = [...a]; for (let i = b.length - 1; i > 0; i--) { const j = Math.random() * (i + 1) | 0; [b[i], b[j]] = [b[j], b[i]]; } return b; }
+function rPick2() { return shuffle(Object.keys(SHAPES)).slice(0, 2) }
+function rPick3() { return shuffle(Object.keys(SHAPES)).slice(0, 3) }
+
+function buildFence() {
+  const f = $('fence'); if (!f) return;
+  f.querySelectorAll('.fpost').forEach(p => p.remove());
+  const n = Math.ceil(window.innerWidth / 44);
+  for (let i = 0; i < n; i++) { const p = document.createElement('div'); p.className = 'fpost'; f.appendChild(p); }
+}
+
+function plantGardenDeco() {
+  document.querySelectorAll('.garden-deco').forEach(e => e.remove());
+  const wrapper = $('gameWrapper'); if (!wrapper) return;
+  const flowerColors = ['#FF9FF3', '#54A0FF', '#FECA57', '#FF6B6B', '#66BB6A'];
+  for (let i = 0; i < 12; i++) {
+    const d = document.createElement('div'); d.className = 'garden-deco';
+    d.style.cssText = `left:${2 + Math.random() * 95}%;top:${60 + Math.random() * 12}%;animation-delay:${Math.random() * 3}s;animation-duration:${2.8 + Math.random() * 2}s`;
+    const c = flowerColors[Math.random() * flowerColors.length | 0];
+    const sz = 7 + Math.random() * 7;
+    d.innerHTML = `<svg width="${sz * 2}" height="${sz * 3}" viewBox="0 0 24 36">
+      <line x1="12" y1="16" x2="12" y2="35" stroke="#4CAF50" stroke-width="2" stroke-linecap="round"/>
+      <circle cx="12" cy="12" r="${sz * .26}" fill="${c}"/>
+      <circle cx="12" cy="12" r="${sz * .1}" fill="#FECA57"/></svg>`;
+    wrapper.appendChild(d);
+  }
+}
+
+function flashScreen(type) { 
+  const el = $('flashOverlay'); 
+  if(!el)return; 
+  el.className = 'flash-overlay'; 
+  void el.offsetWidth; 
+  el.classList.add(type); 
+  setTimeout(() => { el.className = 'flash-overlay'; }, 300); 
+}
+
+function renderRound() {
+  const def = LEVELS[level % LEVELS.length];
+  roundData = def.gen();
+  emptySlots = []; curEmpty = 0; busy = false;
+
+  const totalElements = roundData.pattern.length * roundData.reps;
+  const pRow = $('patternRow'); pRow.innerHTML = '';
+
+  const filledCount = Math.max(roundData.unitLength, totalElements - roundData.unitLength);
+
+  for (let i = 0; i < totalElements; i++) {
+    const slot = document.createElement('div');
+    slot.className = 'slot';
+    const currentShapeKey = roundData.pattern[i % roundData.pattern.length];
+    slot.dataset.answer = currentShapeKey;
+
+    if ((i + 1) % roundData.unitLength === 0 && i !== totalElements - 1) {
+      slot.classList.add('end-of-unit');
+    }
+
+    if (i < filledCount) {
+      slot.classList.add('filled');
+      slot.innerHTML = SHAPES[currentShapeKey].svg;
+    } else {
+      slot.classList.add('empty');
+      slot.innerHTML = `<svg viewBox="0 0 50 50" width="30" height="30" opacity=".35"><text x="25" y="34" text-anchor="middle" font-size="22" font-weight="bold" fill="rgba(0,0,0,.18)">?</text></svg>`;
+      emptySlots.push(slot);
+    }
+    pRow.appendChild(slot);
+  }
+
+  const needed = [...new Set(emptySlots.map(s => s.dataset.answer))];
+  const extra = shuffle(Object.keys(SHAPES).filter(id => !needed.includes(id)));
+  const distractorCount = Math.min(extra.length, Math.max(1, 3 - needed.length));
+  const palIds = shuffle([...needed, ...extra.slice(0, distractorCount)]);
+
+  const palTray = $('palTray'); palTray.innerHTML = '';
+  palIds.forEach((id, i) => {
+    const btn = document.createElement('div');
+    btn.className = 'pal-shape pop-in';
+    btn.style.animationDelay = (i * .08) + 's';
+    btn.dataset.sid = id; btn.innerHTML = SHAPES[id].svg;
+    btn.addEventListener('pointerdown', onPalDown);
+    palTray.appendChild(btn);
+  });
+
+  if (emptySlots.length) emptySlots[0].classList.add('active');
+  MascotCtrl.idle();
+}
+
+function onPalDown(e) {
+  if (busy || curEmpty >= emptySlots.length) return;
+  const btn = e.currentTarget; const sid = btn.dataset.sid;
+  const slot = emptySlots[curEmpty]; const answer = slot.dataset.answer;
+
+  if (sid === answer) {
+    busy = true; MascotCtrl.danceQuick(); OpusAudio.correct();
+    
+    // Play correct narration
+    playNarration('correct_1');
+
+    slot.className = slot.classList.contains('end-of-unit') ? 'slot filled correct end-of-unit' : 'slot filled correct';
+    slot.innerHTML = SHAPES[sid].svg;
+
+    flashScreen('correct');
+
+    setTimeout(() => {
+      slot.classList.remove('correct'); curEmpty++;
+      if (curEmpty < emptySlots.length) {
+        emptySlots[curEmpty].classList.add('active'); busy = false;
+      } else {
+        busy = false;
+        
+        // Play level complete narration
+        playNarration('level_complete');
+        
+        OpusAudio.pattern(); opusConfetti(25); MascotCtrl.celebrate(1800);
+        
+        // Extended delay to allow narration to play before the next level loads
+        setTimeout(goNextLevel, 2500);
+      }
+    }, 450);
+  } else {
+    OpusAudio.wrong(); flashScreen('wrong'); MascotCtrl.sad(1200);
+    
+    // Play wrong narration
+    playNarration('wrong_1');
+    
+    slot.classList.add('wrong');
+    setTimeout(() => slot.classList.remove('wrong'), 400);
+  }
+}
+
+function goNextLevel() {
+  level++; 
+  OpusAudio.levelUp(); 
+  flashScreen('gold'); 
+  opusConfetti(40);
+  plantGardenDeco();
+  
+  // Play level up narration
+  playNarration('level_up');
+  
+  setTimeout(() => { renderRound(); }, 1000);
+}
+
+function startGame() {
+  level = 0;
+  buildFence(); 
+  plantGardenDeco(); 
+  renderRound();
+}
+
+document.addEventListener('touchmove', e => e.preventDefault(), { passive: false });
+addEventListener('resize', () => { buildFence(); plantGardenDeco(); });
+
+// Handle Start Button (Unlocks audio playback for browsers)
+document.getElementById('startBtn').addEventListener('click', () => {
+  document.getElementById('startOverlay').style.display = 'none';
+  startGame();
+  
+  // Play welcome audio
+  playNarration('welcome');
+  
+  // Follow up with instructions 4 seconds later
+  setTimeout(() => {
+    playNarration('instructions');
+  }, 4000);
+});
+
+// Render the environment initially behind the overlay
+buildFence();
+plantGardenDeco();
+</script>
+</body>
+</html>

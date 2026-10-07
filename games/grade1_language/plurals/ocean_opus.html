@@ -1,0 +1,612 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width,initial-scale=1,maximum-scale=1,user-scalable=no,viewport-fit=cover">
+<title>Ocean Plurals</title>
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link href="https://fonts.googleapis.com/css2?family=Fredoka:wght@500;600;700&family=Nunito:wght@600;700;800&display=swap" rel="stylesheet">
+<style>
+:root{
+  --deep:#073b78;
+  --blue:#0876c9;
+  --aqua:#36c6df;
+  --sky:#8ce7f4;
+  --ink:#12345b;
+  --yellow:#ffd74d;
+  --orange:#ff9f43;
+  --green:#30d39b;
+  --red:#ff6678;
+  --white:#fff;
+}
+*{box-sizing:border-box;margin:0;padding:0}
+html,body{width:100%;height:100%;overflow:hidden;touch-action:manipulation;overscroll-behavior:none;user-select:none}
+body{font-family:'Nunito',system-ui,sans-serif;background:#073b78;color:#fff}
+button{font:inherit}
+
+.game{
+  position:relative;
+  width:100vw;
+  height:100dvh;
+  min-height:280px;
+  overflow:hidden;
+  isolation:isolate;
+  background:
+    radial-gradient(circle at 80% 12%,rgba(255,255,255,.24),transparent 20%),
+    linear-gradient(180deg,#075fae 0%,#087bc8 43%,#10a7ce 74%,#6ddde9 100%);
+}
+.game::before{
+  content:"";
+  position:absolute;
+  inset:0;
+  z-index:-5;
+  opacity:.32;
+  background-image:
+    radial-gradient(circle at 10% 15%,rgba(255,255,255,.7) 0 3px,transparent 4px),
+    radial-gradient(circle at 22% 70%,rgba(255,255,255,.55) 0 5px,transparent 6px),
+    radial-gradient(circle at 45% 18%,rgba(255,255,255,.45) 0 4px,transparent 5px),
+    radial-gradient(circle at 62% 65%,rgba(255,255,255,.5) 0 3px,transparent 4px),
+    radial-gradient(circle at 90% 50%,rgba(255,255,255,.6) 0 6px,transparent 7px);
+  background-size:260px 190px,300px 230px,330px 210px,280px 180px,360px 250px;
+  animation:waterDrift 12s linear infinite;
+}
+@keyframes waterDrift{to{background-position:0 -190px,0 -230px,0 -210px,0 -180px,0 -250px}}
+
+.light-ray{position:absolute;top:-12%;width:14vw;height:95%;background:linear-gradient(180deg,rgba(255,255,255,.18),transparent 82%);filter:blur(5px);transform:rotate(11deg);transform-origin:top;z-index:-4;pointer-events:none}
+.light-ray.one{left:13%}.light-ray.two{left:58%;width:10vw;opacity:.65}.light-ray.three{right:2%;width:8vw;opacity:.45}
+
+.floor{position:absolute;left:-5%;right:-5%;bottom:-19px;height:58px;border-radius:50% 50% 0 0;background:linear-gradient(#f6d58f,#d89e59);z-index:-2;box-shadow:0 -8px 0 rgba(255,255,255,.08)}
+.coral{position:absolute;bottom:20px;font-size:clamp(34px,8vh,70px);z-index:-1;filter:saturate(1.25)}
+.coral.left{left:1.5%}.coral.right{right:1.5%;transform:scaleX(-1)}
+.fish-bg{position:absolute;z-index:-1;font-size:clamp(17px,4vh,30px);opacity:.55;animation:swim 12s linear infinite;pointer-events:none}
+.fish-bg.f1{top:17%;left:-50px}.fish-bg.f2{top:67%;left:-70px;animation-delay:-6s;animation-duration:15s}.fish-bg.f3{top:38%;left:-50px;animation-delay:-9s;animation-duration:18s}
+@keyframes swim{to{transform:translateX(calc(100vw + 100px))}}
+
+.topbar{
+  height:clamp(42px,10vh,58px);
+  padding:max(7px,env(safe-area-inset-top)) max(12px,env(safe-area-inset-right)) 5px max(12px,env(safe-area-inset-left));
+  display:flex;
+  align-items:center;
+  justify-content:center;
+}
+.brand{display:flex;align-items:center;gap:7px;font-family:'Fredoka',sans-serif;font-weight:700;font-size:clamp(15px,3.8vh,24px);text-shadow:0 2px 0 rgba(0,0,0,.14);white-space:nowrap}
+.brand-icon{font-size:1.2em;animation:wiggle 2.4s ease-in-out infinite}
+@keyframes wiggle{0%,100%{transform:rotate(-5deg)}50%{transform:rotate(7deg)}}
+
+.play-area{
+  height:calc(100dvh - clamp(42px,10vh,58px));
+  padding:2px max(10px,env(safe-area-inset-right)) max(12px,env(safe-area-inset-bottom)) max(10px,env(safe-area-inset-left));
+  display:grid;
+  grid-template-columns:minmax(92px,.85fr) minmax(220px,1.75fr) minmax(260px,2.05fr);
+  gap:clamp(8px,1.8vw,20px);
+  align-items:stretch;
+}
+
+.mascot-zone{position:relative;display:flex;align-items:flex-end;justify-content:center;padding-bottom:clamp(16px,5vh,34px)}
+.mascot-speech{
+  position:absolute;
+  top:2%;
+  left:0;
+  right:0;
+  margin:auto;
+  max-width:160px;
+  min-height:44px;
+  padding:8px 9px;
+  border-radius:15px;
+  background:#fff;
+  color:var(--ink);
+  text-align:center;
+  font-family:'Fredoka',sans-serif;
+  font-size:clamp(11px,2.6vh,16px);
+  font-weight:600;
+  box-shadow:0 5px 0 rgba(3,52,102,.2);
+  display:flex;
+  align-items:center;
+  justify-content:center;
+  line-height:1.1;
+}
+.mascot-speech::after{content:"";position:absolute;bottom:-9px;left:50%;border:10px solid transparent;border-top-color:#fff;border-bottom:0;transform:translateX(-50%)}
+.mascot-container{transform:scale(1.05);transform-origin:bottom center;filter:drop-shadow(0 8px 4px rgba(0,38,75,.26))}
+.mascot-sprite{width:72px;height:128px;image-rendering:pixelated;transform:translateZ(0)}
+.mascot-sprite.idle{background-image:url('../../assets/cow/idle.webp');background-size:216px 128px;animation:spIdle .6s steps(3) infinite}
+.mascot-sprite.dancing{background-image:url('../../assets/cow/rhythm.webp');background-size:432px 128px}
+.mascot-sprite.sad{background-image:url('../../assets/cow/sadface.webp');background-size:144px 128px;animation:spSad .5s steps(2) infinite}
+@keyframes spIdle{to{background-position:-216px 0}}
+@keyframes spSad{to{background-position:-144px 0}}
+
+.challenge-zone{display:flex;align-items:center;justify-content:center;min-width:0}
+.challenge-card{
+  width:100%;
+  max-width:390px;
+  height:min(92%,410px);
+  min-height:220px;
+  border-radius:clamp(18px,4vh,28px);
+  padding:clamp(10px,2.8vh,18px);
+  display:grid;
+  grid-template-rows:auto 1fr auto;
+  gap:clamp(5px,1.4vh,10px);
+  background:linear-gradient(180deg,rgba(255,255,255,.96),rgba(226,250,255,.93));
+  color:var(--ink);
+  border:3px solid rgba(255,255,255,.72);
+  box-shadow:0 9px 0 rgba(3,52,102,.22),inset 0 2px 0 #fff;
+  text-align:center;
+}
+.prompt{font-family:'Fredoka',sans-serif;font-weight:700;font-size:clamp(15px,3.8vh,24px);color:#0b5d9f;line-height:1.05}
+.object-stage{position:relative;display:flex;align-items:center;justify-content:center;min-height:0;border-radius:18px;background:linear-gradient(180deg,#dff9ff,#b9edf5);border:2px dashed rgba(8,118,201,.25);overflow:hidden}
+.object-stage::after{content:"";position:absolute;left:0;right:0;bottom:0;height:25%;background:linear-gradient(transparent,rgba(15,164,194,.12))}
+.object-icon{position:relative;z-index:2;font-size:clamp(46px,14vh,92px);filter:drop-shadow(0 6px 1px rgba(8,88,126,.16));animation:objectBob 2s ease-in-out infinite}
+@keyframes objectBob{50%{transform:translateY(-6px) rotate(2deg)}}
+.count-tag{position:absolute;top:8px;left:8px;z-index:3;padding:3px 8px;border-radius:999px;background:#fff;color:#0876c9;border:2px solid #7fdceb;font-family:'Fredoka',sans-serif;font-size:clamp(11px,2.5vh,15px);font-weight:700}
+.word-row{display:grid;grid-template-columns:1fr auto 1fr;gap:8px;align-items:center}
+.word-box{border-radius:15px;padding:clamp(6px,1.8vh,10px) 6px;background:#fff;border:2px solid #aadfed;min-width:0;color:inherit;cursor:pointer;width:100%;font:inherit;box-shadow:0 4px 0 rgba(2,52,97,.12);transition:transform .12s,box-shadow .12s,opacity .2s}
+.word-box:active:not(:disabled){transform:translateY(3px);box-shadow:0 1px 0 rgba(2,52,97,.12)}
+.word-box:disabled{cursor:default;opacity:.9}
+.word-box .speaker{font-size:.8em;margin-left:4px}
+.word-label{text-transform:uppercase;letter-spacing:.08em;color:#4d8aaa;font-size:clamp(8px,1.8vh,11px);font-weight:800}
+.word{font-family:'Fredoka',sans-serif;font-size:clamp(21px,5.8vh,37px);font-weight:700;line-height:1;color:#103e69;overflow-wrap:anywhere}
+.word.plural{color:#f28b2f}.arrow{font-size:clamp(17px,4.5vh,28px);color:#12a4bf;font-weight:900;animation:arrowBounce 1.1s ease-in-out infinite}
+@keyframes arrowBounce{50%{transform:translateX(4px)}}
+
+.answers-zone{display:grid;grid-template-rows:auto 1fr auto;gap:clamp(5px,1.5vh,10px);min-width:0;padding:1.5% 0}
+.answer-heading{display:flex;align-items:center;justify-content:space-between;gap:7px;font-family:'Fredoka',sans-serif;font-size:clamp(14px,3.3vh,21px);font-weight:700;text-shadow:0 2px 0 rgba(0,0,0,.14)}
+.hear-btn{border:0;border-radius:999px;background:#fff;color:#0b5d9f;min-height:34px;padding:5px 11px;display:flex;align-items:center;gap:5px;font-weight:800;box-shadow:0 4px 0 rgba(2,52,97,.2);cursor:pointer}
+.hear-btn:active{transform:translateY(3px);box-shadow:0 1px 0 rgba(2,52,97,.2)}
+.choices{display:grid;grid-template-rows:repeat(3,1fr);gap:clamp(6px,1.5vh,11px);min-height:0}
+.choice{
+  position:relative;
+  width:100%;
+  min-height:54px;
+  border:3px solid rgba(255,255,255,.85);
+  border-radius:999px;
+  padding:5px 17% 5px 14px;
+  overflow:hidden;
+  background:radial-gradient(circle at 22% 22%,#fff 0 5%,#d9fbff 12%,#8de8f2 48%,#32bfd7 100%);
+  color:#083f73;
+  font-family:'Fredoka',sans-serif;
+  font-size:clamp(20px,5.2vh,34px);
+  font-weight:700;
+  text-align:center;
+  box-shadow:0 7px 0 #056d9c,inset 0 3px 0 rgba(255,255,255,.8);
+  cursor:pointer;
+  transition:transform .16s ease,filter .16s ease,background .2s ease;
+  animation:choiceFloat 2.7s ease-in-out infinite;
+}
+.choice:nth-child(2){animation-delay:-.9s}.choice:nth-child(3){animation-delay:-1.8s}
+.choice::before{content:"";position:absolute;top:15%;left:7%;width:12%;height:22%;border-radius:50%;background:rgba(255,255,255,.66);transform:rotate(-18deg)}
+.choice::after{content:"🫧";position:absolute;right:5%;top:50%;transform:translateY(-50%);font-size:.8em}
+@keyframes choiceFloat{0%,100%{transform:translateY(0)}50%{transform:translateY(-3px)}}
+.choice:active{transform:translateY(5px) scale(.99);box-shadow:0 2px 0 #056d9c}
+.choice.correct{animation:correctPop .65s ease both;background:radial-gradient(circle at 22% 22%,#fff 0 5%,#caffdf 14%,#5ee4ad 55%,#22b984 100%);color:#064d35;box-shadow:0 7px 0 #148963,0 0 22px rgba(59,255,173,.65)}
+.choice.correct::after{content:"⭐"}
+@keyframes correctPop{35%{transform:scale(1.08)}65%{transform:scale(.98)}100%{transform:scale(1.02)}}
+.choice.wrong{animation:wrongShake .48s ease;background:radial-gradient(circle at 22% 22%,#fff 0 5%,#ffd8df 14%,#ff8d9d 55%,#ff6678 100%);color:#7a1830;box-shadow:0 7px 0 #bb4055}
+.choice.wrong::after{content:"↻"}
+@keyframes wrongShake{20%{transform:translateX(-8px)}40%{transform:translateX(8px)}60%{transform:translateX(-6px)}80%{transform:translateX(4px)}}
+.choice.disabled{pointer-events:none;filter:saturate(.55);opacity:.62;animation:none}
+.feedback{
+  min-height:clamp(37px,8.5vh,55px);
+  border-radius:15px;
+  padding:5px 11px;
+  display:flex;
+  align-items:center;
+  justify-content:center;
+  text-align:center;
+  background:rgba(4,45,91,.56);
+  border:2px solid rgba(255,255,255,.25);
+  font-size:clamp(12px,2.8vh,18px);
+  font-weight:800;
+  line-height:1.08;
+}
+.feedback.hint{background:rgba(255,190,54,.93);color:#663900;border-color:#ffe6a7}
+.feedback.good{background:rgba(48,211,155,.94);color:#073e2c;border-color:#baffdf}
+
+
+.particles{position:absolute;inset:0;z-index:90;overflow:hidden;pointer-events:none}.particle{position:absolute;pointer-events:none}
+.pop-ring{position:absolute;border:5px solid rgba(255,255,255,.85);border-radius:50%;pointer-events:none;animation:ring .55s ease-out forwards;z-index:89}
+@keyframes ring{to{transform:scale(2.5);opacity:0}}
+
+.rotate-message{display:none;position:fixed;inset:0;z-index:1000;background:linear-gradient(180deg,#075fae,#10a7ce);color:#fff;place-items:center;text-align:center;padding:28px;font-family:'Fredoka',sans-serif;font-size:24px}
+.rotate-message span{display:block;font-size:70px;margin-bottom:15px;animation:rotatePhone 1.7s ease-in-out infinite}
+@keyframes rotatePhone{50%{transform:rotate(90deg)}}
+
+@media (orientation:portrait){.rotate-message{display:grid}.game{visibility:hidden}}
+@media (max-height:360px){
+  .play-area{grid-template-columns:minmax(78px,.7fr) minmax(200px,1.75fr) minmax(245px,2.1fr)}
+  .challenge-card{height:96%;padding:8px}.mascot-zone{padding-bottom:14px}.mascot-container{transform:scale(.85)}.mascot-speech{top:0}.choice{font-size:clamp(18px,5.1vh,29px)}
+}
+@media (max-height:320px){.mascot-container{transform:scale(.72)}.mascot-speech{min-height:34px}.feedback{min-height:34px}}
+@media (max-width:650px){
+  .brand span:last-child{display:none}
+  .play-area{grid-template-columns:minmax(74px,.7fr) minmax(190px,1.75fr) minmax(220px,2fr);gap:7px}
+  .mascot-speech{font-size:10px;padding:6px 5px}
+}
+</style>
+</head>
+<body>
+<div class="rotate-message"><div><span>📱</span>Turn your phone sideways to play!</div></div>
+
+<main class="game" id="game">
+  <div class="light-ray one"></div><div class="light-ray two"></div><div class="light-ray three"></div>
+  <div class="fish-bg f1">🐠</div><div class="fish-bg f2">🐟</div><div class="fish-bg f3">🐡</div>
+  <div class="coral left">🪸</div><div class="coral right">🪸</div><div class="floor"></div>
+
+  <header class="topbar">
+    <div class="brand"><span class="brand-icon">🐙</span><span>Ocean Plurals</span></div>
+  </header>
+
+  <section class="play-area">
+    <aside class="mascot-zone" aria-label="Game mascot">
+      <div class="mascot-speech" id="mascotSpeech">Pick the plural!</div>
+      <div class="mascot-container"><div class="mascot-sprite idle" id="mascotSprite" aria-hidden="true"></div></div>
+    </aside>
+
+    <section class="challenge-zone">
+      <div class="challenge-card">
+        <div class="prompt">One becomes many!</div>
+        <div class="object-stage" id="objectStage">
+          <span class="count-tag" id="countTag">1 object</span>
+          <div class="object-icon" id="objectIcon">🐱</div>
+        </div>
+        <div class="word-row">
+          <button type="button" class="word-box" id="singularHear" aria-label="Hear the singular word"><div class="word-label">one <span class="speaker">🔊</span></div><div class="word" id="singularWord">cat</div></button>
+          <div class="arrow">➜</div>
+          <button type="button" class="word-box" id="pluralHear" aria-label="Hear the plural word" disabled><div class="word-label">many <span class="speaker">🔊</span></div><div class="word plural" id="pluralWord">?</div></button>
+        </div>
+      </div>
+    </section>
+
+    <section class="answers-zone">
+      <div class="answer-heading"><span>Pop the right bubble!</span><button type="button" class="hear-btn" id="hearBtn" aria-label="Hear the question again">🔊 Hear</button></div>
+      <div class="choices" id="choices"></div>
+      <div class="feedback" id="feedback" aria-live="polite">Choose the word for more than one.</div>
+    </section>
+  </section>
+
+  <div class="particles" id="particles"></div>
+
+</main>
+
+<script>
+'use strict';
+
+const VOICES = {
+  welcome:      { text: 'Welcome to Ocean Plurals!', m4a: 'ocean_audio/welcome.m4a' },
+  instructions: { text: 'Pick the correct plural from three bubbles!', m4a: 'ocean_audio/instructions.m4a' },
+  find_plural:  { text: 'What is the plural?', m4a: 'ocean_audio/find_plural.m4a' },
+  correct_1:    { text: "Bubble pop! That's correct!", m4a: 'ocean_audio/correct_1.m4a' },
+  correct_2:    { text: 'That answer is right!', m4a: 'ocean_audio/correct_2.m4a' },
+  wrong_1:      { text: 'Try again!', m4a: 'ocean_audio/wrong_1.m4a' },
+  wrong_2:      { text: 'Listen to the correct answer.', m4a: 'ocean_audio/wrong_2.m4a' },
+  try_again:    { text: 'Keep going!', m4a: 'ocean_audio/try_again.m4a' }
+};
+
+const ROUNDS_DATA = [
+  { word:'cat', answer:'cats', wrong:['cates','caties'], hint:'Just add s.', icon:'🐱' },
+  { word:'dog', answer:'dogs', wrong:['doges','dogies'], hint:'Just add s.', icon:'🐶' },
+  { word:'book', answer:'books', wrong:['bookes','bookies'], hint:'Just add s.', icon:'📘' },
+  { word:'star', answer:'stars', wrong:['stares','staries'], hint:'Just add s.', icon:'⭐' },
+  { word:'car', answer:'cars', wrong:['cares','caries'], hint:'Just add s.', icon:'🚗' },
+  { word:'tree', answer:'trees', wrong:['treees','treies'], hint:'Just add s.', icon:'🌳' },
+  { word:'shell', answer:'shells', wrong:['shelles','shellies'], hint:'Just add s.', icon:'🐚' },
+  { word:'crab', answer:'crabs', wrong:['crabes','crabies'], hint:'Just add s.', icon:'🦀' },
+  { word:'cup', answer:'cups', wrong:['cupes','cupies'], hint:'Just add s.', icon:'🥤' },
+  { word:'frog', answer:'frogs', wrong:['froges','frogies'], hint:'Just add s.', icon:'🐸' },
+  { word:'bus', answer:'buses', wrong:['buss','busies'], hint:'Words ending in s add es.', icon:'🚌' },
+  { word:'box', answer:'boxes', wrong:['boxs','boxies'], hint:'Words ending in x add es.', icon:'📦' },
+  { word:'dish', answer:'dishes', wrong:['dishs','dishies'], hint:'Words ending in sh add es.', icon:'🍽️' },
+  { word:'brush', answer:'brushes', wrong:['brushs','brushies'], hint:'Words ending in sh add es.', icon:'🪥' },
+  { word:'fox', answer:'foxes', wrong:['foxs','foxies'], hint:'Words ending in x add es.', icon:'🦊' },
+  { word:'watch', answer:'watches', wrong:['watchs','watchies'], hint:'Words ending in ch add es.', icon:'⌚' },
+  { word:'church', answer:'churches', wrong:['churchs','churchies'], hint:'Words ending in ch add es.', icon:'⛪' },
+  { word:'tomato', answer:'tomatoes', wrong:['tomatos','tomatoies'], hint:'This word adds es.', icon:'🍅' },
+  { word:'baby', answer:'babies', wrong:['babys','babyes'], hint:'Change consonant plus y to ies.', icon:'👶' },
+  { word:'puppy', answer:'puppies', wrong:['puppys','puppyes'], hint:'Change consonant plus y to ies.', icon:'🐕' },
+  { word:'butterfly', answer:'butterflies', wrong:['butterflys','butterflyes'], hint:'Change consonant plus y to ies.', icon:'🦋' },
+  { word:'berry', answer:'berries', wrong:['berrys','berryes'], hint:'Change consonant plus y to ies.', icon:'🍓' },
+  { word:'city', answer:'cities', wrong:['citys','cityes'], hint:'Change consonant plus y to ies.', icon:'🏙️' },
+  { word:'lady', answer:'ladies', wrong:['ladys','ladyes'], hint:'Change consonant plus y to ies.', icon:'👩' },
+  { word:'story', answer:'stories', wrong:['storys','storyes'], hint:'Change consonant plus y to ies.', icon:'📖' },
+  { word:'mouse', answer:'mice', wrong:['mouses','mices'], hint:'Mouse is special: mice.', icon:'🐭' },
+  { word:'child', answer:'children', wrong:['childs','childes'], hint:'Child is special: children.', icon:'🧒' },
+  { word:'tooth', answer:'teeth', wrong:['tooths','toothes'], hint:'Tooth is special: teeth.', icon:'🦷' },
+  { word:'foot', answer:'feet', wrong:['foots','footes'], hint:'Foot is special: feet.', icon:'🦶' },
+  { word:'person', answer:'people', wrong:['persons','peoples'], hint:'Person is special: people.', icon:'🧑' },
+  { word:'goose', answer:'geese', wrong:['gooses','goosees'], hint:'Goose is special: geese.', icon:'🪿' },
+  { word:'man', answer:'men', wrong:['mans','manes'], hint:'Man is special: men.', icon:'👨' },
+  { word:'woman', answer:'women', wrong:['womans','womanes'], hint:'Woman is special: women.', icon:'👩' },
+  { word:'leaf', answer:'leaves', wrong:['leafs','leafes'], hint:'Change f to ves.', icon:'🍃' },
+  { word:'wolf', answer:'wolves', wrong:['wolfs','wolfes'], hint:'Change f to ves.', icon:'🐺' },
+  { word:'shelf', answer:'shelves', wrong:['shelfs','shelfes'], hint:'Change f to ves.', icon:'🪵' },
+  { word:'sheep', answer:'sheep', wrong:['sheeps','sheepes'], hint:'Sheep stays sheep.', icon:'🐑' },
+  { word:'deer', answer:'deer', wrong:['deers','deeres'], hint:'Deer stays deer.', icon:'🦌' },
+];
+
+const state = { current:null, queue:[], attempts:0, locked:false };
+let activeNarration = null;
+let audioContext = null;
+let mascotTimer = null;
+let mascotFrameTimer = null;
+
+const el = {
+  mascotSpeech: document.getElementById('mascotSpeech'),
+  mascotSprite: document.getElementById('mascotSprite'),
+  objectStage: document.getElementById('objectStage'),
+  objectIcon: document.getElementById('objectIcon'),
+  countTag: document.getElementById('countTag'),
+  singularWord: document.getElementById('singularWord'),
+  pluralWord: document.getElementById('pluralWord'),
+  singularHear: document.getElementById('singularHear'),
+  pluralHear: document.getElementById('pluralHear'),
+  choices: document.getElementById('choices'),
+  feedback: document.getElementById('feedback'),
+  hearBtn: document.getElementById('hearBtn'),
+  particles: document.getElementById('particles')
+};
+
+function shuffle(items){
+  const array = items.slice();
+  for(let i=array.length-1;i>0;i--){
+    const j = Math.floor(Math.random()*(i+1));
+    [array[i],array[j]] = [array[j],array[i]];
+  }
+  return array;
+}
+
+function getNarrationItem(key){
+  return VOICES[key] || { text:'', m4a:`ocean_audio/${key}.m4a` };
+}
+
+function stopNarration(){
+  if(activeNarration){
+    activeNarration.pause();
+    activeNarration.currentTime=0;
+    activeNarration=null;
+  }
+}
+
+function playNarration(key,onComplete){
+  const item=getNarrationItem(key);
+  try{
+    stopNarration();
+    activeNarration=new Audio(item.m4a);
+    activeNarration.preload='auto';
+    let finished=false;
+    const done=()=>{
+      if(finished) return;
+      finished=true;
+      if(typeof onComplete==='function') onComplete();
+    };
+    activeNarration.addEventListener('ended',done,{once:true});
+    activeNarration.addEventListener('error',done,{once:true});
+    activeNarration.play().catch(done);
+  }catch(error){
+    console.warn('Narration unavailable:',error);
+    if(typeof onComplete==='function') onComplete();
+  }
+}
+
+function playNarrationSequence(keys,onComplete){
+  const queue=keys.filter(Boolean).slice();
+  function next(){
+    if(!queue.length){
+      if(typeof onComplete==='function') onComplete();
+      return;
+    }
+    playNarration(queue.shift(),next);
+  }
+  next();
+}
+
+function getAudioContext(){
+  if(!audioContext) audioContext = new (window.AudioContext || window.webkitAudioContext)();
+  if(audioContext.state === 'suspended') audioContext.resume().catch(()=>{});
+  return audioContext;
+}
+
+function tone(frequency,duration,type='sine',volume=.12,delay=0){
+  try{
+    const ctx = getAudioContext();
+    const oscillator = ctx.createOscillator();
+    const gain = ctx.createGain();
+    const start = ctx.currentTime + delay;
+    oscillator.type = type;
+    oscillator.frequency.setValueAtTime(frequency,start);
+    gain.gain.setValueAtTime(volume,start);
+    gain.gain.exponentialRampToValueAtTime(.001,start+duration);
+    oscillator.connect(gain); gain.connect(ctx.destination);
+    oscillator.start(start); oscillator.stop(start+duration);
+  }catch(error){}
+}
+function soundClick(){ tone(720,.07,'sine',.08); }
+function soundCorrect(){ tone(523,.12); tone(659,.12,'sine',.13,.11); tone(784,.18,'sine',.13,.22); }
+function soundWrong(){ tone(235,.22,'sawtooth',.07); }
+
+function setMascot(stateName,frame){
+  const mascot = el.mascotSprite;
+  mascot.className = 'mascot-sprite ' + stateName;
+  mascot.style.backgroundPosition = stateName === 'dancing' && Number.isInteger(frame) ? `${-frame*72}px 0` : '';
+}
+function clearMascotTimers(){ clearTimeout(mascotTimer); clearTimeout(mascotFrameTimer); }
+function mascotIdle(){ clearMascotTimers(); setMascot('idle'); }
+function mascotSad(){ clearMascotTimers(); setMascot('sad'); mascotTimer=setTimeout(mascotIdle,1100); }
+function mascotDance(duration=900){
+  clearMascotTimers();
+  const started=Date.now(); let frame=0;
+  (function next(){
+    if(Date.now()-started>=duration){ mascotIdle(); return; }
+    setMascot('dancing',frame%6); frame++; mascotFrameTimer=setTimeout(next,95);
+  })();
+}
+
+function setSpeech(text){ el.mascotSpeech.textContent=text; }
+function setFeedback(text,type=''){
+  el.feedback.textContent=text;
+  el.feedback.className='feedback'+(type?' '+type:'');
+}
+
+function renderOneIcon(round){
+  el.objectIcon.textContent=round.icon;
+  el.objectIcon.style.letterSpacing='0';
+  el.objectIcon.style.fontSize='clamp(46px,14vh,92px)';
+  el.countTag.textContent='1 object';
+}
+function renderManyIcons(round){
+  el.objectIcon.textContent=round.icon+round.icon+round.icon;
+  el.objectIcon.style.letterSpacing='-.18em';
+  el.objectIcon.style.fontSize='clamp(34px,10vh,66px)';
+  el.countTag.textContent='many objects';
+}
+
+function makePopRing(button){
+  const b=button.getBoundingClientRect(); const p=el.particles.getBoundingClientRect();
+  const ring=document.createElement('div'); ring.className='pop-ring';
+  const size=Math.min(b.width,b.height)*.55;
+  ring.style.width=size+'px'; ring.style.height=size+'px';
+  ring.style.left=(b.left-p.left+b.width/2-size/2)+'px';
+  ring.style.top=(b.top-p.top+b.height/2-size/2)+'px';
+  el.particles.appendChild(ring); setTimeout(()=>ring.remove(),650);
+}
+function confetti(originButton){
+  const box=originButton?originButton.getBoundingClientRect():{left:innerWidth/2,top:innerHeight/2,width:0,height:0};
+  const parent=el.particles.getBoundingClientRect();
+  const symbols=['⭐','🫧','✨','🐚'];
+  for(let i=0;i<22;i++){
+    const part=document.createElement('span'); part.className='particle'; part.textContent=symbols[i%symbols.length];
+    part.style.left=(box.left-parent.left+box.width/2)+'px'; part.style.top=(box.top-parent.top+box.height/2)+'px';
+    part.style.fontSize=(12+Math.random()*13)+'px'; el.particles.appendChild(part);
+    const x=(Math.random()-.5)*230, y=-55-Math.random()*120, spin=(Math.random()-.5)*540;
+    part.animate([
+      {transform:'translate(0,0) rotate(0)',opacity:1},
+      {transform:`translate(${x}px,${y}px) rotate(${spin}deg)`,opacity:1,offset:.55},
+      {transform:`translate(${x*1.15}px,${y+150}px) rotate(${spin*1.4}deg)`,opacity:0}
+    ],{duration:850+Math.random()*300,easing:'cubic-bezier(.2,.7,.3,1)',fill:'forwards'}).onfinish=()=>part.remove();
+  }
+}
+
+function takeNextRound(){
+  if(!state.queue.length){
+    state.queue=shuffle(ROUNDS_DATA);
+    if(state.current && state.queue.length>1 && state.queue[0].word===state.current.word){
+      [state.queue[0],state.queue[1]]=[state.queue[1],state.queue[0]];
+    }
+  }
+  state.current=state.queue.shift();
+  return state.current;
+}
+
+function loadRound(shouldNarrate=true){
+  const round=takeNextRound();
+  state.attempts=0;
+  state.locked=false;
+  renderOneIcon(round);
+  el.singularWord.textContent=round.word;
+  el.pluralWord.textContent='?';
+  el.pluralHear.disabled=true;
+  setSpeech(`What is the plural of ${round.word}?`);
+  setFeedback('Choose the word for more than one.');
+  el.choices.innerHTML='';
+  shuffle([round.answer,...round.wrong]).forEach(answer=>{
+    const button=document.createElement('button');
+    button.type='button';
+    button.className='choice';
+    button.textContent=answer;
+    button.setAttribute('aria-label',answer);
+    button.addEventListener('click',()=>handleChoice(button,answer,round));
+    el.choices.appendChild(button);
+  });
+  if(shouldNarrate) playNarration(`question_${round.word}`);
+}
+
+function handleChoice(button,selected,round){
+  if(state.locked || button.classList.contains('disabled')) return;
+  getAudioContext();
+  soundClick();
+
+  if(selected===round.answer){
+    state.locked=true;
+    button.classList.add('correct');
+    makePopRing(button);
+    confetti(button);
+    [...el.choices.children].forEach(choice=>{ if(choice!==button) choice.classList.add('disabled'); });
+    el.pluralWord.textContent=round.answer;
+    el.pluralHear.disabled=false;
+    renderManyIcons(round);
+    setSpeech('Great job!');
+    setFeedback(`Yes! One ${round.word}, many ${round.answer}.`,'good');
+    mascotDance();
+    soundCorrect();
+    playNarrationSequence([
+      'correct_1',
+      `plural_${round.answer}`,
+      `pair_${round.word}_${round.answer}`
+    ],()=>setTimeout(()=>loadRound(),300));
+    return;
+  }
+
+  state.attempts++;
+  button.classList.add('wrong','disabled');
+  mascotSad();
+  soundWrong();
+
+  if(state.attempts===1){
+    setSpeech('Try again!');
+    setFeedback('Hint: '+round.hint,'hint');
+    playNarration('wrong_1');
+    return;
+  }
+
+  state.locked=true;
+  [...el.choices.children].forEach(choice=>choice.classList.add('disabled'));
+  const answerButton=[...el.choices.children].find(choice=>choice.textContent===round.answer);
+  if(answerButton) answerButton.classList.add('correct');
+  el.pluralWord.textContent=round.answer;
+  el.pluralHear.disabled=false;
+  renderManyIcons(round);
+  setSpeech(`It is ${round.answer}!`);
+  setFeedback(`The answer is ${round.answer}. Say it aloud!`,'hint');
+  playNarrationSequence([
+    'wrong_2',
+    `plural_${round.answer}`,
+    `pair_${round.word}_${round.answer}`
+  ],()=>setTimeout(()=>loadRound(),350));
+}
+
+function startGame(){
+  if(activeNarration){
+    activeNarration.pause();
+    activeNarration=null;
+  }
+  state.current=null;
+  state.queue=[];
+  state.attempts=0;
+  state.locked=false;
+  mascotIdle();
+  loadRound(false);
+  playNarrationSequence(['instructions',`question_${state.current.word}`]);
+}
+
+el.hearBtn.addEventListener('click',()=>{
+  if(state.locked) return;
+  getAudioContext();
+  soundClick();
+  if(state.current) playNarration(`question_${state.current.word}`);
+  if(state.current) setSpeech(`What is the plural of ${state.current.word}?`);
+});
+
+el.singularHear.addEventListener('click',()=>{
+  if(state.locked) return;
+  getAudioContext();
+  soundClick();
+  if(state.current) playNarration(`word_${state.current.word}`);
+});
+el.pluralHear.addEventListener('click',()=>{
+  if(state.locked) return;
+  getAudioContext();
+  soundClick();
+  if(state.current && !el.pluralHear.disabled) playNarration(`plural_${state.current.answer}`);
+});
+document.addEventListener('pointerdown',()=>getAudioContext(),{once:true});
+window.addEventListener('DOMContentLoaded',startGame);
+</script>
+</body>
+</html>

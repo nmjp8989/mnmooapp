@@ -1,0 +1,527 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width,initial-scale=1,maximum-scale=1,user-scalable=no,viewport-fit=cover">
+<title>Contraction Clouds</title>
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+<link href="https://fonts.googleapis.com/css2?family=Fredoka:wght@400;600;700&family=Nunito:wght@400;600;700;800&display=swap" rel="stylesheet">
+<style>
+*,*::before,*::after{box-sizing:border-box;margin:0;padding:0}
+:root{
+  --opus-accent:#42A5F5;
+  --opus-text:#2D3436;
+  --opus-font-heading:'Fredoka',sans-serif;
+  --opus-font-body:'Nunito',sans-serif;
+  --safe-top: env(safe-area-inset-top, 0px);
+  --safe-bottom: env(safe-area-inset-bottom, 0px);
+}
+html,body{
+  width:100vw;height:100vh;height:100dvh;
+  overflow:hidden;margin:0;padding:0;
+  touch-action:manipulation;-webkit-user-select:none;user-select:none;
+  font-family:var(--opus-font-body);
+  background:linear-gradient(135deg, #1A237E, #4FC3F7);
+  color:var(--opus-text);
+}
+
+/* Animations */
+@keyframes float-fast{0%,100%{transform:translateY(0) rotate(-2deg)}50%{transform:translateY(-12px) rotate(2deg)}}
+@keyframes balloon-pop{0%{transform:scale(1);opacity:1}30%{transform:scale(1.4);opacity:.9;filter:brightness(1.5)}100%{transform:scale(0);opacity:0}}
+@keyframes cloud-drift{0%,100%{transform:translateX(0)}50%{transform:translateX(8px)}}
+@keyframes elastic-pop{0%{transform:translate(-50%,-50%) scale(0.5);opacity:0}60%{transform:translate(-50%,-50%) scale(1.2);opacity:1}100%{transform:translate(-50%,-50%) scale(1);opacity:1}}
+@keyframes twinkle{0%,100%{opacity:0.3;transform:scale(0.8)}50%{opacity:1;transform:scale(1.2)}}
+@keyframes shake{0%,100%{transform:translateX(0)}20%{transform:translateX(-10px)}40%{transform:translateX(10px)}60%{transform:translateX(-5px)}80%{transform:translateX(5px)}}
+
+/* Magical Background Stars */
+.star{position:absolute;background:#fff;border-radius:50%;animation:twinkle infinite ease-in-out;pointer-events:none;z-index:0}
+
+/* Main Layout */
+.game-wrapper{position:absolute;inset:0;display:flex;flex-direction:column;align-items:center;justify-content:center;padding:var(--safe-top) 16px var(--safe-bottom);z-index:10}
+.game-area{width:100%;max-width:900px;display:flex;flex-direction:column;align-items:center;justify-content:center;gap:clamp(15px,4vh,30px); opacity: 0; transition: opacity 0.5s;}
+.game-area.active {opacity: 1;}
+
+/* Clouds Row */
+.clouds-row{display:flex;align-items:center;gap:clamp(12px,3vw,25px);justify-content:center;flex-wrap:wrap;z-index:15}
+.cloud-wrap, .answer-cloud-wrap {position: relative;display: inline-flex;justify-content: center;align-items: center;}
+.cloud-svg, .answer-cloud-svg {
+  width: clamp(140px, 30vw, 250px);
+  filter: drop-shadow(0 10px 20px rgba(0,0,0,.25));
+  animation: cloud-drift 3s ease-in-out infinite;
+}
+.cloud-svg:nth-child(2) {animation-delay: 1.5s;}
+.cloud-word, .answer-text {
+  font-family: var(--opus-font-heading);
+  font-size: clamp(24px, 5.5vh, 46px);
+  font-weight: 700;
+  text-align: center;
+  position: absolute;
+  top: 44%;
+  left: 50%;
+  transform: translate(-50%, -50%);
+  pointer-events: none;
+  width: 90%;
+  color: #17324d;
+}
+.answer-text {
+  color: #c43e00;
+  font-size: clamp(28px, 6.5vh, 52px);
+  opacity: 0.3;
+}
+.answer-text.revealed {
+  color: #ff5252;
+  opacity: 1;
+  animation: elastic-pop 0.6s cubic-bezier(0.175, 0.885, 0.32, 1.275) forwards;
+}
+.cloud-op {font-size: clamp(24px, 5vh, 40px); font-weight: 900; color: white; text-shadow: 0 4px 10px rgba(0,0,0,0.3);}
+
+/* Balloons */
+.balloons-row{display:flex;gap:clamp(16px,4vw,36px);justify-content:center;flex-wrap:wrap;z-index:15;padding-top:10px;}
+.balloon-wrap{display:flex;flex-direction:column;align-items:center;cursor:pointer;position:relative;min-height:100px;min-width:100px;transition:transform .1s;}
+.balloon-wrap.idle{animation:float-fast 2.5s ease-in-out infinite}
+.balloon-wrap.popping{animation:balloon-pop .25s ease-out forwards;pointer-events:none}
+.balloon-inner {position: relative;width: 100%;height: 100%;transition: transform .1s ease;}
+.balloon-inner:active{transform:scale(.9) translateY(5px)}
+.balloon-svg{display:block;overflow:visible;width: 100%;height: 100%; filter: drop-shadow(0 8px 15px rgba(0,0,0,0.3));}
+.balloon-text {
+  font-family: var(--opus-font-heading);
+  font-size: clamp(22px, 4.5vh, 36px);
+  font-weight: 900;
+  color: #fff;
+  text-shadow: 0 3px 6px rgba(0,0,0,.4);
+  position: absolute;
+  left: 50%;
+  top: 50%;
+  transform: translate(-50%, -50%);
+  pointer-events: none;
+  width: 90%;
+  text-align: center;
+}
+
+/* Flash Overlay */
+.flash-overlay{position:absolute;inset:0;pointer-events:none;z-index:100;opacity:0;transition:opacity .15s}
+.flash-overlay.correct{background:rgba(255,255,255,.4);opacity:1}
+.flash-overlay.wrong{background:rgba(255,82,82,.2);opacity:1}
+
+/* Voice Bubble */
+.voice-bubble{
+  position:absolute;top:clamp(12px,3vh,18px);left:50%;transform:translateX(-50%);z-index:60;
+  font-family:var(--opus-font-heading);font-size:clamp(14px,3vh,20px);font-weight:700;color:var(--opus-text);
+  background:white;border-radius:16px;padding:clamp(8px,1.4vh,14px) clamp(18px,4vw,26px);
+  box-shadow:0 8px 24px rgba(0,0,0,.15);white-space:nowrap;opacity:0;transition:opacity .3s;pointer-events:none;
+}
+.voice-bubble.show{opacity:1}
+
+/* Mascot */
+.mascot-float{position:absolute;bottom:calc(var(--safe-bottom) + 15px);left:15px;z-index:35;pointer-events:none;opacity:0;transition:opacity .4s;}
+.mascot-float.show{opacity:1}
+.mascot-container{transform:scale(1.2);transform-origin:bottom left;}
+.mascot-sprite{width:72px;height:128px;image-rendering:pixelated;transform:translateZ(0)}
+.mascot-sprite.idle{background-image:url('../../assets/cow/idle.webp');background-size:216px 128px;animation:spIdle .6s steps(3) infinite;}
+@keyframes spIdle{100%{background-position:-216px 0}}
+.mascot-sprite.dancing{background-image:url('../../assets/cow/rhythm.webp');background-size:432px 128px;}
+.mascot-sprite.sad{background-image:url('../../assets/cow/sadface.webp');background-size:144px 128px;animation:spSad .5s steps(2) infinite;}
+@keyframes spSad{100%{background-position:-144px 0}}
+
+.pop-dot{position:absolute;border-radius:50%;pointer-events:none;z-index:20;}
+
+/* Orientation Fixes */
+#rotate-screen {display: none;z-index: 5000;padding: 24px;text-align: center;background: linear-gradient(160deg, #71d1ff, #4b9cff);position:fixed;inset:0;place-items:center;}
+@media (orientation: portrait) and (max-width: 900px) {#rotate-screen { display: grid; }}
+@media (max-height: 450px) {
+  .cloud-svg,.answer-cloud-svg{width:clamp(110px,25vw,170px)}
+  .cloud-word,.answer-text{font-size:clamp(18px,4.5vh,28px);}
+  .balloon-text{font-size:clamp(16px,3.5vh,24px)}
+  .mascot-container{transform:scale(0.85);}
+}
+</style>
+</head>
+<body>
+
+<div id="rotate-screen" aria-label="Rotate device">
+  <div><h2 style="font-family:'Fredoka',sans-serif;color:white;font-size:2rem;">Turn your phone sideways!</h2></div>
+</div>
+
+<div class="flash-overlay" id="flashOverlay"></div>
+<div class="voice-bubble" id="voiceBubble"></div>
+
+<!-- Background Stars -->
+<div id="starContainer"></div>
+
+<div class="game-wrapper">
+  <div class="mascot-float" id="mascotFloat">
+    <div class="mascot-container">
+      <div class="mascot-sprite idle" id="mascotSprite" aria-hidden="true"></div>
+    </div>
+  </div>
+
+  <div class="game-area" id="gameArea">
+    <div class="clouds-row">
+      <div class="cloud-wrap">
+        <svg class="cloud-svg" viewBox="0 0 200 120">
+          <circle cx="50" cy="60" r="38" fill="#fff"/><circle cx="100" cy="42" r="38" fill="#fff"/><circle cx="150" cy="60" r="38" fill="#fff"/><rect x="50" y="42" width="100" height="55" fill="#fff"/>
+        </svg>
+        <div class="cloud-word" id="cloud1Word">do</div>
+      </div>
+      <div class="cloud-op">+</div>
+      <div class="cloud-wrap">
+        <svg class="cloud-svg" viewBox="0 0 200 120">
+          <circle cx="50" cy="60" r="38" fill="#fff"/><circle cx="100" cy="42" r="38" fill="#fff"/><circle cx="150" cy="60" r="38" fill="#fff"/><rect x="50" y="42" width="100" height="55" fill="#fff"/>
+        </svg>
+        <div class="cloud-word" id="cloud2Word">not</div>
+      </div>
+      <div class="cloud-op">=</div>
+      <div class="answer-cloud-wrap">
+        <svg class="answer-cloud-svg" viewBox="0 0 200 120">
+          <circle cx="50" cy="60" r="38" fill="#FFF9C4"/><circle cx="100" cy="42" r="38" fill="#FFF9C4"/><circle cx="150" cy="60" r="38" fill="#FFF9C4"/><rect x="50" y="42" width="100" height="55" fill="#FFF9C4"/>
+        </svg>
+        <div class="answer-text" id="answerText">?</div>
+      </div>
+    </div>
+
+    <div class="balloons-row" id="balloonsRow"></div>
+  </div>
+</div>
+
+<script>
+const QUESTIONS = [
+  {w1:'do',w2:'not',ans:"don't",opts:["don't","can't","isn't"]},
+  {w1:'I',w2:'am',ans:"I'm",opts:["I'm","it's","you're"]},
+  {w1:'can',w2:'not',ans:"can't",opts:["can't","didn't","I'm"]},
+  {w1:'is',w2:'not',ans:"isn't",opts:["isn't","aren't","can't"]},
+  {w1:'you',w2:'are',ans:"you're",opts:["you're","we're","didn't"]},
+  {w1:'did',w2:'not',ans:"didn't",opts:["didn't","don't","doesn't"]},
+  {w1:'was',w2:'not',ans:"wasn't",opts:["wasn't","weren't","isn't"]},
+  {w1:'are',w2:'not',ans:"aren't",opts:["aren't","isn't","ain't"]},
+  {w1:'has',w2:'not',ans:"hasn't",opts:["hasn't","haven't","hadn't"]},
+  {w1:'have',w2:'not',ans:"haven't",opts:["haven't","hasn't","aren't"]},
+  {w1:'does',w2:'not',ans:"doesn't",opts:["doesn't","don't","didn't"]},
+  {w1:'we',w2:'are',ans:"we're",opts:["we're","were","they're"]},
+  {w1:'they',w2:'are',ans:"they're",opts:["they're","their","there"]},
+  {w1:'he',w2:'is',ans:"he's",opts:["he's","his","she's"]},
+  {w1:'she',w2:'is',ans:"she's",opts:["she's","he's","it's"]},
+  {w1:'it',w2:'is',ans:"it's",opts:["it's","its","that's"]},
+  {w1:'that',w2:'is',ans:"that's",opts:["that's","it's","this's"]},
+  {w1:'who',w2:'is',ans:"who's",opts:["who's","whose","what's"]},
+  {w1:'what',w2:'is',ans:"what's",opts:["what's","who's","that's"]},
+  {w1:'let',w2:'us',ans:"let's",opts:["let's","lets","let"]},
+  {w1:'I',w2:'will',ans:"I'll",opts:["I'll","I'm","it'll"]},
+  {w1:'he',w2:'will',ans:"he'll",opts:["he'll","she'll","we'll"]},
+  {w1:'she',w2:'will',ans:"she'll",opts:["she'll","he'll","they'll"]},
+  {w1:'we',w2:'will',ans:"we'll",opts:["we'll","well","they'll"]},
+  {w1:'they',w2:'will',ans:"they'll",opts:["they'll","we'll","there'll"]},
+  {w1:'you',w2:'will',ans:"you'll",opts:["you'll","y'all","your"]}
+];
+
+const BALLOON_PALETTES = [
+  {body:'#EF5350',shine:'#EF9A9A',dark:'#C62828'},
+  {body:'#42A5F5',shine:'#90CAF9',dark:'#1565C0'},
+  {body:'#66BB6A',shine:'#A5D6A7',dark:'#2E7D32'},
+  {body:'#FFCA28',shine:'#FFF59D',dark:'#F9A825'},
+  {body:'#AB47BC',shine:'#CE93D8',dark:'#6A1B9A'},
+  {body:'#FF7043',shine:'#FFAB91',dark:'#D84315'}
+];
+
+// Generate Magical Background Stars
+const starContainer = document.getElementById('starContainer');
+for(let i=0; i<30; i++) {
+  const star = document.createElement('div');
+  star.className = 'star';
+  const size = Math.random() * 6 + 2;
+  star.style.width = size + 'px'; star.style.height = size + 'px';
+  star.style.left = Math.random() * 100 + 'vw';
+  star.style.top = Math.random() * 100 + 'vh';
+  star.style.animationDuration = (Math.random() * 3 + 2) + 's';
+  star.style.animationDelay = (Math.random() * 2) + 's';
+  starContainer.appendChild(star);
+}
+
+// ═══ MP3 JSON AUDIO LOGIC ═══
+const VOICE_JSON = {};
+const VOICES = {
+  welcome: "Welcome! Pop the correct balloon!",
+  hint: "The clouds show two words!",
+  correct_1: "Pop! That's correct!",
+  correct_2: "Great pop! That's the right contraction!"
+};
+
+let voiceAudioEl = new Audio(); 
+let voiceTimeout = null;
+
+// Loads the JSON file mapping keys to MP3s
+async function loadVoiceJson(){
+  try {
+    const res = await fetch('balloon_pop_voices.json');
+    if(res.ok) {
+      const data = await res.json();
+      Object.assign(VOICE_JSON, data);
+      Object.entries(data).forEach(([k,v])=>{ if(typeof v==='object' && v.text) VOICES[k]=v.text; });
+    }
+  } catch(e) { console.warn('JSON load failed, audio may not play.', e); }
+}
+
+// THE FIX: Translator function. 
+// Takes a word like "don't", makes it lowercase, and replaces the apostrophe with an underscore -> "word_don_t"
+function getAudioKey(word) {
+  let safeWord = word.toLowerCase().replace(/'/g, '_');
+  return 'word_' + safeWord;
+}
+
+// Plays an MP3 based on a dictionary key
+function playVoice(key){
+  const entry = VOICE_JSON[key];
+  if(entry && entry.m4a) {
+    try {
+      voiceAudioEl.src = entry.m4a;
+      voiceAudioEl.currentTime = 0;
+      voiceAudioEl.play().catch(e => console.log("Audio blocked", e));
+      return true; // Successfully played
+    } catch(e) { return false; }
+  }
+  return false; // MP3 not found in JSON
+}
+
+// Built-in TTS (Text to Speech) Fallback just in case an MP3 is missing
+function speakText(text){
+  if (!window.speechSynthesis) return;
+  window.speechSynthesis.cancel();
+  const utter = new SpeechSynthesisUtterance(text);
+  utter.rate = 1.1; 
+  utter.pitch = 1.2;
+  window.speechSynthesis.speak(utter);
+}
+
+function showVoiceBubble(key, dur=2500, rep={}) {
+  let t = VOICES[key];
+  if(!t && VOICE_JSON[key] && VOICE_JSON[key].text) t = VOICE_JSON[key].text;
+  if(!t) return;
+  
+  Object.entries(rep).forEach(([k,v]) => { t = t.replace('{'+k+'}', v) });
+  
+  const b = document.getElementById('voiceBubble');
+  b.textContent = t;
+  b.classList.add('show');
+  clearTimeout(voiceTimeout);
+  voiceTimeout = setTimeout(() => b.classList.remove('show'), dur);
+  
+  // Try to play MP3, if it fails, use robot voice fallback
+  if (!playVoice(key)) {
+    speakText(t);
+  }
+}
+// ══════════════════════════════════════════
+
+// Sound Effects Engine
+const OpusAudio = (() => {
+  let ctx;
+  function getCtx(){if(!ctx)ctx=new(window.AudioContext||window.webkitAudioContext)();if(ctx.state==='suspended')ctx.resume();return ctx}
+  function tone(f,d,type='sine',v=.3){const c=getCtx(),o=c.createOscillator(),g=c.createGain();o.type=type;o.frequency.value=f;g.gain.setValueAtTime(v,c.currentTime);g.gain.exponentialRampToValueAtTime(.001,c.currentTime+d);o.connect(g).connect(c.destination);o.start();o.stop(c.currentTime+d)}
+  return{
+    init(){ getCtx(); }, // Unlocks audio
+    correct(){tone(523,.12);setTimeout(()=>tone(659,.12),100);setTimeout(()=>tone(784,.18),200)},
+    wrong(){tone(200,.15,'square',.1);setTimeout(()=>tone(160,.2,'square',.1),120)},
+    pop(pitch){const f=600+(pitch||0)*80;tone(f,.08,'sine',.2);tone(f*1.5,.06,'triangle',.1)}
+  };
+})();
+
+// Mascot Animation
+const MascotCtrl=(()=>{
+  const FW=72;let st=null,ct=null;
+  function gEl(){return document.getElementById('mascotSprite')}
+  function clr(){clearTimeout(st);clearTimeout(ct)}
+  function setSp(el,state,fi){
+    if(!el)return;
+    el.className='mascot-sprite '+state;
+    if(state==='dancing'&&fi!==undefined)el.style.backgroundPosition=`-${fi*FW}px 0px`;
+    else el.style.backgroundPosition='';
+  }
+  function idle(el){if(!el)return;clr();setSp(el,'idle')}
+  function sad(el,dur){if(!el)return;clr();setSp(el,'sad');st=setTimeout(()=>setSp(el,'idle'),dur)}
+  function danceQuick(el){
+    if(!el)return;clr();const fr=[0,1,2,3,4,5];let i=0;
+    (function n(){if(i>=fr.length){setSp(el,'idle');return}setSp(el,'dancing',fr[i]);i++;ct=setTimeout(n,90)})();
+  }
+  return{
+    show(){const f=document.getElementById('mascotFloat');if(f)f.classList.add('show')},
+    idle(){idle(gEl())},
+    sad(d=1500){sad(gEl(),d)},
+    danceQuick(){danceQuick(gEl())}
+  };
+})();
+
+let isProcessing = false;
+let curQ = null;
+
+function shuffle(a){const b=a.slice();for(let i=b.length-1;i>0;i--){const j=Math.random()*(i+1)|0;[b[i],b[j]]=[b[j],b[i]]}return b}
+
+function createBalloonSVG(r,pal){
+  const w=r*2,cx=r,cy=r*.88,rx=r*.80,ry=r*.86;
+  const knotTop=cy+ry-r*.03,knotBot=cy+ry+r*.14,stringLen=r*.72,stringEnd=knotBot+stringLen;
+  const sw=Math.max(1.2,r*.035),sm=Math.max(1.8,r*.055);
+  const id='b'+Math.random().toString(36).slice(2,7);
+  return `<svg class="balloon-svg" width="${w}" height="${stringEnd}" viewBox="0 0 ${w} ${stringEnd}">
+    <defs>
+      <radialGradient id="g${id}" cx="36%" cy="28%" r="62%">
+        <stop offset="0%" stop-color="${pal.shine}" stop-opacity=".92"/>
+        <stop offset="48%" stop-color="${pal.body}" stop-opacity=".93"/>
+        <stop offset="100%" stop-color="${pal.dark}" stop-opacity=".96"/>
+      </radialGradient>
+      <radialGradient id="h${id}" cx="32%" cy="22%" r="26%">
+        <stop offset="0%" stop-color="#fff" stop-opacity=".62"/>
+        <stop offset="100%" stop-color="#fff" stop-opacity="0"/>
+      </radialGradient>
+    </defs>
+    <ellipse cx="${cx}" cy="${cy}" rx="${rx}" ry="${ry}" fill="url(#g${id})" stroke="rgba(255,255,255,.55)" stroke-width="${sm}"/>
+    <ellipse cx="${cx-rx*.32}" cy="${cy-ry*.26}" rx="${rx*.28}" ry="${ry*.2}" fill="url(#h${id})" transform="rotate(-18,${cx-rx*.32},${cy-ry*.26})"/>
+    <polygon points="${cx-r*.07},${knotTop} ${cx+r*.07},${knotTop} ${cx},${knotBot}" fill="${pal.dark}"/>
+    <path d="M${cx},${knotBot} C${cx+r*.13},${knotBot+stringLen*.38} ${cx-r*.10},${knotBot+stringLen*.72} ${cx},${stringEnd}" stroke="rgba(255,255,255,.4)" stroke-width="${sw}" fill="none" stroke-linecap="round"/>
+  </svg>`;
+}
+
+function autoStartGame(){
+  OpusAudio.init();
+  loadVoiceJson().then(()=>{
+    document.getElementById("gameArea").classList.add("active");
+    MascotCtrl.show(); MascotCtrl.idle();
+    showVoiceBubble("welcome",3000);
+    setTimeout(loadNextQuestion,2000);
+  });
+}
+
+function loadNextQuestion(){
+  isProcessing=false;
+  curQ=QUESTIONS[Math.floor(Math.random() * QUESTIONS.length)];
+  
+  document.getElementById('cloud1Word').textContent=curQ.w1;
+  document.getElementById('cloud2Word').textContent=curQ.w2;
+
+  const at=document.getElementById('answerText');
+  at.textContent='?';
+  at.className='answer-text';
+
+  // Read the hint text
+  showVoiceBubble('hint', 2500);
+  
+  // Fallback to TTS if we want the actual equation spoken
+  setTimeout(() => {
+    speakText(curQ.w1 + " plus " + curQ.w2);
+  }, 1000);
+
+  renderBalloons();
+}
+
+function renderBalloons(){
+  const row=document.getElementById('balloonsRow');row.innerHTML='';
+  const opts=shuffle([...curQ.opts]);
+  const palIndices=shuffle([0,1,2,3,4,5]).slice(0,3);
+  const r=55+Math.random()*8; 
+
+  opts.forEach((opt,i)=>{
+    const pal=BALLOON_PALETTES[palIndices[i]];
+    const svgH=r*2.74;
+    const wrap=document.createElement('div');
+    wrap.className='balloon-wrap';
+    wrap.style.width=r*2+'px';wrap.style.height=svgH+'px';
+    wrap.style.animationDelay=(i*.2)+'s';
+
+    const inner=document.createElement('div');
+    inner.className='balloon-inner';
+    inner.innerHTML=createBalloonSVG(r,pal);
+
+    const text=document.createElement('div');
+    text.className='balloon-text';
+    text.textContent=opt;
+    text.style.top=(r*.88/svgH*100)+'%';
+
+    inner.appendChild(text); 
+    wrap.appendChild(inner);
+
+    wrap.addEventListener('pointerdown',e=>{
+      e.preventDefault();
+      handleTap(opt,wrap,pal);
+    });
+    row.appendChild(wrap);
+
+    setTimeout(()=>{wrap.classList.add('idle');},100);
+  });
+}
+
+function flashScreen(type){
+  const fo=document.getElementById('flashOverlay');
+  fo.className='flash-overlay';void fo.offsetWidth;fo.classList.add(type);
+  setTimeout(()=>{fo.className='flash-overlay'},250);
+}
+
+function handleTap(word,wrap,pal){
+  if(!curQ||isProcessing)return;
+  if(wrap.classList.contains('popping'))return;
+
+  if(word===curQ.ans){
+    isProcessing=true;
+    OpusAudio.pop(Math.random()*3|0);
+
+    wrap.classList.add('popping');
+    flashScreen('correct');
+
+    const at=document.getElementById('answerText');
+    at.textContent=curQ.ans;
+    at.className='answer-text revealed';
+
+    const rect=wrap.getBoundingClientRect();
+    spawnParticles(rect.left+rect.width/2,rect.top+rect.height/2, 25, [pal.body,pal.shine,pal.dark,'#fff', '#FFD54F']);
+
+    OpusAudio.correct();
+    MascotCtrl.danceQuick();
+    
+    // THIS IS THE FIX: Convert "don't" -> "word_don_t" to match JSON
+    const audioKey = getAudioKey(curQ.ans); 
+    
+    // Attempt to play the specific word MP3
+    if (!playVoice(audioKey)) {
+        // If MP3 is missing, fall back to TTS robot voice
+        speakText(curQ.ans);
+    }
+
+    setTimeout(()=>{
+      loadNextQuestion();
+    }, 1800);
+  } else {
+    OpusAudio.wrong();
+    MascotCtrl.sad();
+    flashScreen('wrong');
+    wrap.style.animation='none';void wrap.offsetWidth;
+    wrap.style.animation='shake .4s ease';
+    setTimeout(()=>{wrap.style.animation='';wrap.classList.add('idle')},400);
+    
+    const phrases=['wrong_1','wrong_2'];
+    showVoiceBubble(phrases[Math.random()*2|0], 1500);
+  }
+}
+
+function spawnParticles(cxx,cyy,count,colors){
+  for(let i=0;i<count;i++){
+    const angle=Math.PI*2/count*i+Math.random()*.6;
+    const dist=50+Math.random()*80; 
+    const sz=6+Math.random()*12;
+    const col=colors[Math.random()*colors.length|0];
+    const dot=document.createElement('div');
+    dot.className='pop-dot';
+    dot.style.background=col;dot.style.width=sz+'px';dot.style.height=sz+'px';
+    dot.style.left=cxx+'px';dot.style.top=cyy+'px';
+    document.querySelector('.game-wrapper').appendChild(dot);
+    
+    const tx=Math.cos(angle)*dist,ty=Math.sin(angle)*dist;
+    dot.animate([
+      {transform:'translate(-50%,-50%) scale(1)',opacity:1},
+      {transform:`translate(calc(-50% + ${tx}px), calc(-50% + ${ty}px)) scale(.1)`,opacity:0}
+    ],{duration:500+Math.random()*400,easing:'cubic-bezier(.1,.6,.3,1)',fill:'forwards'});
+    setTimeout(()=>dot.remove(),900);
+  }
+}
+
+document.addEventListener('touchmove',e=>e.preventDefault(),{passive:false});
+window.addEventListener('DOMContentLoaded',autoStartGame);
+</script>
+</body>
+</html>

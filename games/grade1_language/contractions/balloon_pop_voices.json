@@ -1,0 +1,185 @@
+{
+  "welcome": "Welcome to Contraction Clouds! Pop the balloon with the right answer!",
+  "instructions": "Read the two words in the clouds, then pop the balloon with the correct contraction!",
+  "hint": "The clouds show two words!",
+  "correct_1": "Pop! That's correct!",
+  "correct_2": "Great pop! That's the right contraction!",
+  "correct_3": "Amazing! You popped it!",
+  "wrong_1": "Wrong balloon! Try a different one!",
+  "wrong_2": "That's not the right contraction! Look again!",
+  "halfway": "Halfway there! You're a contraction expert!",
+  "win": "All contractions popped! You're a Contraction Master!",
+  "try_again": "Good effort! Want to pop more balloons?",
+  "word_ain_t": {
+    "text": "ain't",
+    "m4a": "balloon_pop_audio/word_ain_t.m4a"
+  },
+  "word_aren_t": {
+    "text": "aren't",
+    "m4a": "balloon_pop_audio/word_aren_t.m4a"
+  },
+  "word_can_t": {
+    "text": "can't",
+    "m4a": "balloon_pop_audio/word_can_t.m4a"
+  },
+  "word_didn_t": {
+    "text": "didn't",
+    "m4a": "balloon_pop_audio/word_didn_t.m4a"
+  },
+  "word_doesn_t": {
+    "text": "doesn't",
+    "m4a": "balloon_pop_audio/word_doesn_t.m4a"
+  },
+  "word_don_t": {
+    "text": "don't",
+    "m4a": "balloon_pop_audio/word_don_t.m4a"
+  },
+  "word_hadn_t": {
+    "text": "hadn't",
+    "m4a": "balloon_pop_audio/word_hadn_t.m4a"
+  },
+  "word_hasn_t": {
+    "text": "hasn't",
+    "m4a": "balloon_pop_audio/word_hasn_t.m4a"
+  },
+  "word_haven_t": {
+    "text": "haven't",
+    "m4a": "balloon_pop_audio/word_haven_t.m4a"
+  },
+  "word_he_ll": {
+    "text": "he'll",
+    "m4a": "balloon_pop_audio/word_he_ll.m4a"
+  },
+  "word_he_s": {
+    "text": "he's",
+    "m4a": "balloon_pop_audio/word_he_s.m4a"
+  },
+  "word_his": {
+    "text": "his",
+    "m4a": "balloon_pop_audio/word_his.m4a"
+  },
+  "word_i_ll": {
+    "text": "I'll",
+    "m4a": "balloon_pop_audio/word_i_ll.m4a"
+  },
+  "word_i_m": {
+    "text": "I'm",
+    "m4a": "balloon_pop_audio/word_i_m.m4a"
+  },
+  "word_isn_t": {
+    "text": "isn't",
+    "m4a": "balloon_pop_audio/word_isn_t.m4a"
+  },
+  "word_it_ll": {
+    "text": "it'll",
+    "m4a": "balloon_pop_audio/word_it_ll.m4a"
+  },
+  "word_it_s": {
+    "text": "it's",
+    "m4a": "balloon_pop_audio/word_it_s.m4a"
+  },
+  "word_its": {
+    "text": "its",
+    "m4a": "balloon_pop_audio/word_its.m4a"
+  },
+  "word_let": {
+    "text": "let",
+    "m4a": "balloon_pop_audio/word_let.m4a"
+  },
+  "word_let_s": {
+    "text": "let's",
+    "m4a": "balloon_pop_audio/word_let_s.m4a"
+  },
+  "word_lets": {
+    "text": "lets",
+    "m4a": "balloon_pop_audio/word_lets.m4a"
+  },
+  "word_she_ll": {
+    "text": "she'll",
+    "m4a": "balloon_pop_audio/word_she_ll.m4a"
+  },
+  "word_she_s": {
+    "text": "she's",
+    "m4a": "balloon_pop_audio/word_she_s.m4a"
+  },
+  "word_that_s": {
+    "text": "that's",
+    "m4a": "balloon_pop_audio/word_that_s.m4a"
+  },
+  "word_their": {
+    "text": "their",
+    "m4a": "balloon_pop_audio/word_their.m4a"
+  },
+  "word_there": {
+    "text": "there",
+    "m4a": "balloon_pop_audio/word_there.m4a"
+  },
+  "word_there_ll": {
+    "text": "there'll",
+    "m4a": "balloon_pop_audio/word_there_ll.m4a"
+  },
+  "word_they_ll": {
+    "text": "they'll",
+    "m4a": "balloon_pop_audio/word_they_ll.m4a"
+  },
+  "word_they_re": {
+    "text": "they're",
+    "m4a": "balloon_pop_audio/word_they_re.m4a"
+  },
+  "word_this_s": {
+    "text": "this's",
+    "m4a": "balloon_pop_audio/word_this_s.m4a"
+  },
+  "word_wasn_t": {
+    "text": "wasn't",
+    "m4a": "balloon_pop_audio/word_wasn_t.m4a"
+  },
+  "word_we_ll": {
+    "text": "we'll",
+    "m4a": "balloon_pop_audio/word_we_ll.m4a"
+  },
+  "word_we_re": {
+    "text": "we're",
+    "m4a": "balloon_pop_audio/word_we_re.m4a"
+  },
+  "word_well": {
+    "text": "well",
+    "m4a": "balloon_pop_audio/word_well.m4a"
+  },
+  "word_were": {
+    "text": "were",
+    "m4a": "balloon_pop_audio/word_were.m4a"
+  },
+  "word_weren_t": {
+    "text": "weren't",
+    "m4a": "balloon_pop_audio/word_weren_t.m4a"
+  },
+  "word_what_s": {
+    "text": "what's",
+    "m4a": "balloon_pop_audio/word_what_s.m4a"
+  },
+  "word_who_s": {
+    "text": "who's",
+    "m4a": "balloon_pop_audio/word_who_s.m4a"
+  },
+  "word_whose": {
+    "text": "whose",
+    "m4a": "balloon_pop_audio/word_whose.m4a"
+  },
+  "word_y_all": {
+    "text": "y'all",
+    "m4a": "balloon_pop_audio/word_y_all.m4a"
+  },
+  "word_you_ll": {
+    "text": "you'll",
+    "m4a": "balloon_pop_audio/word_you_ll.m4a"
+  },
+  "word_you_re": {
+    "text": "you're",
+    "m4a": "balloon_pop_audio/word_you_re.m4a"
+  },
+  "word_your": {
+    "text": "your",
+    "m4a": "balloon_pop_audio/word_your.m4a"
+  }
+}

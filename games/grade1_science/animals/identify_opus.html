@@ -1,0 +1,486 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width,initial-scale=1,maximum-scale=1,user-scalable=no,viewport-fit=cover">
+<title>Animal Photo Match</title>
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+<link href="https://fonts.googleapis.com/css2?family=Fredoka:wght@400;600;700&family=Nunito:wght@400;600;700;800&display=swap" rel="stylesheet">
+<style>
+:root{
+  /* Kid-friendly bright, warm color palette */
+  --accent: #FF5722; /* Vibrant orange */
+  --accent-hover: #F4511E;
+  --accent-shadow: #D84315;
+  --bg-welcome: linear-gradient(135deg, #FFF9C4 0%, #FFF59D 100%); /* Sunny yellow */
+  --bg-game: linear-gradient(180deg, #E3F2FD 0%, #BBDEFB 100%); /* Bright sky blue */
+  --bg-end: linear-gradient(135deg, #E8F5E9 0%, #C8E6C9 100%); /* Fresh meadow green */
+  --card: #FFFFFF;
+  --card-r: 28px;
+  --text: #2E3A59; /* Soft dark slate for readability */
+  --text-dim: #657786;
+  --gold: #FFB300;
+  --ok: #4CAF50; /* Soft green */
+  --ok-shadow: #388E3C;
+  --no: #FF5252; /* Soft red */
+  --no-shadow: #D32F2F;
+  --hd: 'Fredoka', sans-serif;
+  --bd: 'Nunito', sans-serif;
+}
+*,*::before,*::after{box-sizing:border-box;margin:0;padding:0}
+html,body{width:100%;height:100%;height:100dvh;overflow:hidden;
+  touch-action:manipulation;-webkit-user-select:none;user-select:none;
+  overscroll-behavior:none;font-family:var(--bd);background:#E3F2FD;color:var(--text)}
+
+@keyframes fadeIn{from{opacity:0}to{opacity:1}}
+@keyframes fadeUp{from{opacity:0;transform:translateY(20px)}to{opacity:1;transform:translateY(0)}}
+
+/* Fixed Pop-in keyframes to keep the emoji perfectly centered */
+@keyframes popIn{
+  0%{opacity:0; transform:translate(-50%,-50%) scale(.7)}
+  60%{transform:translate(-50%,-50%) scale(1.1)}
+  100%{opacity:1; transform:translate(-50%,-50%) scale(1)}
+}
+
+@keyframes shake{0%,100%{transform:translateX(0) rotate(0)}20%{transform:translateX(-8px) rotate(-1.5deg)}40%{transform:translateX(8px) rotate(1.5deg)}60%{transform:translateX(-5px) rotate(-1deg)}80%{transform:translateX(5px) rotate(1deg)}}
+@keyframes float{0%,100%{transform:translateY(0) rotate(0deg)}50%{transform:translateY(-8px) rotate(2deg)}}
+@keyframes confettiFall{0%{transform:translateY(0) rotate(0);opacity:1}100%{transform:translateY(-110vh) rotate(720deg);opacity:0}}
+
+.screen{position:absolute;inset:0;display:flex;flex-direction:column;align-items:center;justify-content:center;
+  opacity:0;pointer-events:none;transition:opacity .4s ease;padding:max(12px,env(safe-area-inset-top)) 16px max(12px,env(safe-area-inset-bottom));overflow:hidden}
+.screen.active{opacity:1;pointer-events:auto;z-index:10}
+
+/* Playful 3D "Squishy" Button Styling - Text Only, Fredoka Font */
+.btn{font-family:var(--hd);font-size:clamp(18px,4.5vh,28px);font-weight:700;
+  padding:clamp(12px,2.5vh,18px) clamp(28px,6vw,48px);border:3px solid #FFF;border-radius:50px;cursor:pointer;
+  background:var(--accent);color:#fff;
+  box-shadow:0 8px 0 var(--accent-shadow), 0 12px 20px rgba(0,0,0,0.15);
+  transition:transform .1s, box-shadow .1s;min-height:48px;min-width:48px;
+  text-shadow: 0 2px 0 rgba(0,0,0,0.2)}
+.btn:active{transform:translateY(6px);box-shadow:0 2px 0 var(--accent-shadow), 0 4px 10px rgba(0,0,0,0.15)}
+
+/* Welcome Screen */
+#welcome{background:var(--bg-welcome)}
+.w-title{font-family:var(--hd);font-size:clamp(36px,8vh,56px);color:#FF5722;
+  text-shadow:3px 3px 0 #FFF, 6px 6px 0 rgba(0,0,0,0.06);margin-bottom:8px;text-align:center}
+.w-sub{font-size:clamp(16px,3.5vh,24px);color:#4E342E;text-align:center;max-width:420px;margin-bottom:24px;line-height:1.4;font-weight:600}
+.w-anim{font-size:clamp(72px,20vh,130px);animation:float 3.5s ease-in-out infinite;margin-bottom:8px;filter:drop-shadow(0 10px 10px rgba(0,0,0,0.1))}
+
+/* Game Screen */
+#game{background:var(--bg-game);padding-top:8px}
+.topbar{display:flex;justify-content:space-between;align-items:center;width:100%;max-width:900px;padding:0 4px 8px;flex-shrink:0}
+.topbar h2{font-family:var(--hd);font-size:clamp(20px,4vh,30px);color:#1565C0;text-shadow: 2px 2px 0 #FFF}
+
+/* Playful Bubble Score Pill */
+.score-pill{display:flex;align-items:center;gap:6px;background:var(--card);border:3px solid #1565C0;
+  border-radius:24px;padding:6px 16px;font-family:var(--hd);font-weight:700;font-size:clamp(16px,3vh,22px);
+  color:#1565C0;box-shadow: 0 4px 0 #1565C0}
+
+.game-board{display:flex;flex-direction:row;align-items:center;justify-content:center;gap:clamp(12px,3vw,40px);
+  width:100%;max-width:1000px;flex:1;min-height:0;padding:4px 0}
+
+/* Photo frame designed to look like a toy viewport */
+.photo-zone{flex:1;display:flex;flex-direction:column;align-items:center;justify-content:center;min-width:0}
+.photo-frame{position:relative;width:clamp(170px,38vw,350px);height:clamp(170px,38vw,350px);border-radius:32px;
+  background:#FFF;border:8px solid #FFF;overflow:hidden;
+  box-shadow:0 12px 0 rgba(21,101,192,0.15), 0 16px 30px rgba(0,0,0,0.1);
+  display:flex;align-items:center;justify-content:center;
+  transition: transform 0.2s ease, border-color 0.2s ease, box-shadow 0.2s ease;}
+.photo-frame.drag-hover{transform: scale(1.05); border-color: var(--gold); box-shadow: 0 12px 0 rgba(255, 179, 0, 0.3), 0 20px 40px rgba(0,0,0,0.15);}
+.photo-frame img{width:100%;height:100%;object-fit:cover;pointer-events:none;border-radius:20px}
+.photo-label{position:absolute;bottom:12px;left:12px;right:12px;padding:12px;
+  background:rgba(255,255,255,0.95);border:3px solid var(--ok);
+  border-radius:20px;font-family:var(--hd);font-size:clamp(16px,3.2vh,24px);font-weight:700;
+  text-align:center;color:var(--ok-shadow);opacity:0;transform:scale(0.9);transition:opacity .3s, transform .3s}
+.photo-label.show{opacity:1;transform:scale(1)}
+.drop-hint{margin-top:14px;font-size:clamp(14px,2.5vh,18px);color:#1565C0;text-align:center;font-weight:700}
+
+/* Playful Bubble Selection Chips - Text Only and Kid Friendly Font */
+.choices-zone{flex:1;display:flex;flex-direction:column;align-items:center;justify-content:center;gap:clamp(10px,2.2vh,16px);min-width:0}
+.choice-chip{touch-action:none;width:100%;max-width:360px;padding:clamp(12px,2.6vh,18px) clamp(16px,4vw,28px);
+  background:#FFFFFF;border:3px solid #1E88E5;border-radius:24px;
+  font-family:var(--hd);font-size:clamp(18px,4.5vh,28px);font-weight:700;color:#1565C0;
+  text-align:center;cursor:grab;transition:transform .12s, box-shadow .12s, border-color .12s, background .12s;
+  box-shadow:0 6px 0 #1E88E5, 0 10px 15px rgba(0,0,0,0.08);position:relative;z-index:20}
+.choice-chip:active{cursor:grabbing;transform:scale(1.05) rotate(1deg)}
+
+/* Dragging state */
+.choice-chip.dragging{opacity:.85;position:fixed;z-index:1000;pointer-events:none;transform:scale(1.1) rotate(-2deg);
+  box-shadow:0 15px 25px rgba(0,0,0,0.15)}
+
+/* Feedback States */
+.choice-chip.correct{border-color:var(--ok);color:#FFF;background:var(--ok);box-shadow:0 6px 0 var(--ok-shadow)}
+.choice-chip.wrong{animation:shake .45s ease;border-color:var(--no);color:#FFF;background:var(--no);box-shadow:0 6px 0 var(--no-shadow)}
+.choice-chip.dimmed{opacity:.25;pointer-events:none;box-shadow:none;transform:scale(0.95)}
+
+/* Toy-like progress bubbles */
+.progress-wrap{display:flex;gap:10px;margin-top:12px;flex-shrink:0}
+.progress-dot{width:16px;height:16px;border-radius:50%;background:rgba(255,255,255,0.6);border:3px solid #1565C0;transition:all .3s}
+.progress-dot.active{background:var(--gold);transform:scale(1.35);box-shadow:0 0 12px rgba(255,179,0,.5);border-color:#FFF}
+.progress-dot.correct{background:var(--ok);border-color:#FFF}
+.progress-dot.wrong{background:var(--no);border-color:#FFF}
+
+/* Emoji Feedback Popup */
+.feedback{position:fixed;top:50%;left:50%;transform:translate(-50%,-50%) scale(0);font-family:var(--hd);
+  font-size:clamp(3.5rem,10vh,6rem);font-weight:700;pointer-events:none;z-index:200;opacity:0;
+  transition: opacity 0.3s ease, transform 0.3s ease; /* Fades out smoothly */
+}
+.feedback.show{animation:popIn .7s cubic-bezier(.34,1.56,.64,1) forwards; opacity:1;}
+
+/* End Screen */
+#end{background:var(--bg-end)}
+.end-emoji{font-size:clamp(80px,20vh,150px);margin-bottom:8px;animation:float 3s ease-in-out infinite;filter:drop-shadow(0 10px 10px rgba(0,0,0,0.1))}
+.end-title{font-family:var(--hd);font-size:clamp(36px,8vh,56px);color:#2E7D32;text-shadow:3px 3px 0 #FFF;margin-bottom:8px;text-align:center}
+.end-score{font-family:var(--hd);font-size:clamp(24px,6vh,40px);margin-bottom:12px;color:#2E7D32;background:#FFF;padding:6px 24px;border-radius:30px;border:3px solid #2E7D32}
+.end-score span{color:#FF8F00}
+.end-stars{font-size:clamp(36px,8vh,60px);letter-spacing:6px;margin-bottom:20px;filter:drop-shadow(0 4px 0 rgba(0,0,0,0.05))}
+.end-msg{font-size:clamp(16px,3.5vh,24px);color:#2E7D32;text-align:center;max-width:420px;margin-bottom:28px;line-height:1.4;font-weight:700}
+
+.confetti{position:fixed;border-radius:4px;pointer-events:none;z-index:999;will-change:transform,opacity;
+  animation:confettiFall 1.2s ease-out forwards}
+
+@media(orientation:portrait){
+  .game-board{flex-direction:column}
+  .photo-frame{width:clamp(170px,58vw,290px);height:clamp(170px,58vw,290px)}
+  .choice-chip{max-width:320px}
+}
+</style>
+</head>
+<body>
+
+<div id="welcome" class="screen active">
+  <div class="w-anim">🦁</div>
+  <h1 class="w-title">Animal Match!</h1>
+  <p class="w-sub">Drag the correct animal name onto the photo. Can you match them all?</p>
+  <button class="btn" id="btnStart">Let's Play!</button>
+</div>
+
+<div id="game" class="screen">
+  <div class="topbar">
+    <h2>Match the Animal</h2>
+    <div class="score-pill">⭐ <span id="scoreVal">0</span></div>
+  </div>
+  <div class="game-board">
+    <div class="photo-zone">
+      <div class="photo-frame" id="photoFrame">
+        <img id="photoImg" src="" alt="animal">
+        <div class="photo-label" id="photoLabel"></div>
+      </div>
+      <div class="drop-hint" id="dropHint">Drag the name or tap it! 👆</div>
+    </div>
+    <div class="choices-zone" id="choicesZone"></div>
+  </div>
+  <div class="progress-wrap" id="progressWrap"></div>
+</div>
+
+<div id="end" class="screen">
+  <div class="end-emoji">🏆</div>
+  <h1 class="end-title">Animal Expert!</h1>
+  <div class="end-score"><span id="endScore">0</span> / <span id="endTotal">0</span></div>
+  <div class="end-stars" id="endStars"></div>
+  <p class="end-msg" id="endMsg">You matched all the animals!</p>
+  <button class="btn" id="btnAgain">Play Again!</button>
+</div>
+
+<!-- This is the element that was getting stuck! -->
+<div class="feedback" id="feedback"></div>
+
+<script>
+const ANIMALS=[
+  {id:'alligator',name:'Alligator',file:'identify_animals/alligator.jpg'},
+  {id:'arcticfox',name:'Arctic Fox',file:'identify_animals/arcticfox.jpg'},
+  {id:'camel',name:'Camel',file:'identify_animals/camel.jpg'},
+  {id:'cheetah',name:'Cheetah',file:'identify_animals/cheetah.jpg'},
+  {id:'clownfish',name:'Clownfish',file:'identify_animals/clownfish.jpg'},
+  {id:'crocodile',name:'Crocodile',file:'identify_animals/crocodile.jpg'},
+  {id:'eagle',name:'Eagle',file:'identify_animals/eagle.jpg'},
+  {id:'elephant',name:'Elephant',file:'identify_animals/elephant.jpg'},
+  {id:'fennecfox',name:'Fennec Fox',file:'identify_animals/fennecfox.jpg'},
+  {id:'giraffee',name:'Giraffe',file:'identify_animals/giraffee.jpg'},
+  {id:'koala',name:'Koala',file:'identify_animals/koala.jpg'},
+  {id:'leopard',name:'Leopard',file:'identify_animals/leopard.jpg'},
+  {id:'lion',name:'Lion',file:'identify_animals/lion.jpg'},
+  {id:'octopus',name:'Octopus',file:'identify_animals/octopus.jpg'},
+  {id:'panda',name:'Panda',file:'identify_animals/panda.jpg'},
+  {id:'parrot',name:'Parrot',file:'identify_animals/parrot.jpg'},
+  {id:'polarbear',name:'Polar Bear',file:'identify_animals/polarbear.jpg'},
+  {id:'racoon',name:'Raccoon',file:'identify_animals/racoon.jpg'},
+  {id:'redfox',name:'Red Fox',file:'identify_animals/redfox.jpg'},
+  {id:'snake',name:'Snake',file:'identify_animals/snake.jpg'},
+  {id:'tiger',name:'Tiger',file:'identify_animals/tiger.jpg'},
+  {id:'toucan',name:'Toucan',file:'identify_animals/toucan.jpg'}
+];
+
+const TOTAL_QUESTIONS=10;
+let questions=[],currentIndex=0,score=0,wrongAttempts=0,answered=false;
+let VOICES=null;
+let currentAudio=null;
+let feedbackTimer=null; // Added a timer variable to clean up the emoji
+
+function shuffle(arr){const a=[...arr];for(let i=a.length-1;i>0;i--){const j=Math.floor(Math.random()*(i+1));[a[i],a[j]]=[a[j],a[i]]}return a}
+
+function pickQuestions(){
+  return shuffle(ANIMALS).slice(0,TOTAL_QUESTIONS).map(q=>{
+    const others=shuffle(ANIMALS.filter(a=>a.id!==q.id)).slice(0,3).map(a=>a.name);
+    return{...q,choices:shuffle([q.name,...others])};
+  });
+}
+
+function showScreen(id){
+  document.querySelectorAll('.screen').forEach(s=>s.classList.remove('active'));
+  document.getElementById(id).classList.add('active');
+}
+
+function renderProgress(){
+  const wrap=document.getElementById('progressWrap');wrap.innerHTML='';
+  for(let i=0;i<TOTAL_QUESTIONS;i++){
+    const d=document.createElement('div');d.className='progress-dot'+(i===currentIndex?' active':'');
+    d.id='pd-'+i;wrap.appendChild(d);
+  }
+}
+
+function updateProgress(result){
+  const d=document.getElementById('pd-'+currentIndex);
+  if(d){d.classList.remove('active');d.classList.add(result);}
+}
+
+function renderGame(){
+  const q=questions[currentIndex];
+  document.getElementById('photoImg').src=q.file;
+  document.getElementById('photoLabel').textContent=q.name;
+  document.getElementById('photoLabel').classList.remove('show');
+  document.getElementById('dropHint').textContent='Drag the name or tap it! 👆';
+
+  const zone=document.getElementById('choicesZone');zone.innerHTML='';
+  q.choices.forEach(name=>{
+    const chip=document.createElement('div');
+    chip.className='choice-chip';
+    chip.textContent=name;
+    chip.dataset.name=name;
+    setupDrag(chip);
+    zone.appendChild(chip);
+  });
+
+  answered=false;wrongAttempts=0;
+}
+
+function setupDrag(el){
+  let startX,startY,origX,origY,clone=null,hasDragged=false;
+
+  function start(e){
+    if(answered||el.classList.contains('dimmed'))return;
+    const touch=e.touches?e.touches[0]:e;
+    startX=touch.clientX;startY=touch.clientY;
+    const rect=el.getBoundingClientRect();
+    origX=rect.left;origY=rect.top;
+    hasDragged=false;
+
+    clone=el.cloneNode(true);
+    clone.classList.add('dragging');
+    clone.style.width=rect.width+'px';
+    clone.style.height=rect.height+'px';
+    clone.style.left=origX+'px';clone.style.top=origY+'px';
+    document.body.appendChild(clone);
+    el.style.opacity='0';
+
+    document.addEventListener(e.touches?'touchmove':'mousemove',move,{passive:false});
+    document.addEventListener(e.touches?'touchend':'mouseup',end,{once:true});
+  }
+
+  function move(e){
+    if(!clone)return;e.preventDefault();
+    const touch=e.touches?e.touches[0]:e;
+    
+    const deltaX = Math.abs(touch.clientX - startX);
+    const deltaY = Math.abs(touch.clientY - startY);
+    if(deltaX > 8 || deltaY > 8) {
+      hasDragged = true;
+    }
+
+    clone.style.left=(origX+touch.clientX-startX)+'px';
+    clone.style.top=(origY+touch.clientY-startY)+'px';
+
+    // Hover detection over photo frame
+    const frame=document.getElementById('photoFrame');
+    const fRect=frame.getBoundingClientRect();
+    if(touch.clientX>=fRect.left&&touch.clientX<=fRect.right&&touch.clientY>=fRect.top&&touch.clientY<=fRect.bottom){
+      frame.classList.add('drag-hover');
+    }else{
+      frame.classList.remove('drag-hover');
+    }
+  }
+
+  function end(e){
+    document.removeEventListener(e.changedTouches?'touchmove':'mousemove',move,{passive:false});
+    if(!clone)return;
+    const touch=e.changedTouches?e.changedTouches[0]:e;
+    const frame=document.getElementById('photoFrame');
+    const rect=frame.getBoundingClientRect();
+    const inside=touch.clientX>=rect.left&&touch.clientX<=rect.right&&touch.clientY>=rect.top&&touch.clientY<=rect.bottom;
+    
+    frame.classList.remove('drag-hover');
+    clone.remove();clone=null;el.style.opacity='';
+
+    if(inside && hasDragged) {
+      checkAnswer(el.dataset.name,el);
+    } else if(!hasDragged) {
+      // Tap-to-select fallback
+      checkAnswer(el.dataset.name,el);
+    }
+  }
+
+  el.addEventListener('mousedown',start);
+  el.addEventListener('touchstart',start,{passive:false});
+}
+
+function checkAnswer(name,el){
+  if(answered)return;
+  const q=questions[currentIndex];
+  if(name===q.name){
+    answered=true;
+    if(wrongAttempts===0)score++;
+    document.getElementById('scoreVal').textContent=score;
+    el.classList.add('correct');
+    document.querySelectorAll('.choice-chip').forEach(c=>{if(c!==el)c.classList.add('dimmed')});
+    document.getElementById('photoLabel').classList.add('show');
+    document.getElementById('dropHint').textContent='Great job!';
+    updateProgress(wrongAttempts===0?'correct':'wrong');
+    showFeedback('🎉');
+    
+    let advanceTriggered=false;
+    const advance=()=>{
+      if(advanceTriggered)return;
+      advanceTriggered=true;
+      nextQuestion();
+    };
+    
+    // Play the voice, and ONLY move forward when the audio has naturally finished playing
+    playVoice('correct_'+q.id, advance);
+
+  }else{
+    wrongAttempts++;
+    el.classList.add('wrong');
+    setTimeout(()=>el.classList.remove('wrong'),500);
+    showFeedback('🤔');
+    
+    playVoice('wrong');
+  }
+}
+
+// Updated showFeedback function: Forces the emoji to hide after 1.5 seconds!
+function showFeedback(text){
+  const f=document.getElementById('feedback');
+  f.textContent=text;
+  f.classList.remove('show');
+  void f.offsetWidth; // This forces the browser to restart the animation
+  f.classList.add('show');
+
+  // Clear any existing timer so it doesn't vanish too early if clicked fast
+  clearTimeout(feedbackTimer);
+  
+  // Set a timer to remove the class, causing it to fade out cleanly
+  feedbackTimer = setTimeout(() => {
+      f.classList.remove('show');
+  }, 1500); 
+}
+
+function nextQuestion(){
+  currentIndex++;
+  if(currentIndex>=TOTAL_QUESTIONS){endGame();return;}
+  renderProgress();
+  renderGame();
+}
+
+function endGame(){
+  showScreen('end');
+  document.getElementById('endScore').textContent=score;
+  document.getElementById('endTotal').textContent=TOTAL_QUESTIONS;
+  const stars=Math.max(1,Math.round(score/TOTAL_QUESTIONS*5));
+  document.getElementById('endStars').innerHTML=Array.from({length:5},(_,i)=>i<stars?'⭐':'☆').join('');
+  const msg=document.getElementById('endMsg');
+  if(score===TOTAL_QUESTIONS){msg.textContent='Perfect! You are an animal expert!';playVoice('all_done');}
+  else if(score>=TOTAL_QUESTIONS*.7){msg.textContent='Great job! You know many animals!';playVoice('great_job');}
+  else{msg.textContent='Good try! Keep practicing!';playVoice('try_again');}
+  confetti();
+}
+
+function confetti(){
+  const cols=['#FF5722','#FFC107','#4CAF50','#00BCD4','#E040FB','#FF4081'];
+  for(let i=0;i<40;i++){
+    const el=document.createElement('div');el.className='confetti';
+    el.style.width=(10+Math.random()*12)+'px';el.style.height=el.style.width;
+    el.style.background=cols[i%cols.length];el.style.left=Math.random()*100+'vw';el.style.top='100vh';
+    el.style.animationDuration=(1.5+Math.random())+'s';el.style.animationDelay=Math.random()*.5+'s';
+    document.body.appendChild(el);setTimeout(()=>el.remove(),2200);
+  }
+}
+
+async function loadVoices(){
+  try{
+    const res=await fetch('identify_voices.json');
+    if(!res.ok)throw new Error('voices not found');
+    const data=await res.json();
+    VOICES=data.phrases||{};
+  }catch(e){console.warn('voices load failed',e);VOICES={}}
+}
+
+function stopCurrentAudio(){
+  if(currentAudio){
+    try{
+      currentAudio.pause();
+      currentAudio.onended=null;
+      currentAudio.currentTime=0;
+    }catch(err){
+      console.warn('audio stop failed',err);
+    }
+    currentAudio=null;
+  }
+}
+
+function playVoice(key, onComplete = null){
+  if(!VOICES){
+    if(onComplete) setTimeout(onComplete, 1500); 
+    return;
+  }
+  const phrase=VOICES[key];
+  if(!phrase||!phrase.m4a){
+    if(onComplete) setTimeout(onComplete, 1500); 
+    return;
+  }
+  
+  stopCurrentAudio();
+  
+  currentAudio=new Audio(phrase.m4a);
+  
+  if(onComplete) {
+    currentAudio.onended = onComplete;
+    currentAudio.onerror = onComplete; 
+  }
+
+  currentAudio.play().catch(err=>{
+    console.warn('audio play failed',err);
+    if(onComplete) onComplete();
+  });
+}
+
+loadVoices();
+
+function startGame(){
+  stopCurrentAudio();
+  
+  // Make sure to hide the emoji from the previous game if they play again!
+  const f=document.getElementById('feedback');
+  f.classList.remove('show');
+  
+  questions=pickQuestions();currentIndex=0;score=0;wrongAttempts=0;answered=false;
+  document.getElementById('scoreVal').textContent='0';
+  showScreen('game');renderProgress();renderGame();
+  playVoice('welcome');
+}
+
+document.getElementById('btnStart').addEventListener('click',startGame);
+document.getElementById('btnAgain').addEventListener('click',startGame);
+</script>
+</body>
+</html>

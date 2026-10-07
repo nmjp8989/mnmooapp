@@ -1,0 +1,680 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width,initial-scale=1,maximum-scale=1,user-scalable=no,viewport-fit=cover">
+<title>Traffic Light Patterns!</title>
+<link rel="icon" href="data:,">
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+<link href="https://fonts.googleapis.com/css2?family=Fredoka:wght@400;600;700&family=Nunito:wght@400;600;700;800&display=swap" rel="stylesheet">
+<style>
+*,*::before,*::after{box-sizing:border-box;margin:0;padding:0}
+:root{
+  --opus-accent:#FF6B4A;
+  --opus-bg-start:#FFF5F0;--opus-bg-end:#F0F4FF;
+  --opus-card:#FFFFFF;--opus-card-radius:20px;
+  --opus-card-shadow:0 8px 24px rgba(0,0,0,.10);
+  --opus-text:#2D3436;--opus-text-light:#636E72;
+  --opus-correct:#00C853;--opus-wrong:#FF5252;
+  --light-red:#FF4D4D;--light-yellow:#FFD93D;--light-green:#4DDB6A;
+  --light-red-glow:rgba(255,77,77,.45);--light-yellow-glow:rgba(255,217,61,.45);--light-green-glow:rgba(77,219,106,.45);
+  --opus-font-heading:'Fredoka',sans-serif;
+  --opus-font-body:'Nunito',sans-serif;
+}
+html,body{
+  width:100vw;height:100vh;height:100dvh;
+  max-height:100vh;max-height:100dvh;
+  overflow:hidden;margin:0;padding:0;
+  touch-action:manipulation;
+  -webkit-user-select:none;user-select:none;
+  overscroll-behavior:none;
+  font-family:var(--opus-font-body);
+  background:linear-gradient(135deg,var(--opus-bg-start),var(--opus-bg-end));
+  color:var(--opus-text);
+}
+
+/* START SCREEN STYLES */
+#startOverlay {
+  position: absolute; inset: 0; z-index: 100;
+  background: rgba(0,0,0,0.8); color: white;
+  display: flex; flex-direction: column; align-items: center; justify-content: center;
+  font-family: var(--opus-font-heading); font-size: clamp(20px, 4vw, 32px); cursor: pointer;
+}
+#startOverlay button {
+  margin-top: 20px; padding: 15px 40px; font-size: clamp(18px, 3vw, 24px); font-weight: bold;
+  background: var(--opus-accent); color: white; border: none; border-radius: 50px;
+  cursor: pointer; box-shadow: 0 4px 12px rgba(255,107,74,0.4); font-family: var(--opus-font-heading);
+  transition: transform 0.2s;
+}
+#startOverlay button:hover { transform: scale(1.05); }
+#startOverlay button:active { transform: scale(0.95); }
+
+@keyframes opus-pop-in{0%{opacity:0;transform:scale(.7)}60%{transform:scale(1.08)}100%{opacity:1;transform:scale(1)}}
+@keyframes opus-float{0%,100%{transform:translateY(0)}50%{transform:translateY(-6px)}}
+@keyframes opus-confetti{0%{transform:translateY(0) rotate(0deg);opacity:1}100%{transform:translateY(-120vh) rotate(720deg);opacity:0}}
+@keyframes opus-wrong-shake{0%,100%{transform:translateX(0)}20%{transform:translateX(-8px)}40%{transform:translateX(8px)}60%{transform:translateX(-5px)}80%{transform:translateX(5px)}}
+@keyframes question-bounce{0%,100%{transform:translateY(0)}50%{transform:translateY(-8px)}}
+@keyframes hint-glow{0%,100%{box-shadow:0 0 4px rgba(255,107,74,.2)}50%{box-shadow:0 0 18px rgba(255,107,74,.6)}}
+
+.game-wrapper{
+  width:100%;height:100%;height:100dvh;
+  display:flex;flex-direction:column;
+  align-items:center;justify-content:flex-start;
+  position:relative;overflow:hidden;
+}
+
+/* ═══ Mascot Sprites ═══ */
+.mascot-game {
+  position: absolute;
+  top: 22%;
+  left: 6%;
+  z-index: 14;
+  pointer-events: none;
+  transform-origin: bottom left;
+}
+.mascot-container {
+  transform: scale(1.2);
+  transform-origin: bottom left;
+}
+.mascot-sprite {
+  width: 72px;
+  height: 128px;
+  image-rendering: pixelated;
+  transform: translateZ(0);
+}
+.mascot-sprite.idle {
+  background-image: url('https://assets.codepen.io/108082/idle.webp');
+  background-size: 216px 128px;
+  animation: spIdle 0.6s steps(3) infinite;
+}
+@keyframes spIdle { 100% { background-position: -216px 0; } }
+.mascot-sprite.dancing {
+  background-image: url('https://assets.codepen.io/108082/rhythm.webp');
+  background-size: 432px 128px;
+}
+.mascot-sprite.sad {
+  background-image: url('https://assets.codepen.io/108082/sadface.webp');
+  background-size: 144px 128px;
+  animation: spSad 0.5s steps(2) infinite;
+}
+@keyframes spSad { 100% { background-position: -144px 0; } }
+
+.header-bar{
+  display:flex;align-items:center;justify-content:center;
+  width:100%;max-width:900px;
+  padding:clamp(6px,1.5vh,14px) clamp(8px,2vw,16px);
+  flex-shrink:0;z-index:10;
+}
+.game-title{
+  font-family:var(--opus-font-heading);
+  font-size:clamp(24px,6vh,40px);
+  font-weight:700;color:var(--opus-accent);
+  text-shadow:0 2px 0 rgba(0,0,0,.08);
+}
+
+.sequence-card{
+  display:flex;flex-direction:column;align-items:center;
+  gap:clamp(4px,1vh,10px);
+  background:var(--opus-card);
+  border-radius:var(--opus-card-radius);
+  padding:clamp(10px,2.5vh,20px) clamp(16px,4vw,32px);
+  box-shadow:var(--opus-card-shadow);
+  margin:clamp(4px,1vh,10px) 0;
+  flex-shrink:0;z-index:10;
+  width:min(90vw,500px);
+}
+.sequence-label{
+  font-family:var(--opus-font-heading);
+  font-size:clamp(18px,4vh,26px);
+  font-weight:600;color:var(--opus-text-light);
+  letter-spacing:.05em;text-transform:uppercase;
+  margin-bottom: 4px;
+}
+.sequence-row{
+  display:flex;align-items:center;
+  gap:clamp(8px,2vw,16px);
+  flex-wrap:nowrap;justify-content:center;
+  transform-origin:center center;
+}
+
+.traffic-light{
+  display:flex;flex-direction:column;align-items:center;
+  gap:clamp(4px,1vh,8px);
+  background:linear-gradient(180deg,#3A3A3A,#2A2A2A);
+  border-radius:clamp(12px,3vh,22px);
+  padding:clamp(8px,1.5vh,14px) clamp(8px,2vw,16px);
+  box-shadow:0 4px 16px rgba(0,0,0,.25);
+  flex-shrink:0;
+}
+.tl-bulb{
+  width:clamp(32px,7vh,52px);
+  height:clamp(32px,7vh,52px);
+  border-radius:50%;
+  background:#1a1a1a;
+  transition:all .3s ease;
+  border:2px solid rgba(255,255,255,.05);
+}
+.tl-bulb.red.active{
+  background:radial-gradient(circle at 38% 35%,#FF7B7B,var(--light-red));
+  box-shadow:0 0 14px var(--light-red-glow),inset 0 -2px 4px rgba(0,0,0,.15);
+}
+.tl-bulb.yellow.active{
+  background:radial-gradient(circle at 38% 35%,#FFE87B,var(--light-yellow));
+  box-shadow:0 0 14px var(--light-yellow-glow),inset 0 -2px 4px rgba(0,0,0,.15);
+}
+.tl-bulb.green.active{
+  background:radial-gradient(circle at 38% 35%,#7BFF9B,var(--light-green));
+  box-shadow:0 0 14px var(--light-green-glow),inset 0 -2px 4px rgba(0,0,0,.15);
+}
+.tl-bulb.reveal{animation:opus-pop-in .45s cubic-bezier(.175,.885,.32,1.275) both}
+
+.question-slot{
+  display:flex;align-items:center;justify-content:center;
+  width:clamp(52px,11vh,76px);
+  height:clamp(88px,18vh,130px);
+  flex-shrink:0;
+}
+.question-mark{
+  font-family:var(--opus-font-heading);
+  font-size:clamp(36px,8vh,60px);
+  font-weight:700;
+  color:var(--opus-accent);
+  animation:question-bounce 1.5s ease-in-out infinite;
+  text-shadow:0 2px 8px rgba(255,107,74,.2);
+}
+.question-mark.wrong-flash {
+  animation: opus-wrong-shake .4s ease;
+  color: var(--opus-wrong);
+}
+
+.controls-card{
+  background:var(--opus-card);
+  border-radius:var(--opus-card-radius);
+  padding:clamp(10px,2.5vh,18px) clamp(16px,4vw,28px);
+  box-shadow:var(--opus-card-shadow);
+  display:flex;gap:clamp(14px,3.5vw,28px);
+  align-items:center;justify-content:center;
+  flex-shrink:0;z-index:10;
+  margin-top: auto;
+  margin-bottom: clamp(16px, 4vh, 40px);
+}
+.color-btn{
+  width:clamp(64px,14vh,90px);
+  height:clamp(64px,14vh,90px);
+  border-radius:50%;border:none;cursor:pointer;
+  position:relative;
+  box-shadow:0 6px 0 rgba(0,0,0,.18),0 8px 20px rgba(0,0,0,.12);
+  transition:transform .1s,box-shadow .1s;
+  min-width:44px;min-height:44px;
+}
+.color-btn:active{
+  transform:translateY(4px);
+  box-shadow:0 2px 0 rgba(0,0,0,.18),0 4px 10px rgba(0,0,0,.12);
+}
+.color-btn.red-btn{background:radial-gradient(circle at 38% 35%,#FF7B7B,#E03E3E)}
+.color-btn.yellow-btn{background:radial-gradient(circle at 38% 35%,#FFE87B,#E0B800)}
+.color-btn.green-btn{background:radial-gradient(circle at 38% 35%,#7BFF9B,#2EAD4E)}
+.color-btn .btn-label{
+  position:absolute;bottom:clamp(-20px,-3.5vh,-14px);
+  left:50%;transform:translateX(-50%);
+  font-family:var(--opus-font-heading);
+  font-size:clamp(16px,3vh,22px);
+  font-weight:600;color:var(--opus-text-light);
+  white-space:nowrap;
+}
+.hint-btn{
+  font-family:var(--opus-font-heading);
+  font-size:clamp(13px,2.8vh,18px);font-weight:600;
+  background:var(--opus-card);color:var(--opus-accent);
+  border:2px solid var(--opus-accent);border-radius:14px;
+  padding:clamp(6px,1.5vh,10px) clamp(10px,2.5vw,16px);
+  cursor:pointer;transition:all .2s;
+  min-width:44px;min-height:44px;
+  box-shadow:0 2px 8px rgba(255,107,74,.15);
+  white-space:nowrap;display:flex;align-items:center;gap:4px;
+}
+.hint-btn:active{transform:translateY(2px)}
+
+.flash-overlay{
+  position:absolute;inset:0;pointer-events:none;z-index:25;
+  opacity:0;transition:opacity .15s;
+}
+.flash-overlay.correct{background:rgba(0,200,83,.12);opacity:1}
+.flash-overlay.wrong{background:rgba(255,82,82,.12);opacity:1}
+.flash-overlay.gold{background:rgba(255,213,79,.15);opacity:1}
+
+.game-content{
+  display:flex;flex-direction:column;
+  align-items:center;justify-content:flex-start;
+  flex:1;min-height:0;
+  width:100%;max-width:900px;
+  padding:clamp(10px, 3vh, 30px) clamp(8px,2vw,16px) 0;
+}
+
+@media(orientation:landscape) and (max-height:450px) {
+  .header-bar{padding:4px 10px}
+  .sequence-card{padding:6px 14px;margin:2px 0;gap:4px}
+  .sequence-label{font-size:clamp(9px,1.8vh,13px)}
+  .tl-bulb{width:clamp(26px,5.5vh,40px);height:clamp(26px,5.5vh,40px)}
+  .traffic-light{padding:5px 8px;gap:clamp(3px,.8vh,5px);border-radius:clamp(10px,2.5vh,16px)}
+  .question-mark{font-size:clamp(28px,6vh,44px)}
+  .question-slot{width:clamp(40px,8vh,56px);height:clamp(68px,14vh,100px)}
+  .controls-card{padding:6px 14px;gap:clamp(12px,3vw,24px);margin-bottom:10px}
+  .color-btn{width:clamp(52px,12vh,72px);height:clamp(52px,12vh,72px)}
+  .hint-btn{font-size:clamp(10px,2vh,14px);padding:4px 10px}
+}
+</style>
+</head>
+<body>
+
+<div class="game-wrapper">
+  
+  <!-- START OVERLAY -->
+  <div id="startOverlay">
+    <h1>Traffic Light Patterns</h1>
+    <button id="startBtn">Play Game</button>
+  </div>
+
+  <!-- IN-GAME MASCOT -->
+  <div class="mascot-game" id="mascotGame">
+    <div class="mascot-container">
+      <div class="mascot-sprite idle" id="gameSprite"></div>
+    </div>
+  </div>
+
+  <!-- HEADER -->
+  <div class="header-bar">
+    <div class="game-title">🚦 Traffic Lights</div>
+  </div>
+
+  <!-- GAME CONTENT -->
+  <div class="game-content">
+    <div class="sequence-card" id="sequenceCard">
+      <div class="sequence-label" id="patternLabel">AB Pattern</div>
+      <div class="sequence-row" id="sequenceRow"></div>
+    </div>
+
+    <div class="controls-card">
+      <button class="color-btn red-btn" id="btnRed"><span class="btn-label">Red</span></button>
+      <button class="color-btn yellow-btn" id="btnYellow"><span class="btn-label">Yellow</span></button>
+      <button class="color-btn green-btn" id="btnGreen"><span class="btn-label">Green</span></button>
+      <button class="hint-btn" id="hintBtn">💡 Hint</button>
+    </div>
+  </div>
+
+  <!-- FLASH OVERLAY -->
+  <div class="flash-overlay" id="flashOverlay"></div>
+</div>
+
+<script>
+/* ═══════════════════════════════════════
+   NARRATION DATA & PLAYER
+   ═══════════════════════════════════════ */
+const NARRATION = {
+  "welcome": { "text": "Welcome to Traffic Light Patterns! Watch the lights and guess what comes next!", "m4a": "trafficlights_audio/welcome.m4a" },
+  "instructions": { "text": "Look at the traffic lights. One is missing! Press the right color to fill in the pattern.", "m4a": "trafficlights_audio/instructions.m4a" },
+  "correct_1": { "text": "That's the right light! Great job!", "m4a": "trafficlights_audio/correct_1.m4a" },
+  "correct_2": { "text": "Perfect! You nailed it!", "m4a": "trafficlights_audio/correct_2.m4a" },
+  "correct_3": { "text": "Awesome! You know your patterns!", "m4a": "trafficlights_audio/correct_3.m4a" },
+  "correct_4": { "text": "Fantastic! Keep it going!", "m4a": "trafficlights_audio/correct_4.m4a" },
+  "correct_5": { "text": "You're a pattern expert!", "m4a": "trafficlights_audio/correct_5.m4a" },
+  "wrong_1": { "text": "Oops! That's not the right color.", "m4a": "trafficlights_audio/wrong_1.m4a" },
+  "wrong_2": { "text": "Not quite! Look at the pattern again.", "m4a": "trafficlights_audio/wrong_2.m4a" },
+  "wrong_3": { "text": "Try again! Which light comes next?", "m4a": "trafficlights_audio/wrong_3.m4a" },
+  "wrong_4": { "text": "Almost! Check the sequence carefully.", "m4a": "trafficlights_audio/wrong_4.m4a" },
+  "round_done": { "text": "On to the next pattern!", "m4a": "trafficlights_audio/round_done.m4a" },
+  "level_up": { "text": "Level up! The patterns are getting trickier!", "m4a": "trafficlights_audio/level_up.m4a" },
+  "teach_ab": { "text": "The AB pattern has two colors that take turns! Red, yellow, red, yellow — see how they switch back and forth?", "m4a": "trafficlights_audio/teach_ab.m4a" },
+  "teach_abc": { "text": "The ABC pattern uses all three colors in order! Red, yellow, green, then start over!", "m4a": "trafficlights_audio/teach_abc.m4a" },
+  "teach_abb": { "text": "In the ABB pattern, one color comes once, then another color comes twice! Red, yellow, yellow, red, yellow, yellow!", "m4a": "trafficlights_audio/teach_abb.m4a" },
+  "teach_aabb": { "text": "In the AABB pattern, we see two of each color! Red, red, yellow, yellow, then start over!", "m4a": "trafficlights_audio/teach_aabb.m4a" },
+  "teach_aab": { "text": "The AAB pattern has a pair of one color, then a single of another! Red, red, yellow, red, red, yellow!", "m4a": "trafficlights_audio/teach_aab.m4a" },
+  "teach_abba": { "text": "ABBA is a palindrome — it reads the same forwards and backwards! Red, yellow, yellow, red!", "m4a": "trafficlights_audio/teach_abba.m4a" },
+  "teach_aabc": { "text": "The AABC pattern starts with a double, then two different singles! Red, red, yellow, green, then repeat!", "m4a": "trafficlights_audio/teach_aabc.m4a" },
+  "hint_used": { "text": "Here's a hint! Look at the pattern carefully.", "m4a": "trafficlights_audio/hint_used.m4a" }
+};
+
+let currentAudio = null;
+
+function playNarration(key) {
+  if (!NARRATION[key]) return;
+  if (currentAudio) {
+    currentAudio.pause();
+    currentAudio.currentTime = 0;
+  }
+  currentAudio = new Audio(NARRATION[key].m4a);
+  currentAudio.play().catch(e => console.log("Audio play prevented:", e));
+}
+
+function playRandomNarration(prefix, maxCount) {
+  const rand = Math.floor(Math.random() * maxCount) + 1;
+  playNarration(prefix + rand);
+}
+
+
+/* ═══════════════════════════════════════
+   MASCOT SPRITE CONTROLLER
+   ═══════════════════════════════════════ */
+const MascotCtrl = (() => {
+  const FRAME_W = 72;
+  let cycleTimer = null;
+  let sadTimer = null;
+
+  function setSprite(el, state, frameIdx) {
+    if (!el) return;
+    el.className = 'mascot-sprite ' + state;
+    if (state === 'dancing' && frameIdx !== undefined) {
+      el.style.backgroundPosition = `-${frameIdx * FRAME_W}px 0px`;
+    } else {
+      el.style.backgroundPosition = '';
+    }
+  }
+
+  function clearTimers() {
+    clearTimeout(cycleTimer);
+    clearTimeout(sadTimer);
+  }
+
+  function applyIdle(el) {
+    if (!el) return;
+    clearTimers();
+    setSprite(el, 'idle');
+  }
+
+  function applySad(el, dur) {
+    if (!el) return;
+    clearTimers();
+    setSprite(el, 'sad');
+    sadTimer = setTimeout(() => setSprite(el, 'idle'), dur);
+  }
+
+  function applyDance(el, frames, interval) {
+    if (!el) return;
+    clearTimers();
+    let i = 0;
+    function next() {
+      if (i >= frames.length) { setSprite(el, 'idle'); return; }
+      setSprite(el, 'dancing', frames[i]);
+      i++;
+      cycleTimer = setTimeout(next, interval);
+    }
+    next();
+  }
+
+  return {
+    idle()       { applyIdle(document.getElementById('gameSprite')); },
+    sad(dur=1800){ applySad(document.getElementById('gameSprite'), dur); },
+    danceQuick() { applyDance(document.getElementById('gameSprite'), [0,1,2,3], 120); }
+  };
+})();
+
+/* ===== OPUS AUDIO ENGINE ===== */
+const OpusAudio = (() => {
+  let ctx;
+  function getCtx() {
+    if (!ctx) ctx = new (window.AudioContext || window.webkitAudioContext)();
+    if (ctx.state === 'suspended') ctx.resume();
+    return ctx;
+  }
+  function tone(freq, dur, type = 'sine', vol = 0.3) {
+    const c = getCtx(), o = c.createOscillator(), g = c.createGain();
+    o.type = type; o.frequency.value = freq;
+    g.gain.setValueAtTime(vol, c.currentTime);
+    g.gain.exponentialRampToValueAtTime(0.001, c.currentTime + dur);
+    o.connect(g).connect(c.destination);
+    o.start(); o.stop(c.currentTime + dur);
+  }
+  return {
+    correct()  { tone(880, 0.1); setTimeout(() => tone(1100, 0.15), 100) },
+    wrong()    { tone(200, 0.3, 'sawtooth', 0.15) },
+    levelUp()  { [550, 680, 810, 940, 1100].forEach((f, i) => setTimeout(() => tone(f, 0.18, 'sine', 0.2), i * 90)) },
+    hint()     { tone(600, 0.1, 'sine', 0.15); setTimeout(() => tone(900, 0.15, 'sine', 0.15), 80) }
+  };
+})();
+
+/* ===== OPUS CONFETTI ===== */
+function opusConfetti(count = 30) {
+  const colors = ['#FF6B4A', '#42A5F5', '#66BB6A', '#FFD54F', '#AB47BC', '#FF7043'];
+  for (let i = 0; i < count; i++) {
+    const el = document.createElement('div');
+    Object.assign(el.style, {
+      position: 'fixed', width: '10px', height: '10px',
+      background: colors[i % colors.length],
+      borderRadius: Math.random() > .5 ? '50%' : '2px',
+      left: Math.random() * 100 + 'vw', top: '100vh',
+      pointerEvents: 'none', zIndex: '9999',
+      animation: `opus-confetti ${1.5 + Math.random()}s ease-out ${Math.random() * .5}s forwards`
+    });
+    document.body.appendChild(el);
+    setTimeout(() => el.remove(), 2500);
+  }
+}
+
+/* ═══════════════════════════════════════
+   EDUCATIONAL LEVEL DEFINITIONS
+   ═══════════════════════════════════════ */
+const LEVEL_DEFS = [
+  { type: 'AB', baseSeq: [0,1], unique: 2, repeats: 1, label: 'AB Pattern' },
+  { type: 'AB', baseSeq: [0,1], unique: 2, repeats: 2, label: 'AB Pattern' },
+  { type: 'ABC', baseSeq: [0,1,2], unique: 3, repeats: 1, label: 'ABC Pattern' },
+  { type: 'ABC', baseSeq: [0,1,2], unique: 3, repeats: 2, label: 'ABC Pattern' },
+  { type: 'ABB', baseSeq: [0,1,1], unique: 2, repeats: 1, label: 'ABB Pattern' },
+  { type: 'ABB', baseSeq: [0,1,1], unique: 2, repeats: 2, label: 'ABB Pattern' },
+  { type: 'AABB', baseSeq: [0,0,1,1], unique: 2, repeats: 1, label: 'AABB Pattern' },
+  { type: 'AAB', baseSeq: [0,0,1], unique: 2, repeats: 1, label: 'AAB Pattern' },
+  { type: 'AAB', baseSeq: [0,0,1], unique: 2, repeats: 2, label: 'AAB Pattern' },
+  { type: 'ABBA', baseSeq: [0,1,1,0], unique: 2, repeats: 1, label: 'Palindromes' },
+  { type: 'ABBA', baseSeq: [0,1,1,0], unique: 2, repeats: 2, label: 'Palindromes' },
+  { type: 'AABC', baseSeq: [0,0,1,2], unique: 3, repeats: 1, label: 'AABC Pattern' }
+];
+
+const ROUNDS_PER_LEVEL = 3;
+const MAX_DISPLAY_LIGHTS = 6;
+const LIGHT_COLORS = ['red', 'yellow', 'green'];
+const $ = id => document.getElementById(id);
+
+/* ═══════════════════════════════════════
+   GAME STATE & GENERATION
+   ═══════════════════════════════════════ */
+let G = { level: 1, round: 0, answered: false, pattern: null };
+let lastPatternType = null;
+
+function generatePattern(lvl) {
+  const def = LEVEL_DEFS[Math.min(lvl - 1, LEVEL_DEFS.length - 1)];
+  const shuffled = LIGHT_COLORS.slice().sort(() => Math.random() - 0.5);
+  const colorMap = shuffled.slice(0, def.unique);
+  const totalLen = def.baseSeq.length * def.repeats;
+  const displayCount = Math.min(totalLen, MAX_DISPLAY_LIGHTS);
+  
+  return {
+    type: def.type,
+    baseSeq: def.baseSeq,
+    colorMap: colorMap,
+    displayCount: displayCount,
+    label: def.label
+  };
+}
+
+function getDisplayColors(pat) {
+  const colors = [];
+  for (let i = 0; i < pat.displayCount; i++) {
+    colors.push(pat.colorMap[pat.baseSeq[i % pat.baseSeq.length]]);
+  }
+  return colors;
+}
+
+function getExpectedColor(pat) {
+  const pos = pat.displayCount;
+  return pat.colorMap[pat.baseSeq[pos % pat.baseSeq.length]];
+}
+
+/* ═══════════════════════════════════════
+   RENDER SEQUENCE
+   ═══════════════════════════════════════ */
+function createTrafficLightSVG(activeColor, reveal) {
+  const bulbs = LIGHT_COLORS.map(c => {
+    const cls = c + (c === activeColor ? ' active' : '') + (reveal && c === activeColor ? ' reveal' : '');
+    return `<div class="tl-bulb ${cls}"></div>`;
+  }).join('');
+  return `<div class="traffic-light">${bulbs}</div>`;
+}
+
+function renderSequence() {
+  const pat = G.pattern;
+  const displayColors = getDisplayColors(pat);
+  const row = $('sequenceRow');
+  row.innerHTML = '';
+
+  for (let i = 0; i < displayColors.length; i++) {
+    const div = document.createElement('div');
+    div.innerHTML = createTrafficLightSVG(displayColors[i]);
+    div.style.animation = `opus-pop-in .35s cubic-bezier(.175,.885,.32,1.275) ${i * 0.08}s both`;
+    row.appendChild(div.firstElementChild);
+  }
+
+  const qSlot = document.createElement('div');
+  qSlot.className = 'question-slot';
+  qSlot.id = 'questionSlot';
+  qSlot.innerHTML = '<div class="question-mark">?</div>';
+  qSlot.style.animation = `opus-pop-in .35s cubic-bezier(.175,.885,.32,1.275) ${displayColors.length * 0.08}s both`;
+  row.appendChild(qSlot);
+
+  const totalItems = displayColors.length + 1;
+  const baseWidth = 82;
+  const availWidth = Math.min(window.innerWidth * 0.88, 480);
+  const needed = totalItems * baseWidth;
+  const scale = Math.min(1, availWidth / needed);
+  row.style.transform = scale < 1 ? `scale(${scale})` : '';
+
+  $('patternLabel').textContent = pat.label;
+}
+
+/* ═══════════════════════════════════════
+   EFFECTS & GAME LOGIC
+   ═══════════════════════════════════════ */
+function flashScreen(type) {
+  const fo = $('flashOverlay');
+  fo.className = 'flash-overlay';
+  void fo.offsetWidth;
+  fo.classList.add(type);
+  setTimeout(() => { fo.className = 'flash-overlay'; }, 300);
+}
+
+function handleAnswer(color) {
+  if (G.answered) return;
+  G.answered = true;
+
+  const expected = getExpectedColor(G.pattern);
+  const isLevelUp = (G.round > 0 && G.round % ROUNDS_PER_LEVEL === 0);
+
+  if (color === expected) {
+    OpusAudio.correct();
+    MascotCtrl.danceQuick();
+    flashScreen('correct');
+    
+    const qSlot = $('questionSlot');
+    if (qSlot) qSlot.innerHTML = createTrafficLightSVG(color, true);
+
+    if (isLevelUp) {
+      playNarration('level_up');
+      setTimeout(() => { nextRound(); }, 2500); // Wait longer for level up audio
+    } else {
+      playRandomNarration('correct_', 5);
+      setTimeout(() => { nextRound(); }, 1500); // Standard wait time
+    }
+
+  } else {
+    OpusAudio.wrong();
+    MascotCtrl.sad(1500);
+    flashScreen('wrong');
+    playRandomNarration('wrong_', 4);
+
+    const qSlot = $('questionSlot');
+    if (qSlot) {
+      const qm = qSlot.querySelector('.question-mark');
+      if (qm) { qm.classList.add('wrong-flash'); setTimeout(() => qm.classList.remove('wrong-flash'), 400); }
+    }
+
+    setTimeout(() => { G.answered = false; }, 800);
+  }
+}
+
+function useHint() {
+  if (G.answered) return;
+  
+  OpusAudio.hint();
+  playNarration('hint_used');
+
+  const expected = getExpectedColor(G.pattern);
+  const colorMap = { red: 'btnRed', yellow: 'btnYellow', green: 'btnGreen' };
+  const glowColors = { red: 'rgba(255,77,77,.5)', yellow: 'rgba(255,217,61,.5)', green: 'rgba(77,219,106,.5)' };
+  const btn = $(colorMap[expected]);
+
+  btn.style.animation = 'hint-glow 0.5s ease 3';
+  btn.style.boxShadow = `0 0 24px ${glowColors[expected]}`;
+
+  const qSlot = $('questionSlot');
+  if (qSlot) {
+    const origContent = qSlot.innerHTML;
+    qSlot.innerHTML = createTrafficLightSVG(expected, true);
+    setTimeout(() => {
+      qSlot.innerHTML = origContent;
+      btn.style.animation = '';
+      btn.style.boxShadow = '';
+    }, 1800);
+  }
+}
+
+function nextRound() {
+  G.round++;
+  
+  if (G.round > 1 && (G.round - 1) % ROUNDS_PER_LEVEL === 0) {
+    G.level++;
+    OpusAudio.levelUp();
+    opusConfetti(35);
+  }
+
+  G.pattern = generatePattern(G.level);
+  G.answered = false;
+
+  // Teach the player if a new pattern type is introduced (delay slightly so it doesn't overlap level up sound)
+  if (lastPatternType && lastPatternType !== G.pattern.type) {
+    const teachKey = 'teach_' + G.pattern.type.toLowerCase();
+    setTimeout(() => { playNarration(teachKey); }, 500);
+  }
+  
+  lastPatternType = G.pattern.type;
+
+  renderSequence();
+  MascotCtrl.idle();
+}
+
+/* ═══════════════════════════════════════
+   INITIALIZATION & BINDINGS
+   ═══════════════════════════════════════ */
+$('btnRed').addEventListener('click', () => handleAnswer('red'));
+$('btnYellow').addEventListener('click', () => handleAnswer('yellow'));
+$('btnGreen').addEventListener('click', () => handleAnswer('green'));
+$('hintBtn').addEventListener('click', useHint);
+
+document.addEventListener('touchmove', e => e.preventDefault(), { passive: false });
+
+// Start button required to unlock audio API
+$('startBtn').addEventListener('click', () => {
+  $('startOverlay').style.display = 'none';
+  
+  // Play welcome immediately
+  playNarration('welcome');
+  
+  // Follow up with instructions 4 seconds later
+  setTimeout(() => {
+    playNarration('instructions');
+  }, 4500);
+
+  // Initialize the first round
+  nextRound();
+});
+</script>
+</body>
+</html>

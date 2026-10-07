@@ -1,0 +1,620 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width,initial-scale=1,maximum-scale=1,user-scalable=no,viewport-fit=cover">
+<title>Balloon Pop Sight Words</title>
+<link rel="icon" href="data:,">
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+<link href="https://fonts.googleapis.com/css2?family=Fredoka:wght@400;600;700&family=Nunito:wght@400;600;700;800&display=swap" rel="stylesheet">
+<style>
+*,*::before,*::after{box-sizing:border-box;margin:0;padding:0}
+:root{
+  --opus-accent:#42A5F5;
+  --opus-accent-light:#90CAF9;
+  --opus-bg-start:#FFF5F0;--opus-bg-end:#F0F4FF;
+  --opus-card:#FFFFFF;
+  --opus-card-shadow:0 8px 24px rgba(0,0,0,.10);
+  --opus-text:#2D3436;--opus-text-light:#636E72;
+  --opus-correct:#00C853;--opus-wrong:#FF5252;
+  --opus-gold:#FFD54F;
+  --opus-font-heading:'Fredoka',sans-serif;
+  --opus-font-body:'Nunito',sans-serif;
+}
+html,body{
+  width:100vw;height:100vh;height:100dvh;
+  max-height:100vh;max-height:100dvh;
+  overflow:hidden;margin:0;padding:0;
+  touch-action:manipulation;
+  -webkit-user-select:none;user-select:none;
+  overscroll-behavior:none;
+  font-family:var(--opus-font-body);
+  background:linear-gradient(135deg,var(--opus-bg-start),var(--opus-bg-end));
+  color:var(--opus-text);
+}
+@keyframes opus-confetti{0%{transform:translateY(0) rotate(0deg);opacity:1}100%{transform:translateY(-120vh) rotate(720deg);opacity:0}}
+@keyframes opus-pulse{0%,100%{transform:scale(1)}50%{transform:scale(1.08)}}
+@keyframes opus-glow{0%,100%{box-shadow:0 0 10px rgba(255,213,79,0.3)}50%{box-shadow:0 0 25px rgba(255,213,79,0.8)}}
+@keyframes opus-text-float{0%{opacity:1;transform:translateY(0) scale(0.5)}100%{opacity:0;transform:translateY(-80px) scale(1.2)}}
+@keyframes balloon-entrance{0%{opacity:0;transform:translateY(40px) scale(.5)}60%{transform:translateY(-8px) scale(1.05)}100%{opacity:1;transform:translateY(0) scale(1)}}
+@keyframes balloon-idle{0%,100%{transform:translateY(0) rotate(-2deg)}50%{transform:translateY(-12px) rotate(2deg)}}
+@keyframes balloon-pop{0%{transform:scale(1);opacity:1}30%{transform:scale(1.4) scaleY(0.8);opacity:.9}100%{transform:scale(0);opacity:0}}
+@keyframes balloon-shake{0%,100%{transform:translateX(0)}20%{transform:translateX(-10px)}40%{transform:translateX(10px)}60%{transform:translateX(-6px)}80%{transform:translateX(6px)}}
+
+.game-wrapper{
+  width:100%;height:100%;height:100dvh;
+  display:flex;flex-direction:column;
+  align-items:center;justify-content:flex-start;
+  position:relative;overflow:hidden;
+  padding-top: clamp(20px, 4vh, 40px);
+}
+
+/* ===== TARGET CARD (SPEAKER ONLY) ===== */
+.target-card{
+  display:flex;flex-direction:column;align-items:center;
+  gap:clamp(6px,1.5vh,12px);
+  background:var(--opus-card);
+  border-radius:30px;
+  padding:clamp(12px,3vh,20px) clamp(30px,6vw,50px);
+  box-shadow:var(--opus-card-shadow);
+  margin-bottom:clamp(20px, 4vh, 30px);
+  flex-shrink:0;z-index:10;
+  border:4px solid var(--opus-gold);
+  min-width:250px;
+  animation: opus-glow 2s infinite ease-in-out;
+  cursor: pointer;
+}
+.target-label{
+  font-family:var(--opus-font-heading);
+  font-size:clamp(14px,2.8vh,20px);
+  font-weight:700;color:var(--opus-text-light);
+  letter-spacing:.05em;text-transform:uppercase;
+}
+.target-word{
+  font-size:clamp(50px,10vh,80px);
+  display:flex;align-items:center;justify-content:center;
+  transition:transform .15s;
+  animation: opus-pulse 2s infinite;
+  filter: drop-shadow(0 4px 6px rgba(0,0,0,0.15));
+}
+.target-card:active .target-word{transform:scale(.85) !important;}
+.speak-hint{
+  font-size:clamp(12px,2.2vh,16px);
+  font-weight: 700;
+  color: white;
+  background: var(--opus-accent);
+  padding: 6px 16px;
+  border-radius: 20px;
+  display:flex;align-items:center;gap:4px;
+}
+
+/* ===== GAME AREA ===== */
+.game-area{
+  position:relative;flex:1;min-height:0;
+  width:100%;max-width:900px;
+  overflow:hidden;touch-action:none;
+  display:flex;align-items:center;justify-content:center;
+  flex-wrap:wrap; 
+  gap:clamp(16px,4vw,40px);
+  padding:0 clamp(12px,3vw,40px);
+}
+
+/* ===== BALLOON ===== */
+.balloon-wrap{
+  position:relative;
+  width:clamp(100px, 28vw, 170px);
+  aspect-ratio:1 / 1.3;
+  cursor:pointer;pointer-events:auto;z-index:5;
+  animation:balloon-entrance .5s cubic-bezier(.34,1.56,.64,1) both;
+  will-change:transform;
+}
+.balloon-float{
+  width:100%;height:100%;
+  position:relative;
+}
+.balloon-float.idle{animation:balloon-idle 3.5s ease-in-out infinite}
+.balloon-wrap.popping{animation:balloon-pop .3s ease-out forwards;pointer-events:none}
+.balloon-wrap.shaking .balloon-float{animation:balloon-shake .45s ease}
+
+.balloon-inner{
+  width:100%;height:100%;
+  position:absolute;inset:0;
+  filter:drop-shadow(0 8px 20px rgba(0,0,0,.15));
+  transition:transform .15s cubic-bezier(0.175, 0.885, 0.32, 1.275);
+}
+.balloon-wrap:active .balloon-inner{transform:scale(0.85) scaleY(0.9);}
+.balloon-svg{width:100%;height:100%;display:block;overflow:visible}
+.balloon-word{
+  font-family:var(--opus-font-heading);
+  font-weight:800;color:#fff;
+  text-shadow:0 3px 6px rgba(0,0,0,.4);
+  position:absolute;
+  top:34%;left:50%;
+  transform:translate(-50%,-50%);
+  pointer-events:none;
+  white-space:nowrap;
+  text-align:center;
+  line-height:1.1;
+  z-index:10;
+  transition: transform 0.15s;
+}
+.balloon-wrap:active .balloon-word{transform:translate(-50%,-50%) scale(0.85);}
+
+/* ===== FLOATING EFFECTS ===== */
+.float-text{
+  position:absolute;
+  font-family:var(--opus-font-heading);
+  font-size:clamp(32px,6vh,50px);font-weight:800;
+  pointer-events:none;z-index:40;
+  animation:opus-text-float 1s ease-out forwards;
+  white-space:nowrap;
+  text-shadow: 0 4px 10px rgba(0,0,0,0.3);
+}
+.float-text.correct{color:var(--opus-correct)}
+.float-text.wrong{color:var(--opus-wrong)}
+.pop-particles{position:absolute;pointer-events:none;z-index:15}
+.pop-dot{
+  position:absolute;
+  animation:opus-text-float .7s ease-out forwards;
+  display:flex; align-items:center; justify-content:center;
+  font-size: 1.5rem;
+}
+
+/* ===== VOICE BUBBLE ===== */
+.voice-bubble{
+  position:absolute;top:clamp(8px,2vh,16px);left:50%;
+  transform:translateX(-50%);z-index:60;
+  font-family:var(--opus-font-heading);
+  font-size:clamp(14px,3vh,20px);font-weight:700;
+  color:var(--opus-text);background:var(--opus-card);
+  border-radius:20px;
+  padding:clamp(8px,1.5vh,14px) clamp(16px,4vw,30px);
+  box-shadow:0 10px 25px rgba(0,0,0,0.15);
+  border: 3px solid #E0E0E0;
+  white-space:nowrap;opacity:0;transition:opacity .3s;
+  pointer-events:none;
+}
+.voice-bubble.show{opacity:1}
+
+/* ===== FLASH OVERLAY ===== */
+.flash-overlay{
+  position:absolute;inset:0;pointer-events:none;z-index:25;
+  opacity:0;transition:opacity .15s;
+}
+.flash-overlay.correct{background:rgba(0,200,83,.15);opacity:1}
+.flash-overlay.wrong{background:rgba(255,82,82,.15);opacity:1}
+
+/* ===== RESPONSIVE LANDSCAPE ===== */
+@media(orientation:landscape) and (max-height:450px){
+  .game-wrapper{padding-top: clamp(10px, 2vh, 20px);}
+  .target-card{padding:8px 30px; margin-bottom:10px}
+  .target-word{font-size:clamp(40px,8vh,60px)}
+  .target-label{font-size:clamp(10px,2vh,14px)}
+  .voice-bubble{font-size:clamp(12px,2.5vh,16px);padding:4px 16px}
+}
+</style>
+</head>
+<body>
+
+<audio id="opus-sad" preload="auto" src="sad.m4a"></audio>
+
+<div class="game-wrapper">
+
+  <div class="voice-bubble" id="voiceBubble"></div>
+
+  <!-- TARGET CARD (Listen Button) -->
+  <div class="target-card" id="targetCard" onclick="if(G && G.on) playWordAudio(G.target);">
+    <div class="target-label">Listen to the word</div>
+    <div class="target-word">🔊</div>
+    <div class="speak-hint">Tap here to hear it again</div>
+  </div>
+
+  <!-- GAME AREA -->
+  <div class="game-area" id="gameArea">
+    <div class="flash-overlay" id="flashOverlay"></div>
+  </div>
+
+</div>
+
+<script>
+/* ===== OPUS AUDIO ENGINE ===== */
+const OpusAudio = (() => {
+  let ctx;
+  function getCtx() {
+    if (!ctx) ctx = new (window.AudioContext || window.webkitAudioContext)();
+    if (ctx.state === 'suspended') ctx.resume();
+    return ctx;
+  }
+  function tone(freq, dur, type = 'sine', vol = 0.3) {
+    const c = getCtx(), o = c.createOscillator(), g = c.createGain();
+    o.type = type; o.frequency.value = freq;
+    g.gain.setValueAtTime(vol, c.currentTime);
+    g.gain.exponentialRampToValueAtTime(0.001, c.currentTime + dur);
+    o.connect(g).connect(c.destination);
+    o.start(); o.stop(c.currentTime + dur);
+  }
+  return {
+    click()    { tone(800, 0.08, 'sine', 0.2) },
+    pop(pitch) {
+      const f = 500 + (pitch || 0) * 60;
+      tone(f, 0.06, 'sine', 0.2);
+      tone(f * 1.5, 0.04, 'triangle', 0.1);
+    },
+    correct()  { tone(880, 0.1); setTimeout(() => tone(1100, 0.15), 100) },
+    wrong()    { tone(200, 0.3, 'sawtooth', 0.15) },
+    streak()   { [800, 1000, 1200].forEach((f, i) => setTimeout(() => tone(f, 0.12, 'sine', 0.2), i * 80)) }
+  };
+})();
+
+/* ===== OPUS MEDIA ===== */
+const OpusMedia = {
+  sad() { const el = document.getElementById('opus-sad'); if (el) { el.currentTime = 0; el.play().catch(()=>{}) } },
+};
+
+/* ===== OPUS CONFETTI ===== */
+function opusConfetti(count = 30) {
+  const colors = ['#42A5F5', '#66BB6A', '#FFD54F', '#AB47BC', '#FF7043', '#EF5350'];
+  for (let i = 0; i < count; i++) {
+    const el = document.createElement('div');
+    Object.assign(el.style, {
+      position: 'fixed', width: '10px', height: '10px',
+      background: colors[i % colors.length],
+      borderRadius: Math.random() > .5 ? '50%' : '2px',
+      left: Math.random() * 100 + 'vw', top: '100vh',
+      pointerEvents: 'none', zIndex: '9999',
+      animation: `opus-confetti ${1.5 + Math.random()}s ease-out ${Math.random() * .5}s forwards`
+    });
+    document.body.appendChild(el);
+    setTimeout(() => el.remove(), 2500);
+  }
+}
+
+/* ===== VOICE SYSTEM ===== */
+const VOICES = {
+  instructions: "Listen carefully to the word. Tap the balloon with the matching word to pop it!",
+  correct_1: "Great pop! That's the right word!",
+  correct_2: "Awesome! You found it!",
+  correct_3: "Perfect! You're a reading star!",
+  correct_4: "Amazing! You know that word!",
+  correct_5: "Wonderful! Keep popping!",
+  correct_6: "Fantastic reading!",
+  correct_7: "You're so smart!",
+  correct_8: "Incredible! That's the one!",
+  wrong_1: "Oops! Try a different balloon!",
+  wrong_2: "Not that one! Listen again!",
+  wrong_3: "Almost! Try another balloon!",
+  wrong_4: "Oops! Try again!",
+  encouragement_1: "You're doing amazing!",
+  encouragement_2: "Keep it up, word wizard!",
+  encouragement_3: "You're a natural reader!"
+};
+
+function showVoiceBubble(text) {
+  if (!text) return;
+  const el = document.getElementById('voiceBubble');
+  el.textContent = text;
+  el.classList.add('show');
+  clearTimeout(el._t);
+  el._t = setTimeout(() => el.classList.remove('show'), 2500);
+}
+
+function voicePlay(key) {
+  showVoiceBubble(VOICES[key]);
+  playVoice(key);
+}
+
+function randomVoicePlay(prefix) {
+  const pool = [];
+  for (let i = 1; i <= 10; i++) { if (VOICES[prefix + '_' + i]) pool.push(prefix + '_' + i); }
+  if (!pool.length) return;
+  const key = pool[Math.floor(Math.random() * pool.length) | 0];
+  showVoiceBubble(VOICES[key]);
+  playVoice(key);
+}
+
+/* ===== SIGHT WORDS ===== */
+const SIGHT_WORDS = [
+  "the","is","and","was","to","for","are","but","not","you",
+  "all","can","had","her","one","our","out","day","get","has",
+  "him","his","how","its","may","new","now","old","see","way"
+];
+
+/* ===== BALLOON PALETTES ===== */
+const BALLOON_PALETTES = [
+  { body: '#EF5350', shine: '#EF9A9A', dark: '#C62828' },
+  { body: '#42A5F5', shine: '#90CAF9', dark: '#1565C0' },
+  { body: '#FFCA28', shine: '#FFF59D', dark: '#F9A825' },
+  { body: '#66BB6A', shine: '#A5D6A7', dark: '#2E7D32' },
+  { body: '#EC407A', shine: '#F48FB1', dark: '#AD1457' },
+  { body: '#FF7043', shine: '#FFAB91', dark: '#D84315' },
+  { body: '#AB47BC', shine: '#CE93D8', dark: '#6A1B9A' },
+  { body: '#26C6DA', shine: '#80DEEA', dark: '#00838F' },
+];
+
+function shuffle(a) {
+  const b = a.slice();
+  for (let i = b.length - 1; i > 0; i--) {
+    const j = Math.random() * (i + 1) | 0;
+    [b[i], b[j]] = [b[j], b[i]];
+  }
+  return b;
+}
+
+/* ===== SVG BALLOON GENERATOR ===== */
+function createBalloonSVG(pal) {
+  const id = 'b' + Math.random().toString(36).slice(2, 7);
+  return `<svg class="balloon-svg" viewBox="0 0 100 130" xmlns="http://www.w3.org/2000/svg">
+    <defs>
+      <radialGradient id="g${id}" cx="36%" cy="28%" r="62%">
+        <stop offset="0%" stop-color="${pal.shine}" stop-opacity=".92"/>
+        <stop offset="48%" stop-color="${pal.body}" stop-opacity=".93"/>
+        <stop offset="100%" stop-color="${pal.dark}" stop-opacity=".96"/>
+      </radialGradient>
+      <radialGradient id="h${id}" cx="32%" cy="22%" r="26%">
+        <stop offset="0%" stop-color="#fff" stop-opacity=".7"/>
+        <stop offset="100%" stop-color="#fff" stop-opacity="0"/>
+      </radialGradient>
+    </defs>
+    <ellipse cx="50" cy="44" rx="40" ry="43" fill="url(#g${id})" stroke="rgba(255,255,255,.55)" stroke-width="1.8"/>
+    <ellipse cx="37" cy="33" rx="11" ry="8.5" fill="url(#h${id})" transform="rotate(-18,37,33)"/>
+    <polygon points="46.5,85.5 53.5,85.5 50,94" fill="${pal.dark}"/>
+    <path d="M50,94 C56.5,107.5 45,120 50,130" stroke="rgba(255,255,255,.4)" stroke-width="2" fill="none" stroke-linecap="round"/>
+  </svg>`;
+}
+
+/* ===== DOM REFS ===== */
+const $ = id => document.getElementById(id);
+const gameArea = $('gameArea');
+const flashOverlay = $('flashOverlay');
+
+/* ===== SPEECH SYNTHESIS (fallback) ===== */
+function speakWord(word) {
+  window.speechSynthesis.cancel();
+  const u = new SpeechSynthesisUtterance(word);
+  u.rate = 0.85; u.pitch = 1.1;
+  window.speechSynthesis.speak(u);
+}
+
+function playWordAudio(word) {
+  const key = 'word_' + word;
+  const entry = VOICE_JSON[key];
+  if (entry && entry.m4a) { playVoice(key); } else { speakWord(word); }
+}
+
+/* ===== GAME STATE ===== */
+let G = null;
+
+function getWordPool(level) {
+  if (level <= 2) return SIGHT_WORDS.slice(0, 10);
+  if (level <= 4) return SIGHT_WORDS.slice(0, 20);
+  return SIGHT_WORDS;
+}
+
+function initState() {
+  return {
+    on: false, pops: 0, level: 1, target: '', roundWords: []
+  };
+}
+
+/* ===== EFFECTS ===== */
+function flashScreen(type) {
+  flashOverlay.className = 'flash-overlay';
+  void flashOverlay.offsetWidth;
+  flashOverlay.classList.add(type);
+  setTimeout(() => { flashOverlay.className = 'flash-overlay'; }, 300);
+}
+
+// Sparkle Cursor effect whenever they tap the screen!
+document.addEventListener('pointerdown', (e) => {
+  spawnParticles(e.clientX, e.clientY, 3, ['#FFD54F', '#42A5F5', '#fff'], true);
+});
+
+// Particle system with emojis!
+function spawnParticles(cx, cy, count, colors, isSparkle = false) {
+  const emojis = ['⭐', '✨', '🎈', '💥'];
+  for (let i = 0; i < count; i++) {
+    const angle = Math.PI * 2 / count * i + Math.random() * 0.6;
+    const dist = isSparkle ? 20 + Math.random() * 30 : 40 + Math.random() * 60;
+    const dot = document.createElement('div');
+    
+    dot.className = 'pop-dot';
+    
+    if(!isSparkle && Math.random() > 0.6) {
+       dot.innerText = emojis[Math.floor(Math.random() * emojis.length)];
+    } else {
+       const sz = 6 + Math.random() * 12;
+       dot.style.background = colors[Math.random() * colors.length | 0];
+       dot.style.width = sz + 'px';
+       dot.style.height = sz + 'px';
+       dot.style.borderRadius = Math.random() > 0.5 ? '50%' : '3px';
+    }
+
+    dot.style.left = cx + 'px';
+    dot.style.top = cy + 'px';
+    gameArea.appendChild(dot);
+    
+    const tx = Math.cos(angle) * dist;
+    const ty = Math.sin(angle) * dist;
+    
+    dot.animate([
+      { transform: 'translate(-50%,-50%) scale(1)', opacity: 1 },
+      { transform: `translate(calc(-50% + ${tx}px), calc(-50% + ${ty}px)) scale(${isSparkle? 0.2 : 0.5})`, opacity: 0 }
+    ], { duration: 500 + Math.random() * 400, easing: 'cubic-bezier(.2,.46,.4,.94)', fill: 'forwards' });
+    
+    setTimeout(() => dot.remove(), 1000);
+  }
+}
+
+function showFloatText(x, y, text, cls) {
+  const el = document.createElement('div');
+  el.className = 'float-text ' + cls;
+  el.textContent = text;
+  el.style.left = x + 'px';
+  el.style.top = y + 'px';
+  gameArea.appendChild(el);
+  setTimeout(() => el.remove(), 1000);
+}
+
+/* ===== ROUND LOGIC ===== */
+function pickTargetWord() {
+  const pool = getWordPool(G.level);
+  return pool[Math.floor(Math.random() * pool.length)];
+}
+
+function nextRound() {
+  gameArea.querySelectorAll('.balloon-wrap,.float-text,.pop-dot').forEach(el => el.remove());
+
+  G.target = pickTargetWord();
+
+  const pool = getWordPool(G.level);
+  let distractors = shuffle(pool.filter(w => w !== G.target)).slice(0, 2);
+  G.roundWords = shuffle([G.target, ...distractors]);
+
+  setTimeout(() => playWordAudio(G.target), 300);
+  renderBalloons();
+}
+
+function getFontSize(word) {
+  if (word.length >= 6) return 'clamp(16px, 4vw, 28px)';
+  if (word.length >= 4) return 'clamp(20px, 5vw, 32px)';
+  return 'clamp(24px, 6.5vw, 40px)';
+}
+
+function renderBalloons() {
+  const palIndices = shuffle([0, 1, 2, 3, 4, 5, 6, 7]).slice(0, 3);
+
+  G.roundWords.forEach((word, i) => {
+    const pal = BALLOON_PALETTES[palIndices[i]];
+
+    const wrap = document.createElement('div');
+    wrap.className = 'balloon-wrap';
+    wrap.style.animationDelay = (i * 0.1) + 's';
+
+    const floatWrap = document.createElement('div');
+    floatWrap.className = 'balloon-float';
+
+    const inner = document.createElement('div');
+    inner.className = 'balloon-inner';
+    inner.innerHTML = createBalloonSVG(pal);
+
+    const wordEl = document.createElement('div');
+    wordEl.className = 'balloon-word';
+    wordEl.textContent = word;
+    wordEl.style.fontSize = getFontSize(word);
+
+    floatWrap.appendChild(inner);
+    floatWrap.appendChild(wordEl);
+    wrap.appendChild(floatWrap);
+
+    wrap.addEventListener('pointerdown', e => {
+      e.stopPropagation();
+      handleBalloonTap(word, wrap, pal);
+    });
+
+    gameArea.appendChild(wrap);
+    setTimeout(() => {
+      floatWrap.classList.add('idle');
+      floatWrap.style.animationDelay = (Math.random() * 2) + 's';
+    }, 500);
+  });
+}
+
+function handleBalloonTap(word, wrap, pal) {
+  if (!G || !G.on) return;
+  if (wrap.classList.contains('popping') || wrap.classList.contains('shaking')) return;
+
+  if (word === G.target) { correctPop(wrap, pal); } else { wrongPop(wrap); }
+}
+
+function correctPop(wrap, pal) {
+  G.pops++;
+
+  OpusAudio.pop(Math.random() * 3 | 0);
+
+  const rect = wrap.getBoundingClientRect();
+  const gaRect = gameArea.getBoundingClientRect();
+  const cx = rect.left - gaRect.left + rect.width / 2;
+  const cy = rect.top - gaRect.top + rect.height / 2;
+
+  showFloatText(cx, cy, '🎉', 'correct');
+  spawnParticles(cx, cy, 20, [pal.body, pal.shine, pal.dark, '#FFD54F']); // Particles!
+
+  wrap.classList.add('popping');
+  flashScreen('correct');
+
+  // Infinite game rewards logic
+  if (G.pops % 5 === 0) { 
+    randomVoicePlay('encouragement'); 
+    OpusAudio.streak(); 
+    opusConfetti(20); 
+  } else { 
+    randomVoicePlay('correct'); 
+  }
+
+  // Silently increase difficulty
+  if (G.pops % 10 === 0 && G.level < 10) { 
+    G.level++; 
+  }
+
+  setTimeout(nextRound, 600);
+}
+
+function wrongPop(wrap) {
+  OpusAudio.wrong();
+  OpusMedia.sad();
+
+  const rect = wrap.getBoundingClientRect();
+  const gaRect = gameArea.getBoundingClientRect();
+  const cx = rect.left - gaRect.left + rect.width / 2;
+  const cy = rect.top - gaRect.top + rect.height / 2;
+
+  spawnParticles(cx, cy, 8, ['#FF5252', '#FF8A80', '#fff']);
+  showFloatText(cx, cy, '✗', 'wrong');
+
+  wrap.classList.remove('shaking'); void wrap.offsetWidth;
+  wrap.classList.add('shaking');
+  setTimeout(() => wrap.classList.remove('shaking'), 500);
+
+  flashScreen('wrong');
+  randomVoicePlay('wrong');
+  playWordAudio(G.target);
+}
+
+
+/* ===== START ===== */
+function startGame() {
+  gameArea.querySelectorAll('.balloon-wrap,.float-text,.pop-dot').forEach(el => el.remove());
+
+  G = initState(); G.on = true;
+  voicePlay('instructions');
+  nextRound();
+}
+
+/* ===== TOUCH PREVENTION ===== */
+document.addEventListener('touchmove', e => e.preventDefault(), { passive: false });
+
+/* ===== VOICE JSON LOADER ===== */
+const VOICE_JSON = {};
+const voiceAudioEl = new Audio();
+function playVoice(key) {
+  const entry = VOICE_JSON[key];
+  if (entry && entry.m4a) {
+    try { voiceAudioEl.src = entry.m4a; voiceAudioEl.currentTime = 0; voiceAudioEl.play().catch(()=>{}); } catch(e) {}
+  }
+}
+(async function() {
+  try {
+    const r = await fetch('balloon_pop_voices.json');
+    if (r.ok) {
+      const data = await r.json();
+      Object.assign(VOICE_JSON, data);
+      Object.keys(data).forEach(k => { if (!VOICES[k]) VOICES[k] = typeof data[k] === 'object' ? data[k].text : data[k]; });
+    }
+  } catch(e) {}
+})();
+
+window.addEventListener('DOMContentLoaded',()=>{startGame();});
+</script>
+</body>
+</html>

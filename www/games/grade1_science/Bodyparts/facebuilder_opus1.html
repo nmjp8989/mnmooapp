@@ -1,0 +1,293 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width,initial-scale=1,maximum-scale=1,user-scalable=no,viewport-fit=cover">
+<meta name="theme-color" content="#fff4c7">
+<title>Funny Face Maker</title>
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+<link href="https://fonts.googleapis.com/css2?family=Fredoka:wght@500;600;700&display=swap" rel="stylesheet">
+<style>
+*{box-sizing:border-box}
+:root{
+  --skin:#FDDCBC;--sdark:#D4A06A;--hair:#3D2314;
+  --ink:#3b2b25;--cream:#fffaf0;--line:#ead8c6;--mint:#42c9b6;
+  --shadow:0 8px 24px rgba(83,53,30,.13)
+}
+html,body{margin:0;width:100%;height:100%;overflow:hidden}
+body{
+  font-family:'Fredoka',system-ui,sans-serif;color:var(--ink);touch-action:manipulation;
+  -webkit-user-select:none;user-select:none;-webkit-tap-highlight-color:transparent;
+  background:#fff3c6;
+  background-image:
+    radial-gradient(circle at 6% 16%,rgba(255,120,120,.24) 0 6%,transparent 6.5%),
+    radial-gradient(circle at 93% 83%,rgba(82,195,255,.22) 0 8%,transparent 8.5%),
+    linear-gradient(135deg,#fff0b9,#eaf9ff)
+}
+button{font:inherit;color:inherit}
+button:focus-visible{outline:4px solid rgba(66,201,182,.35);outline-offset:2px}
+.game{
+  height:100dvh;width:100%;padding:max(6px,env(safe-area-inset-top)) max(6px,env(safe-area-inset-right)) max(6px,env(safe-area-inset-bottom)) max(6px,env(safe-area-inset-left));
+  display:grid;grid-template-columns:minmax(245px,38%) minmax(0,1fr);gap:8px
+}
+.preview,.play-area{
+  min-width:0;min-height:0;background:rgba(255,255,255,.9);border:2px solid rgba(255,255,255,.95);
+  border-radius:22px;box-shadow:var(--shadow);overflow:hidden
+}
+.preview{display:grid;grid-template-rows:minmax(0,1fr) auto;gap:5px;padding:7px}
+.face-stage{
+  position:relative;min-height:0;display:grid;place-items:center;overflow:hidden;border-radius:17px;
+  background:linear-gradient(155deg,#fff8db 0 58%,#dcf6ff 58% 100%);border:2px dashed rgba(87,160,180,.22)
+}
+.face-stage::before,.face-stage::after{content:"";position:absolute;border-radius:50%;pointer-events:none}
+.face-stage::before{width:70px;height:70px;left:-22px;bottom:-20px;background:#ffcf82;opacity:.55}
+.face-stage::after{width:58px;height:58px;right:-16px;top:-17px;background:#f6a5cd;opacity:.42}
+.face-wrap{position:relative;z-index:1;width:100%;height:100%;display:grid;place-items:center;padding:1px}
+.face-wrap canvas{display:block;width:auto;height:92%;max-width:92%;max-height:92%;aspect-ratio:3/4;filter:drop-shadow(0 5px 5px rgba(80,45,25,.08))}
+.face-wrap.celebrate{animation:happyDance .65s ease}
+.sparkle{position:absolute;z-index:2;font-size:clamp(15px,2.3vw,25px);pointer-events:none;animation:floaty 2.3s ease-in-out infinite}
+.sparkle.s1{left:5%;top:8%}.sparkle.s2{right:6%;top:18%;animation-delay:.8s}.sparkle.s3{right:10%;bottom:5%;animation-delay:1.4s}
+.palettes{display:grid;grid-template-columns:auto minmax(0,1fr);gap:4px 6px;align-items:center;padding:3px 4px}
+.palette-label{font-size:clamp(.58rem,1.45vw,.76rem);font-weight:700;text-align:center;line-height:1}
+.swatches{display:flex;align-items:center;gap:clamp(3px,.7vw,6px);overflow:hidden;padding:2px}
+.swatch{
+  width:clamp(19px,2.45vw,28px);height:clamp(19px,2.45vw,28px);flex:0 0 auto;border-radius:50%;
+  border:2px solid #fff;box-shadow:0 0 0 1px rgba(58,43,37,.18);cursor:pointer;transition:.14s transform,.14s box-shadow
+}
+.swatch:active{transform:scale(.82)}.swatch.active{box-shadow:0 0 0 3px var(--mint),0 2px 5px rgba(0,0,0,.15);transform:scale(1.05)}
+.play-area{display:grid;grid-template-columns:clamp(66px,9.3vw,92px) minmax(0,1fr);gap:6px;padding:7px}
+.category-rail{min-height:0;overflow-y:auto;display:grid;grid-template-columns:1fr;grid-auto-rows:minmax(43px,1fr);gap:4px;scrollbar-width:none}
+.category-rail::-webkit-scrollbar,.options::-webkit-scrollbar{display:none}
+.category{
+  position:relative;border:2px solid var(--cat);background:#fff;border-radius:13px;padding:3px 2px;cursor:pointer;
+  display:flex;flex-direction:column;align-items:center;justify-content:center;line-height:1;transition:.14s transform,.14s background,.14s color
+}
+.category .emoji{font-size:clamp(1rem,2vw,1.35rem)}
+.category .cat-name{font-size:clamp(.55rem,1.15vw,.72rem);font-weight:700;margin-top:2px}
+.category:active{transform:scale(.94)}.category.active{background:var(--cat);color:#fff;box-shadow:0 3px 8px rgba(0,0,0,.12)}
+.category.done:not(.active)::after{content:"★";position:absolute;right:-2px;top:-4px;color:#ffba08;font-size:.78rem;text-shadow:0 1px #fff,1px 0 #fff,-1px 0 #fff,0 -1px #fff}
+.choice-panel{min-width:0;min-height:0;display:grid;grid-template-rows:auto minmax(0,1fr) auto;gap:5px}
+.fun-top{min-width:0;display:grid;grid-template-columns:minmax(0,1fr) auto;align-items:center;gap:6px;padding:0 2px}
+.say{
+  position:relative;min-width:0;background:#fff4a8;border:2px solid #f0c74b;border-radius:12px;padding:5px 9px;
+  font-size:clamp(.7rem,1.55vw,.98rem);font-weight:700;white-space:nowrap;overflow:hidden;text-overflow:ellipsis
+}
+.say::before{content:"";position:absolute;left:12px;bottom:-7px;width:11px;height:11px;background:#fff4a8;border-right:2px solid #f0c74b;border-bottom:2px solid #f0c74b;transform:rotate(45deg)}
+.star-row{display:flex;gap:2px;align-items:center;white-space:nowrap}
+.progress-star{font-size:clamp(.63rem,1.35vw,.88rem);filter:grayscale(1);opacity:.28;transition:.2s transform,.2s filter,.2s opacity}
+.progress-star.on{filter:none;opacity:1;transform:scale(1.12)}
+.options{
+  min-height:0;overflow-y:auto;display:grid;grid-template-columns:repeat(4,minmax(0,1fr));grid-auto-rows:minmax(82px,1fr);
+  align-content:start;gap:5px;padding:2px;scrollbar-width:none
+}
+.option{
+  position:relative;min-width:0;min-height:0;border:3px solid var(--line);background:#fff;border-radius:15px;padding:3px;cursor:pointer;
+  display:grid;grid-template-rows:minmax(0,1fr) auto;place-items:center;overflow:hidden;transition:.14s transform,.14s border-color,.14s background
+}
+.option:active{transform:scale(.93)}.option.selected{border-color:var(--cat);background:#fffaf3}
+.option.selected::after{content:"✓";position:absolute;right:4px;top:4px;width:19px;height:19px;border-radius:50%;display:grid;place-items:center;background:var(--cat);color:#fff;font-size:.72rem;font-weight:700}
+.option canvas{width:auto;height:100%;max-width:100%;min-height:0;aspect-ratio:3/4}.option-name{width:100%;font-size:clamp(.57rem,1.17vw,.75rem);font-weight:700;text-align:center;white-space:nowrap;overflow:hidden;text-overflow:ellipsis;padding:1px 2px 2px}
+.fun-buttons{display:grid;grid-template-columns:1fr 1fr;gap:6px}
+.fun-button{min-height:39px;border:0;border-radius:13px;padding:6px 8px;color:#fff;font-size:clamp(.72rem,1.55vw,.96rem);font-weight:700;cursor:pointer;box-shadow:0 3px 0 rgba(68,45,30,.14);transition:.12s transform,.12s filter}
+.fun-button:active{transform:translateY(2px);box-shadow:none}.mix{background:#8f68e8}.new{background:#ff6f61}
+.toast{position:fixed;z-index:80;left:50%;top:9px;transform:translate(-50%,-15px);opacity:0;background:#3b2b25;color:#fff;padding:7px 13px;border-radius:999px;font-weight:700;font-size:.82rem;pointer-events:none;transition:.2s}.toast.show{opacity:1;transform:translate(-50%,0)}
+.confetti{position:fixed;z-index:70;width:8px;height:11px;border-radius:3px;pointer-events:none;animation:confettiFall 1.05s ease-in forwards}
+.pop{animation:pop .23s ease-out;transform-box:fill-box;transform-origin:center}
+.rotate-screen{display:none;position:fixed;inset:0;z-index:999;background:linear-gradient(145deg,#fff3b0,#dff6ff);padding:28px;text-align:center;align-items:center;justify-content:center;flex-direction:column;color:#3b2b25}
+.rotate-phone{font-size:4rem;animation:turnPhone 1.8s ease-in-out infinite}.rotate-screen strong{font-size:1.45rem;margin-top:10px}.rotate-screen span{font-size:1rem;margin-top:5px}
+@keyframes pop{0%{transform:scale(.45);opacity:0}70%{transform:scale(1.12)}100%{transform:scale(1);opacity:1}}
+@keyframes happyDance{0%,100%{transform:rotate(0) scale(1)}20%{transform:rotate(-3deg) scale(1.03)}40%{transform:rotate(3deg) scale(1.05)}60%{transform:rotate(-2deg)}80%{transform:rotate(2deg)}}
+@keyframes floaty{50%{transform:translateY(-6px) rotate(9deg)}}
+@keyframes confettiFall{to{transform:translateY(115px) rotate(620deg);opacity:0}}
+@keyframes turnPhone{0%,20%,100%{transform:rotate(0)}50%,75%{transform:rotate(90deg)}}
+@media (orientation:portrait){.rotate-screen{display:flex}.game{visibility:hidden}}
+@media (orientation:landscape) and (max-height:420px){
+  .game{padding:max(3px,env(safe-area-inset-top)) max(5px,env(safe-area-inset-right)) max(3px,env(safe-area-inset-bottom)) max(5px,env(safe-area-inset-left));gap:5px;grid-template-columns:minmax(220px,37%) minmax(0,1fr)}
+  .preview,.play-area{border-radius:17px}.preview{padding:4px;gap:2px}.face-stage{border-radius:13px}.play-area{padding:4px;gap:4px;grid-template-columns:clamp(58px,8.6vw,74px) minmax(0,1fr)}
+  .category-rail{gap:3px;grid-auto-rows:minmax(30px,1fr)}.category{border-radius:10px}.category .emoji{font-size:.95rem}.category .cat-name{font-size:.53rem}
+  .choice-panel{gap:3px}.say{padding:3px 7px;border-radius:9px}.options{gap:3px;grid-auto-rows:minmax(68px,1fr)}.option{border-radius:11px;border-width:2px;padding:2px}.option.selected::after{width:16px;height:16px;font-size:.62rem}.fun-button{min-height:32px;padding:4px 7px;border-radius:10px}
+  .palettes{gap:2px 5px;padding:1px 2px}.swatches{gap:2px;padding:1px}.swatch{width:15px;height:15px;flex-basis:15px}.palette-label{font-size:.54rem}
+}
+@media (orientation:landscape) and (max-width:690px){
+  .game{grid-template-columns:42% minmax(0,1fr)}.play-area{grid-template-columns:58px minmax(0,1fr)}.options{grid-template-columns:repeat(3,minmax(0,1fr))}.star-row{display:none}
+}
+@media (prefers-reduced-motion:reduce){*,*::before,*::after{animation-duration:.01ms!important;animation-iteration-count:1!important;scroll-behavior:auto!important}}
+</style>
+</head>
+<body>
+<div class="rotate-screen" aria-live="polite"><div class="rotate-phone">📱</div><strong>Turn your phone sideways!</strong><span>The fun works in landscape.</span></div>
+<main class="game" aria-label="Funny face maker game">
+  <section class="preview" aria-label="Your funny face">
+    <div class="face-stage">
+      <span class="sparkle s1">⭐</span><span class="sparkle s2">✨</span><span class="sparkle s3">🌟</span>
+      <div class="face-wrap" id="faceWrap">
+        <canvas id="faceCanvas" width="300" height="400" role="img" aria-label="Your cartoon face"></canvas>
+      </div>
+    </div>
+    <div class="palettes">
+      <span class="palette-label">🙂 Skin</span><div class="swatches" id="skinRow" role="group" aria-label="Skin colours"></div>
+      <span class="palette-label">💇 Hair</span><div class="swatches" id="hairRow" role="group" aria-label="Hair colours"></div>
+    </div>
+  </section>
+  <section class="play-area" aria-label="Face choices">
+    <nav class="category-rail" id="categories" aria-label="Choose a face part"></nav>
+    <div class="choice-panel">
+      <div class="fun-top"><div class="say" id="prompt">Pick some fun hair!</div><div class="star-row" id="starRow" aria-label="Progress"></div></div>
+      <div class="options" id="options" aria-live="polite"></div>
+      <div class="fun-buttons">
+        <button class="fun-button mix" id="surpriseBtn" type="button">🎲 Mix It!</button>
+        <button class="fun-button new" id="resetBtn" type="button">🌈 New Face</button>
+      </div>
+    </div>
+  </section>
+</main>
+<div class="toast" id="toast" role="status" aria-live="polite"></div>
+<script>
+const SKINS=[
+  {s:'#FDE7C8',d:'#C99E70'},{s:'#FDDCBC',d:'#D4A06A'},{s:'#F0C8A0',d:'#C49060'},
+  {s:'#D4A878',d:'#A07040'},{s:'#A07850',d:'#704830'},{s:'#6B4C38',d:'#4A3020'}
+];
+const HCOLORS=[
+  {h:'#1A1A2E'},{h:'#3D2314'},{h:'#6B3A20'},{h:'#8B5E3C'},{h:'#D4A040'},
+  {h:'#CC3333'},{h:'#FF69B4'},{h:'#4169E1'},{h:'#8A2BE2'},{h:'#3CB371'}
+];
+const C={"hair":{"l":"💇 Hair","c":"#FF6B6B","o":[{"n":"None"},{"n":"Spiky"},{"n":"Curly"},{"n":"Long"},{"n":"Mohawk"},{"n":"Bangs"},{"n":"Afro"},{"n":"Pigtails"},{"n":"Ponytail"},{"n":"Bowl Cut"},{"n":"Side Shave"},{"n":"Emo"},{"n":"Man Bun"},{"n":"Slick Back"}]},"eyebrows":{"l":"🤨 Brows","c":"#FFA07A","o":[{"n":"None"},{"n":"Normal"},{"n":"Raised"},{"n":"Angry"},{"n":"Worried"},{"n":"Thick"},{"n":"Thin"},{"n":"Unibrow"},{"n":"Round"},{"n":"One Up"},{"n":"Flat"}]},"eyes":{"l":"👀 Eyes","c":"#4ECDC4","o":[{"n":"None"},{"n":"Normal"},{"n":"Big"},{"n":"Happy"},{"n":"Wink"},{"n":"Hearts"},{"n":"Sleepy"},{"n":"Cross-eyed"},{"n":"Stars"},{"n":"Cute Dots"},{"n":"Dizzy"},{"n":"Laser"},{"n":"Alien"}]},"nose":{"l":"👃 Nose","c":"#FFD93D","o":[{"n":"None"},{"n":"Button"},{"n":"Round"},{"n":"Pointy"},{"n":"Wide"},{"n":"Pig"},{"n":"Snub"},{"n":"Long"},{"n":"Dot"}]},"mouth":{"l":"👄 Mouth","c":"#6BCB77","o":[{"n":"None"},{"n":"Smile"},{"n":"Grin"},{"n":"Surprised"},{"n":"Tongue"},{"n":"Wavy"},{"n":"Teeth"},{"n":"Lips"},{"n":"Vampire"},{"n":"Cat"},{"n":"Meh"},{"n":"Smirk"},{"n":"Braces"}]},"ears":{"l":"👂 Ears","c":"#DDA0DD","o":[{"n":"None"},{"n":"Small"},{"n":"Big"},{"n":"Pointy"},{"n":"Tiny"},{"n":"Round"},{"n":"Long"}]},"facialhair":{"l":"🧔 Beard","c":"#8D6E63","o":[{"n":"None"},{"n":"Mustache"},{"n":"Goatee"},{"n":"Full Beard"},{"n":"Handlebar"},{"n":"Soul Patch"},{"n":"Chin Strap"},{"n":"Van Dyke"}]},"facedecor":{"l":"✏️ Marks","c":"#FF7043","o":[{"n":"None"},{"n":"Blush"},{"n":"Freckles"},{"n":"Mole"},{"n":"Tears"},{"n":"Star Mark"},{"n":"Bandaid"},{"n":"War Paint"},{"n":"Scratch"},{"n":"Sparkle"}]},"accessories":{"l":"✨ Extras","c":"#A78BFA","o":[{"n":"None"},{"n":"Glasses"},{"n":"Shades"},{"n":"Crown"},{"n":"Bow"},{"n":"Hat"},{"n":"Bandana"},{"n":"Monocle"},{"n":"Headband"},{"n":"Horns"},{"n":"Halo"},{"n":"Flower"},{"n":"Cat Ears"},{"n":"Santa Hat"},{"n":"Pirate Hat"}]}};
+const ATLAS_META={"frameWidth":150,"frameHeight":200,"columns":12,"rows":10,"atlasWidth":1800,"atlasHeight":2000,"frames":{"base.fill":{"x":0,"y":0,"w":150,"h":200},"base.dark":{"x":150,"y":0,"w":150,"h":200},"base.fixed":{"x":300,"y":0,"w":150,"h":200},"hair.0":{"x":450,"y":0,"w":150,"h":200},"hair.1":{"x":600,"y":0,"w":150,"h":200},"hair.2":{"x":750,"y":0,"w":150,"h":200},"hair.3":{"x":900,"y":0,"w":150,"h":200},"hair.4":{"x":1050,"y":0,"w":150,"h":200},"hair.5":{"x":1200,"y":0,"w":150,"h":200},"hair.6":{"x":1350,"y":0,"w":150,"h":200},"hair.7":{"x":1500,"y":0,"w":150,"h":200},"hair.8":{"x":1650,"y":0,"w":150,"h":200},"hair.9":{"x":0,"y":200,"w":150,"h":200},"hair.10":{"x":150,"y":200,"w":150,"h":200},"hair.11":{"x":300,"y":200,"w":150,"h":200},"hair.12":{"x":450,"y":200,"w":150,"h":200},"hair.13":{"x":600,"y":200,"w":150,"h":200},"facialhair.0":{"x":750,"y":200,"w":150,"h":200},"facialhair.1":{"x":900,"y":200,"w":150,"h":200},"facialhair.2":{"x":1050,"y":200,"w":150,"h":200},"facialhair.3":{"x":1200,"y":200,"w":150,"h":200},"facialhair.4":{"x":1350,"y":200,"w":150,"h":200},"facialhair.5":{"x":1500,"y":200,"w":150,"h":200},"facialhair.6":{"x":1650,"y":200,"w":150,"h":200},"facialhair.7":{"x":0,"y":400,"w":150,"h":200},"ears.fill.0":{"x":150,"y":400,"w":150,"h":200},"ears.dark.0":{"x":300,"y":400,"w":150,"h":200},"ears.fill.1":{"x":450,"y":400,"w":150,"h":200},"ears.dark.1":{"x":600,"y":400,"w":150,"h":200},"ears.fill.2":{"x":750,"y":400,"w":150,"h":200},"ears.dark.2":{"x":900,"y":400,"w":150,"h":200},"ears.fill.3":{"x":1050,"y":400,"w":150,"h":200},"ears.dark.3":{"x":1200,"y":400,"w":150,"h":200},"ears.fill.4":{"x":1350,"y":400,"w":150,"h":200},"ears.dark.4":{"x":1500,"y":400,"w":150,"h":200},"ears.fill.5":{"x":1650,"y":400,"w":150,"h":200},"ears.dark.5":{"x":0,"y":600,"w":150,"h":200},"ears.fill.6":{"x":150,"y":600,"w":150,"h":200},"ears.dark.6":{"x":300,"y":600,"w":150,"h":200},"nose.fill.0":{"x":450,"y":600,"w":150,"h":200},"nose.dark.0":{"x":600,"y":600,"w":150,"h":200},"nose.fill.1":{"x":750,"y":600,"w":150,"h":200},"nose.dark.1":{"x":900,"y":600,"w":150,"h":200},"nose.fill.2":{"x":1050,"y":600,"w":150,"h":200},"nose.dark.2":{"x":1200,"y":600,"w":150,"h":200},"nose.fill.3":{"x":1350,"y":600,"w":150,"h":200},"nose.dark.3":{"x":1500,"y":600,"w":150,"h":200},"nose.fill.4":{"x":1650,"y":600,"w":150,"h":200},"nose.dark.4":{"x":0,"y":800,"w":150,"h":200},"nose.fill.5":{"x":150,"y":800,"w":150,"h":200},"nose.dark.5":{"x":300,"y":800,"w":150,"h":200},"nose.fill.6":{"x":450,"y":800,"w":150,"h":200},"nose.dark.6":{"x":600,"y":800,"w":150,"h":200},"nose.fill.7":{"x":750,"y":800,"w":150,"h":200},"nose.dark.7":{"x":900,"y":800,"w":150,"h":200},"nose.fill.8":{"x":1050,"y":800,"w":150,"h":200},"nose.dark.8":{"x":1200,"y":800,"w":150,"h":200},"facedecor.0":{"x":1350,"y":800,"w":150,"h":200},"facedecor.1":{"x":1500,"y":800,"w":150,"h":200},"facedecor.2":{"x":1650,"y":800,"w":150,"h":200},"facedecor.3":{"x":0,"y":1000,"w":150,"h":200},"facedecor.4":{"x":150,"y":1000,"w":150,"h":200},"facedecor.5":{"x":300,"y":1000,"w":150,"h":200},"facedecor.6":{"x":450,"y":1000,"w":150,"h":200},"facedecor.7":{"x":600,"y":1000,"w":150,"h":200},"facedecor.8":{"x":750,"y":1000,"w":150,"h":200},"facedecor.9":{"x":900,"y":1000,"w":150,"h":200},"eyes.0":{"x":1050,"y":1000,"w":150,"h":200},"eyes.1":{"x":1200,"y":1000,"w":150,"h":200},"eyes.2":{"x":1350,"y":1000,"w":150,"h":200},"eyes.3":{"x":1500,"y":1000,"w":150,"h":200},"eyes.4":{"x":1650,"y":1000,"w":150,"h":200},"eyes.5":{"x":0,"y":1200,"w":150,"h":200},"eyes.6":{"x":150,"y":1200,"w":150,"h":200},"eyes.7":{"x":300,"y":1200,"w":150,"h":200},"eyes.8":{"x":450,"y":1200,"w":150,"h":200},"eyes.9":{"x":600,"y":1200,"w":150,"h":200},"eyes.10":{"x":750,"y":1200,"w":150,"h":200},"eyes.11":{"x":900,"y":1200,"w":150,"h":200},"eyes.12":{"x":1050,"y":1200,"w":150,"h":200},"eyebrows.0":{"x":1200,"y":1200,"w":150,"h":200},"eyebrows.1":{"x":1350,"y":1200,"w":150,"h":200},"eyebrows.2":{"x":1500,"y":1200,"w":150,"h":200},"eyebrows.3":{"x":1650,"y":1200,"w":150,"h":200},"eyebrows.4":{"x":0,"y":1400,"w":150,"h":200},"eyebrows.5":{"x":150,"y":1400,"w":150,"h":200},"eyebrows.6":{"x":300,"y":1400,"w":150,"h":200},"eyebrows.7":{"x":450,"y":1400,"w":150,"h":200},"eyebrows.8":{"x":600,"y":1400,"w":150,"h":200},"eyebrows.9":{"x":750,"y":1400,"w":150,"h":200},"eyebrows.10":{"x":900,"y":1400,"w":150,"h":200},"mouth.0":{"x":1050,"y":1400,"w":150,"h":200},"mouth.1":{"x":1200,"y":1400,"w":150,"h":200},"mouth.2":{"x":1350,"y":1400,"w":150,"h":200},"mouth.3":{"x":1500,"y":1400,"w":150,"h":200},"mouth.4":{"x":1650,"y":1400,"w":150,"h":200},"mouth.5":{"x":0,"y":1600,"w":150,"h":200},"mouth.6":{"x":150,"y":1600,"w":150,"h":200},"mouth.7":{"x":300,"y":1600,"w":150,"h":200},"mouth.8":{"x":450,"y":1600,"w":150,"h":200},"mouth.9":{"x":600,"y":1600,"w":150,"h":200},"mouth.10":{"x":750,"y":1600,"w":150,"h":200},"mouth.11":{"x":900,"y":1600,"w":150,"h":200},"mouth.12":{"x":1050,"y":1600,"w":150,"h":200},"accessories.0":{"x":1200,"y":1600,"w":150,"h":200},"accessories.1":{"x":1350,"y":1600,"w":150,"h":200},"accessories.2":{"x":1500,"y":1600,"w":150,"h":200},"accessories.3":{"x":1650,"y":1600,"w":150,"h":200},"accessories.4":{"x":0,"y":1800,"w":150,"h":200},"accessories.5":{"x":150,"y":1800,"w":150,"h":200},"accessories.6":{"x":300,"y":1800,"w":150,"h":200},"accessories.7":{"x":450,"y":1800,"w":150,"h":200},"accessories.8":{"x":600,"y":1800,"w":150,"h":200},"accessories.9":{"x":750,"y":1800,"w":150,"h":200},"accessories.10":{"x":900,"y":1800,"w":150,"h":200},"accessories.11":{"x":1050,"y":1800,"w":150,"h":200},"accessories.12":{"x":1200,"y":1800,"w":150,"h":200},"accessories.13":{"x":1350,"y":1800,"w":150,"h":200},"accessories.14":{"x":1500,"y":1800,"w":150,"h":200}}};
+const categoryKeys=Object.keys(C);
+const prompts={hair:'Pick some fun hair!',eyebrows:'Choose silly eyebrows!',eyes:'Make the eyes shine!',nose:'Which nose looks funny?',mouth:'Choose a happy mouth!',ears:'Pick a pair of ears!',facialhair:'Add a funny beard!',facedecor:'Add a cool face mark!',accessories:'Finish with something fun!'};
+let state={skin:1,hairColor:1,tab:'hair',selections:Object.fromEntries(categoryKeys.map(k=>[k,0])),touched:Object.fromEntries(categoryKeys.map(k=>[k,false]))};
+let VOICES={},currentAudio=null,audioUnlocked=false,celebrated=false,toastTimer=null,atlasReady=false;
+const $=id=>document.getElementById(id);
+const esc=s=>String(s).replace(/[&<>"']/g,ch=>({'&':'&amp;','<':'&lt;','>':'&gt;','"':'&quot;',"'":'&#39;'}[ch]));
+const atlas=new Image();
+atlas.decoding='async';
+atlas.src='face-atlas.webp';
+const tintCanvas=document.createElement('canvas');
+tintCanvas.width=300;tintCanvas.height=400;
+const tintCtx=tintCanvas.getContext('2d');
+
+function drawFrame(ctx,key){
+  if(!atlasReady)return;
+  const f=ATLAS_META.frames[key];
+  if(!f)return;
+  ctx.drawImage(atlas,f.x,f.y,f.w,f.h,0,0,300,400);
+}
+function drawTinted(ctx,key,colour){
+  if(!atlasReady)return;
+  tintCtx.clearRect(0,0,300,400);
+  drawFrame(tintCtx,key);
+  tintCtx.globalCompositeOperation='source-in';
+  tintCtx.fillStyle=colour;
+  tintCtx.fillRect(0,0,300,400);
+  tintCtx.globalCompositeOperation='source-over';
+  ctx.drawImage(tintCanvas,0,0);
+}
+function paintFace(ctx,selections=state.selections,skinIndex=state.skin,hairIndex=state.hairColor){
+  ctx.clearRect(0,0,300,400);
+  const skin=SKINS[skinIndex],hair=HCOLORS[hairIndex].h;
+  drawTinted(ctx,`ears.fill.${selections.ears}`,skin.s);
+  drawTinted(ctx,`ears.dark.${selections.ears}`,skin.d);
+  drawTinted(ctx,'base.fill',skin.s);
+  drawTinted(ctx,'base.dark',skin.d);
+  drawFrame(ctx,'base.fixed');
+  drawFrame(ctx,`facedecor.${selections.facedecor}`);
+  drawFrame(ctx,`eyes.${selections.eyes}`);
+  drawFrame(ctx,`eyebrows.${selections.eyebrows}`);
+  drawTinted(ctx,`nose.fill.${selections.nose}`,skin.s);
+  drawTinted(ctx,`nose.dark.${selections.nose}`,skin.d);
+  drawFrame(ctx,`mouth.${selections.mouth}`);
+  drawTinted(ctx,`facialhair.${selections.facialhair}`,hair);
+  drawTinted(ctx,`hair.${selections.hair}`,hair);
+  drawFrame(ctx,`accessories.${selections.accessories}`);
+}
+function drawMainFace(animate=false){
+  const canvas=$('faceCanvas');
+  paintFace(canvas.getContext('2d'));
+  canvas.classList.remove('pop');
+  if(animate){void canvas.offsetWidth;canvas.classList.add('pop');}
+}
+function previewSelections(category,index){
+  const preview={hair:0,eyebrows:0,eyes:0,nose:0,mouth:0,ears:0,facialhair:0,facedecor:0,accessories:0};
+  preview[category]=index;
+  return preview;
+}
+function drawOptionPreviews(){
+  if(!atlasReady)return;
+  document.querySelectorAll('#options canvas[data-option-preview]').forEach(canvas=>{
+    const index=Number(canvas.dataset.optionPreview);
+    paintFace(canvas.getContext('2d'),previewSelections(state.tab,index),state.skin,state.hairColor);
+  });
+}
+function renderPalettes(){
+  $('skinRow').innerHTML=SKINS.map((s,i)=>`<button type="button" class="swatch${i===state.skin?' active':''}" data-colour="skin" data-index="${i}" style="background:${s.s}" aria-label="Skin colour ${i+1}" aria-pressed="${i===state.skin}"></button>`).join('');
+  $('hairRow').innerHTML=HCOLORS.map((c,i)=>`<button type="button" class="swatch${i===state.hairColor?' active':''}" data-colour="hairColor" data-index="${i}" style="background:${c.h}" aria-label="Hair colour ${i+1}" aria-pressed="${i===state.hairColor}"></button>`).join('');
+}
+function splitCategoryLabel(label){const match=label.match(/^(\S+)\s+(.+)$/);return match?{emoji:match[1],name:match[2]}:{emoji:'⭐',name:label};}
+function renderCategories(){
+  $('categories').innerHTML=categoryKeys.map(k=>{const c=C[k],p=splitCategoryLabel(c.l);return `<button type="button" class="category${k===state.tab?' active':''}${state.touched[k]?' done':''}" data-category="${k}" style="--cat:${c.c}" aria-label="${esc(p.name)}" aria-pressed="${k===state.tab}"><span class="emoji">${p.emoji}</span><span class="cat-name">${esc(p.name)}</span></button>`}).join('');
+}
+function renderStars(){$('starRow').innerHTML=categoryKeys.map(k=>`<span class="progress-star${state.touched[k]?' on':''}" aria-hidden="true">★</span>`).join('');}
+function renderOptions(){
+  const cat=C[state.tab],chosen=state.selections[state.tab];
+  $('prompt').textContent=state.touched[state.tab]?`${cat.o[chosen].n}! Try another or pick a new part.`:prompts[state.tab];
+  $('options').style.setProperty('--cat',cat.c);
+  $('options').innerHTML=cat.o.map((o,i)=>`<button type="button" class="option${chosen===i?' selected':''}" data-option="${i}" aria-label="${esc(o.n)}" aria-pressed="${chosen===i}"><canvas width="300" height="400" data-option-preview="${i}" aria-hidden="true"></canvas><span class="option-name">${esc(o.n)}</span></button>`).join('');
+  drawOptionPreviews();
+  requestAnimationFrame(()=>{const selected=$('options').querySelector('.selected');if(selected)selected.scrollIntoView({block:'nearest'});});
+}
+function updateProgress(){
+  renderStars();const done=categoryKeys.filter(k=>state.touched[k]).length;
+  if(done===categoryKeys.length&&!celebrated){celebrated=true;celebrate();playVoice('all_placed');showToast('Amazing face! ⭐');}
+  if(done<categoryKeys.length)celebrated=false;
+}
+function renderAll(animate=false){renderPalettes();renderCategories();renderOptions();drawMainFace(animate);updateProgress();}
+function chooseCategory(key){if(!C[key])return;state.tab=key;renderCategories();renderOptions();playVoice('pick_'+key);}
+function chooseOption(index){
+  const key=state.tab;if(!C[key].o[index])return;
+  state.selections[key]=index;state.touched[key]=true;drawMainFace(true);renderCategories();renderOptions();updateProgress();playVoice('placed');
+}
+function chooseColour(kind,index){
+  if(kind==='skin')state.skin=index;else state.hairColor=index;
+  renderPalettes();drawMainFace(true);drawOptionPreviews();playVoice('placed');
+}
+function randomize(){
+  categoryKeys.forEach(k=>{state.selections[k]=1+Math.floor(Math.random()*(C[k].o.length-1));state.touched[k]=true;});
+  state.skin=Math.floor(Math.random()*SKINS.length);state.hairColor=Math.floor(Math.random()*HCOLORS.length);celebrated=true;renderAll(true);celebrate();playVoice('win');showToast('What a silly face! 🎉');
+}
+function resetGame(){
+  state={skin:1,hairColor:1,tab:'hair',selections:Object.fromEntries(categoryKeys.map(k=>[k,0])),touched:Object.fromEntries(categoryKeys.map(k=>[k,false]))};
+  celebrated=false;stopVoice();renderAll(false);playVoice('welcome');showToast('Make a new face!');
+}
+function celebrate(){
+  const wrap=$('faceWrap');wrap.classList.remove('celebrate');void wrap.offsetWidth;wrap.classList.add('celebrate');
+  const colours=['#ff6b6b','#4ecdc4','#ffd166','#9b72e8','#4d96ff','#ff8cc6'];
+  for(let i=0;i<34;i++){const p=document.createElement('i');p.className='confetti';p.style.background=colours[Math.floor(Math.random()*colours.length)];p.style.left=Math.random()*100+'vw';p.style.top=(2+Math.random()*12)+'vh';p.style.animationDelay=Math.random()*.22+'s';document.body.appendChild(p);setTimeout(()=>p.remove(),1300);}
+}
+function showToast(message){clearTimeout(toastTimer);$('toast').textContent=message;$('toast').classList.add('show');toastTimer=setTimeout(()=>$('toast').classList.remove('show'),1450);}
+async function loadVoices(){
+  try{const response=await fetch('facebuilder_voices.json',{cache:'no-store'});if(!response.ok)throw new Error(response.status);const data=await response.json();VOICES=data.phrases||{};}
+  catch(error){console.warn('Narration could not be loaded. Keep facebuilder_voices.json beside this HTML file and open it through a web server.',error);VOICES={};}
+}
+function stopVoice(){if(currentAudio){currentAudio.pause();currentAudio.currentTime=0;currentAudio=null;}}
+function playVoice(key){if(!audioUnlocked||!VOICES[key]?.m4a)return;stopVoice();currentAudio=new Audio(VOICES[key].m4a);currentAudio.preload='auto';currentAudio.play().catch(()=>{});}
+function bindEvents(){
+  document.addEventListener('pointerdown',()=>{audioUnlocked=true;},{once:true,capture:true});
+  $('categories').addEventListener('click',e=>{const button=e.target.closest('[data-category]');if(button)chooseCategory(button.dataset.category);});
+  $('options').addEventListener('click',e=>{const button=e.target.closest('[data-option]');if(button)chooseOption(Number(button.dataset.option));});
+  $('skinRow').addEventListener('click',e=>{const button=e.target.closest('[data-index]');if(button)chooseColour('skin',Number(button.dataset.index));});
+  $('hairRow').addEventListener('click',e=>{const button=e.target.closest('[data-index]');if(button)chooseColour('hairColor',Number(button.dataset.index));});
+  $('surpriseBtn').addEventListener('click',randomize);$('resetBtn').addEventListener('click',resetGame);
+}
+async function init(){
+  bindEvents();renderAll(false);
+  atlas.addEventListener('load',()=>{atlasReady=true;drawMainFace(false);drawOptionPreviews();},{once:true});
+  atlas.addEventListener('error',()=>{$('prompt').textContent='face-atlas.webp is missing';showToast('Face picture file is missing');},{once:true});
+  if(atlas.complete&&atlas.naturalWidth){atlasReady=true;drawMainFace(false);drawOptionPreviews();}
+  await loadVoices();
+}
+init();
+
+</script>
+</body>
+</html>

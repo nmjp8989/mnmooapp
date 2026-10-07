@@ -1,0 +1,516 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width,initial-scale=1,maximum-scale=1,user-scalable=no,viewport-fit=cover">
+<title>Number Line Jump!</title>
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+<link href="https://fonts.googleapis.com/css2?family=Fredoka:wght@400;600;700&family=Nunito:wght@400;600;700;800&display=swap" rel="stylesheet">
+<style>
+:root {
+  --opus-accent: #4DD0E1;
+  --opus-accent-light: #80DEEA;
+  --opus-bg-start: #E8F5FE;
+  --opus-bg-end: #F0F4FF;
+  --opus-card: #FFFFFF;
+  --opus-shadow: 0 8px 32px rgba(0,0,0,0.10);
+  --opus-radius: 20px;
+}
+*, *::before, *::after { box-sizing: border-box; margin: 0; padding: 0; }
+html, body {
+  width: 100vw; height: 100dvh; overflow: hidden;
+  font-family: 'Nunito', sans-serif;
+  background: linear-gradient(135deg, var(--opus-bg-start), var(--opus-bg-end));
+  user-select: none; -webkit-user-select: none;
+  touch-action: manipulation; overscroll-behavior: none;
+}
+h1, h2, h3 { font-family: 'Fredoka', sans-serif; }
+
+.screen {
+  position: absolute; inset: 0;
+  display: flex; flex-direction: column;
+  align-items: center; justify-content: center;
+}
+
+#game-screen {
+  background: linear-gradient(180deg, #E3F2FD 0%, #BBDEFB 30%, #90CAF9 60%, #64B5F6 100%);
+  flex-direction: column;
+}
+
+.question-bar {
+  position: absolute; top: 8vh; left: 50%; transform: translateX(-50%);
+  background: rgba(255,255,255,0.92);
+  backdrop-filter: blur(6px);
+  border-radius: 16px;
+  padding: 1vh 4vw;
+  box-shadow: 0 4px 20px rgba(0,0,0,0.1);
+  z-index: 25; pointer-events: none;
+  font-family: 'Fredoka', sans-serif;
+  font-weight: 700;
+  font-size: clamp(18px, 4vh, 28px);
+  color: #333;
+  text-align: center;
+}
+
+.numberline-container {
+  position: absolute;
+  top: 22vh; left: 50%; transform: translateX(-50%);
+  z-index: 20;
+  display: flex;
+  align-items: center;
+  gap: 0;
+  background: rgba(255,255,255,0.7);
+  backdrop-filter: blur(8px);
+  border-radius: 16px;
+  padding: 1.5vh 2vw;
+  box-shadow: 0 4px 24px rgba(0,0,0,0.08);
+}
+.nl-num {
+  width: clamp(44px, 10vw, 64px);
+  height: clamp(44px, 10vw, 64px);
+  border-radius: 50%;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  font-family: 'Fredoka', sans-serif;
+  font-weight: 700;
+  font-size: clamp(18px, 4vh, 28px);
+  transition: all 0.3s ease;
+  flex-shrink: 0;
+}
+.nl-num.filled {
+  background: var(--opus-accent);
+  color: #fff;
+  box-shadow: 0 4px 12px rgba(77,208,225,0.4);
+}
+.nl-num.missing {
+  background: rgba(255,255,255,0.5);
+  border: 3px dashed var(--opus-accent);
+  color: var(--opus-accent);
+  animation: pulse 1.2s ease-in-out infinite;
+}
+.nl-num.correct {
+  background: #4CAF50;
+  color: #fff;
+  border: none;
+  animation: popCorrect 0.5s ease-out;
+}
+@keyframes pulse {
+  0%, 100% { transform: scale(1); }
+  50% { transform: scale(1.08); }
+}
+.nl-arrow {
+  font-size: clamp(14px, 3vh, 20px);
+  color: #90CAF9;
+  flex-shrink: 0;
+  margin: 0 2px;
+}
+
+.choices-area {
+  position: absolute;
+  bottom: 12vh; left: 50%; transform: translateX(-50%);
+  z-index: 20;
+  display: flex;
+  gap: 3vw;
+  flex-wrap: wrap;
+  justify-content: center;
+  max-width: 90vw;
+}
+.choice-btn {
+  width: clamp(60px, 16vw, 80px);
+  height: clamp(60px, 16vw, 80px);
+  border-radius: 50%;
+  border: 3px solid var(--opus-accent);
+  background: #fff;
+  font-family: 'Fredoka', sans-serif;
+  font-weight: 700;
+  font-size: clamp(22px, 5vh, 32px);
+  color: #333;
+  cursor: pointer;
+  box-shadow: 0 4px 16px rgba(0,0,0,0.1);
+  transition: transform 0.15s ease, background 0.15s ease;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+}
+.choice-btn:active { transform: scale(0.92); }
+.choice-btn.correct-choice {
+  background: #4CAF50;
+  color: #fff;
+  border-color: #4CAF50;
+}
+.choice-btn.wrong-choice {
+  background: #EF5350;
+  color: #fff;
+  border-color: #EF5350;
+}
+
+.instruction-bar {
+  position: absolute;
+  bottom: 3vh; left: 50%; transform: translateX(-50%);
+  background: rgba(255,255,255,0.85);
+  backdrop-filter: blur(6px);
+  border-radius: 12px;
+  padding: 0.8vh 3vw;
+  font-size: clamp(14px, 3vh, 20px);
+  color: #444; font-weight: 600;
+  z-index: 20; pointer-events: none;
+  white-space: nowrap;
+}
+
+@keyframes popCorrect {
+  0% { transform: scale(1); }
+  30% { transform: scale(1.3); }
+  60% { transform: scale(0.9); }
+  100% { transform: scale(1); }
+}
+
+.float-text {
+  position: absolute; pointer-events: none; z-index: 100;
+  font-family: 'Fredoka', sans-serif; font-weight: 700;
+  font-size: clamp(1.5rem, 4vh, 2.5rem);
+  animation: floatUp 1.1s forwards ease-out;
+}
+.float-text.correct { color: #4CAF50; text-shadow: 0 2px 4px rgba(0,0,0,0.2); }
+.float-text.wrong { color: #EF5350; text-shadow: 0 2px 4px rgba(0,0,0,0.2); }
+@keyframes floatUp {
+  0% { opacity: 1; transform: translate(-50%, 0) scale(0.6); }
+  30% { opacity: 1; transform: translate(-50%, -30px) scale(1.1); }
+  100% { opacity: 0; transform: translate(-50%, -80px) scale(0.9); }
+}
+
+.mascot-float {
+  position: absolute; top: 8vh; left: 2vw; z-index: 35;
+  pointer-events: none; opacity: 0; transition: opacity 0.4s;
+}
+.mascot-float.show { opacity: 1; }
+.mascot-container { transform: scale(1.1); transform-origin: center; }
+.mascot-sprite { width: 72px; height: 128px; image-rendering: pixelated; transform: translateZ(0); }
+.mascot-sprite.idle {
+  background-image: url('../../assets/cow/idle.webp');
+  background-size: 216px 128px;
+  animation: spIdle 0.6s steps(3) infinite;
+}
+@keyframes spIdle { 100% { background-position: -216px 0; } }
+.mascot-sprite.dancing {
+  background-image: url('../../assets/cow/rhythm.webp');
+  background-size: 432px 128px;
+}
+.mascot-sprite.sad {
+  background-image: url('../../assets/cow/sadface.webp');
+  background-size: 144px 128px;
+  animation: spSad 0.5s steps(2) infinite;
+}
+@keyframes spSad { 100% { background-position: -144px 0; } }
+</style>
+</head>
+<body>
+
+<div id="game-screen" class="screen">
+  <div class="mascot-float" id="mascotFloat">
+    <div class="mascot-container">
+      <div class="mascot-sprite idle" id="mascotSprite" aria-hidden="true"></div>
+    </div>
+  </div>
+
+  <div class="question-bar" id="question-bar">What number comes next?</div>
+  <div class="numberline-container" id="numberline"></div>
+  <div class="choices-area" id="choices"></div>
+  <div class="instruction-bar">Tap the correct number!</div>
+</div>
+
+<script>
+// JSON Audio Manifest
+const AUDIO_MANIFEST = {
+  "welcome": "jump_audio/welcome.m4a",
+  "instructions": "jump_audio/instructions.m4a",
+  "correct_1": "jump_audio/correct_1.m4a",
+  "correct_2": "jump_audio/correct_2.m4a",
+  "correct_3": "jump_audio/correct_3.m4a",
+  "correct_4": "jump_audio/correct_4.m4a",
+  "wrong_1": "jump_audio/wrong_1.m4a",
+  "wrong_2": "jump_audio/wrong_2.m4a",
+  "wrong_3": "jump_audio/wrong_3.m4a",
+  "encouragement_1": "jump_audio/encouragement_1.m4a",
+  "encouragement_2": "jump_audio/encouragement_2.m4a",
+  "encouragement_3": "jump_audio/encouragement_3.m4a",
+  "win": "jump_audio/win.m4a",
+  "try_again": "jump_audio/try_again.m4a"
+};
+
+// HTML5 Audio Player (Handles Voice Narration)
+const NarrationPlayer = (() => {
+  const audios = {};
+  
+  // Pre-load audio objects
+  for (const [key, path] of Object.entries(AUDIO_MANIFEST)) {
+    audios[key] = new Audio(path);
+  }
+
+  function play(key) {
+    if (!audios[key]) return Promise.resolve();
+    
+    // Pause any currently playing narration
+    Object.values(audios).forEach(a => {
+      a.pause();
+      a.currentTime = 0;
+    });
+
+    // Play new audio and catch autoplay restrictions
+    return audios[key].play().catch(e => {
+      console.warn(`Narration blocked by browser (waiting for user interaction): ${key}`);
+      return Promise.reject(e);
+    });
+  }
+
+  function playRandom(prefix, maxNum) {
+    const rand = Math.floor(Math.random() * maxNum) + 1;
+    play(`${prefix}_${rand}`);
+  }
+
+  return { play, playRandom };
+})();
+
+// Web Audio API Synthesizer (Handles Sound Effects/Beeps)
+const OpusAudio = (() => {
+  let ctx = null;
+  function getCtx() {
+    if (!ctx) ctx = new (window.AudioContext || window.webkitAudioContext)();
+    if (ctx.state === 'suspended') ctx.resume();
+    return ctx;
+  }
+  function play(type, freq, dur, vol = 0.15) {
+    const c = getCtx();
+    const o = c.createOscillator();
+    const g = c.createGain();
+    o.type = type;
+    o.frequency.setValueAtTime(freq, c.currentTime);
+    g.gain.setValueAtTime(vol, c.currentTime);
+    g.gain.exponentialRampToValueAtTime(0.001, c.currentTime + dur);
+    o.connect(g).connect(c.destination);
+    o.start(); o.stop(c.currentTime + dur);
+  }
+  return {
+    click() { play('sine', 800, 0.08, 0.1); },
+    correct() {
+      play('sine', 523, 0.12, 0.15);
+      setTimeout(() => play('sine', 659, 0.12, 0.15), 100);
+      setTimeout(() => play('sine', 784, 0.18, 0.15), 200);
+    },
+    wrong() {
+      play('square', 200, 0.15, 0.1);
+      setTimeout(() => play('square', 160, 0.2, 0.1), 120);
+    }
+  };
+})();
+
+const MascotCtrl = (() => {
+  const FW = 72; let st = null, ct = null;
+  function gEl() { return document.getElementById('mascotSprite'); }
+  function clr() { clearTimeout(st); clearTimeout(ct); }
+  function setSp(el, state, fi) {
+    if (!el) return;
+    el.className = 'mascot-sprite ' + state;
+    if (state === 'dancing' && fi !== undefined) el.style.backgroundPosition = `-${fi * FW}px 0px`;
+    else el.style.backgroundPosition = '';
+  }
+  function idle(el) { if (!el) return; clr(); setSp(el, 'idle'); }
+  function sad(el, dur) { if (!el) return; clr(); setSp(el, 'sad'); st = setTimeout(() => setSp(el, 'idle'), dur); }
+  function danceQuick(el) {
+    if (!el) return; clr(); const fr = [0,1,2,3,4,5]; let i = 0;
+    (function n() { if (i >= fr.length) { setSp(el, 'idle'); return; } setSp(el, 'dancing', fr[i]); i++; ct = setTimeout(n, 100); })();
+  }
+  return {
+    show() { const f = document.getElementById('mascotFloat'); if (f) f.classList.add('show'); },
+    idle() { idle(gEl()); },
+    sad(d = 1800) { sad(gEl(), d); },
+    danceQuick() { danceQuick(gEl()); }
+  };
+})();
+
+const SKIP_PATTERNS = [
+  { step: 2, start: 2, label: "2s" },
+  { step: 5, start: 5, label: "5s" },
+  { step: 10, start: 10, label: "10s" },
+  { step: 1, start: 1, label: "1s" },
+  { step: 3, start: 3, label: "3s" },
+  { step: 4, start: 4, label: "4s" }
+];
+
+let currentSequence = [];
+let missingIndex = -1;
+let correctAnswer = 0;
+let locked = false;
+let patternIndex = 0;
+let hasInteracted = false;
+
+// Initialize Game directly on window load
+window.addEventListener('load', () => {
+  MascotCtrl.show(); 
+  MascotCtrl.idle();
+  nextRound();
+
+  // Try to play intro audio (may be blocked until user clicks)
+  NarrationPlayer.play('welcome').then(() => {
+    setTimeout(() => NarrationPlayer.play('instructions'), 2500);
+  }).catch(() => {
+    // If browser blocked it, play on the first touch anywhere on screen
+    const playOnFirstTouch = () => {
+      if(!hasInteracted) {
+        NarrationPlayer.play('welcome');
+        hasInteracted = true;
+      }
+      document.removeEventListener('pointerdown', playOnFirstTouch);
+    };
+    document.addEventListener('pointerdown', playOnFirstTouch);
+  });
+});
+
+function generateSequence() {
+  const pat = SKIP_PATTERNS[patternIndex % SKIP_PATTERNS.length];
+  const seq = [];
+  const len = 6;
+  for (let i = 0; i < len; i++) {
+    seq.push(pat.start + pat.step * i);
+  }
+  return seq;
+}
+
+function generateDistractors(answer, step) {
+  const distractors = new Set();
+  distractors.add(answer);
+  while (distractors.size < 4) {
+    let d;
+    const r = Math.random();
+    if (r < 0.33) {
+      d = answer + step;
+    } else if (r < 0.66) {
+      d = answer - step;
+    } else {
+      d = answer + Math.floor(Math.random() * 10) - 5;
+    }
+    if (d > 0 && d !== answer) distractors.add(d);
+  }
+  distractors.delete(answer);
+  return Array.from(distractors).slice(0, 3);
+}
+
+function nextRound() {
+  locked = false;
+  patternIndex++;
+
+  currentSequence = generateSequence();
+  missingIndex = 2 + Math.floor(Math.random() * (currentSequence.length - 3));
+  correctAnswer = currentSequence[missingIndex];
+
+  renderNumberLine();
+  renderChoices();
+}
+
+function renderNumberLine() {
+  const container = document.getElementById('numberline');
+  container.innerHTML = '';
+  for (let i = 0; i < currentSequence.length; i++) {
+    if (i > 0) {
+      const arrow = document.createElement('span');
+      arrow.className = 'nl-arrow';
+      arrow.textContent = '→';
+      container.appendChild(arrow);
+    }
+    const numEl = document.createElement('div');
+    numEl.className = 'nl-num';
+    if (i === missingIndex) {
+      numEl.classList.add('missing');
+      numEl.textContent = '?';
+      numEl.id = 'missing-num';
+    } else {
+      numEl.classList.add('filled');
+      numEl.textContent = currentSequence[i];
+    }
+    container.appendChild(numEl);
+  }
+}
+
+function renderChoices() {
+  const container = document.getElementById('choices');
+  container.innerHTML = '';
+  const step = currentSequence[1] - currentSequence[0];
+  const distractors = generateDistractors(correctAnswer, step);
+  const allChoices = [correctAnswer, ...distractors];
+  shuffleArray(allChoices);
+
+  allChoices.forEach(val => {
+    const btn = document.createElement('button');
+    btn.className = 'choice-btn';
+    btn.textContent = val;
+    btn.addEventListener('pointerdown', (e) => {
+      e.preventDefault();
+      hasInteracted = true; // Mark as interacted for audio policies
+      handleChoice(val, btn);
+    });
+    container.appendChild(btn);
+  });
+}
+
+function shuffleArray(arr) {
+  for (let i = arr.length - 1; i > 0; i--) {
+    const j = Math.floor(Math.random() * (i + 1));
+    [arr[i], arr[j]] = [arr[j], arr[i]];
+  }
+}
+
+function handleChoice(val, btn) {
+  if (locked) return;
+  OpusAudio.click();
+
+  if (val === correctAnswer) {
+    locked = true;
+    
+    // Play correct synth and random voice narration (correct_1 to correct_4)
+    OpusAudio.correct();
+    NarrationPlayer.playRandom('correct', 4);
+    
+    MascotCtrl.danceQuick();
+
+    btn.classList.add('correct-choice');
+    const missingEl = document.getElementById('missing-num');
+    if (missingEl) {
+      missingEl.classList.remove('missing');
+      missingEl.classList.add('correct');
+      missingEl.textContent = correctAnswer;
+    }
+
+    const rect = btn.getBoundingClientRect();
+    showFloatText(rect.left + rect.width / 2, rect.top, '✓', true);
+
+    setTimeout(() => nextRound(), 1500); // slightly longer wait to let audio finish
+  } else {
+    // Play wrong synth and random voice narration (wrong_1 to wrong_3)
+    OpusAudio.wrong();
+    NarrationPlayer.playRandom('wrong', 3);
+    
+    MascotCtrl.sad();
+
+    btn.classList.add('wrong-choice');
+    const rect = btn.getBoundingClientRect();
+    showFloatText(rect.left + rect.width / 2, rect.top, '✗', false);
+
+    setTimeout(() => {
+      btn.classList.remove('wrong-choice');
+    }, 600);
+  }
+}
+
+function showFloatText(x, y, text, isCorrect) {
+  const el = document.createElement('div');
+  el.className = 'float-text ' + (isCorrect ? 'correct' : 'wrong');
+  el.textContent = text;
+  el.style.left = x + 'px';
+  el.style.top = y + 'px';
+  document.body.appendChild(el);
+  setTimeout(() => el.remove(), 1200);
+}
+</script>
+</body>
+</html>

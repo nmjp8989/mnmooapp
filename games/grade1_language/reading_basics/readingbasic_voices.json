@@ -1,0 +1,250 @@
+{
+  "sound_a": {
+    "text": "A.",
+    "m4a": "readingbasic_audio/sound_a.m4a"
+  },
+  "sound_b": {
+    "text": "B.",
+    "m4a": "readingbasic_audio/sound_b.m4a"
+  },
+  "sound_c": {
+    "text": "C.",
+    "m4a": "readingbasic_audio/sound_c.m4a"
+  },
+  "sound_d": {
+    "text": "D.",
+    "m4a": "readingbasic_audio/sound_d.m4a"
+  },
+  "sound_e": {
+    "text": "E.",
+    "m4a": "readingbasic_audio/sound_e.m4a"
+  },
+  "sound_f": {
+    "text": "F.",
+    "m4a": "readingbasic_audio/sound_f.m4a"
+  },
+  "sound_g": {
+    "text": "G.",
+    "m4a": "readingbasic_audio/sound_g.m4a"
+  },
+  "sound_h": {
+    "text": "H.",
+    "m4a": "readingbasic_audio/sound_h.m4a"
+  },
+  "sound_i": {
+    "text": "I.",
+    "m4a": "readingbasic_audio/sound_i.m4a"
+  },
+  "sound_k": {
+    "text": "K.",
+    "m4a": "readingbasic_audio/sound_k.m4a"
+  },
+  "sound_l": {
+    "text": "L.",
+    "m4a": "readingbasic_audio/sound_l.m4a"
+  },
+  "sound_m": {
+    "text": "M.",
+    "m4a": "readingbasic_audio/sound_m.m4a"
+  },
+  "sound_n": {
+    "text": "N.",
+    "m4a": "readingbasic_audio/sound_n.m4a"
+  },
+  "sound_o": {
+    "text": "O.",
+    "m4a": "readingbasic_audio/sound_o.m4a"
+  },
+  "sound_p": {
+    "text": "P.",
+    "m4a": "readingbasic_audio/sound_p.m4a"
+  },
+  "sound_r": {
+    "text": "R.",
+    "m4a": "readingbasic_audio/sound_r.m4a"
+  },
+  "sound_s": {
+    "text": "S.",
+    "m4a": "readingbasic_audio/sound_s.m4a"
+  },
+  "sound_t": {
+    "text": "T.",
+    "m4a": "readingbasic_audio/sound_t.m4a"
+  },
+  "sound_u": {
+    "text": "U.",
+    "m4a": "readingbasic_audio/sound_u.m4a"
+  },
+  "sound_v": {
+    "text": "V.",
+    "m4a": "readingbasic_audio/sound_v.m4a"
+  },
+  "sound_w": {
+    "text": "W.",
+    "m4a": "readingbasic_audio/sound_w.m4a"
+  },
+  "sound_x": {
+    "text": "X.",
+    "m4a": "readingbasic_audio/sound_x.m4a"
+  },
+  "word_cat": {
+    "text": "Cat.",
+    "m4a": "readingbasic_audio/word_cat.m4a"
+  },
+  "word_dog": {
+    "text": "Dog.",
+    "m4a": "readingbasic_audio/word_dog.m4a"
+  },
+  "word_sun": {
+    "text": "Sun.",
+    "m4a": "readingbasic_audio/word_sun.m4a"
+  },
+  "word_hat": {
+    "text": "Hat.",
+    "m4a": "readingbasic_audio/word_hat.m4a"
+  },
+  "word_fish": {
+    "text": "Fish.",
+    "m4a": "readingbasic_audio/word_fish.m4a"
+  },
+  "word_ball": {
+    "text": "Ball.",
+    "m4a": "readingbasic_audio/word_ball.m4a"
+  },
+  "word_cup": {
+    "text": "Cup.",
+    "m4a": "readingbasic_audio/word_cup.m4a"
+  },
+  "word_bus": {
+    "text": "Bus.",
+    "m4a": "readingbasic_audio/word_bus.m4a"
+  },
+  "word_pen": {
+    "text": "Pen.",
+    "m4a": "readingbasic_audio/word_pen.m4a"
+  },
+  "word_fox": {
+    "text": "Fox.",
+    "m4a": "readingbasic_audio/word_fox.m4a"
+  },
+  "word_van": {
+    "text": "Van.",
+    "m4a": "readingbasic_audio/word_van.m4a"
+  },
+  "word_bed": {
+    "text": "Bed.",
+    "m4a": "readingbasic_audio/word_bed.m4a"
+  },
+  "word_apple": {
+    "text": "Apple.",
+    "m4a": "readingbasic_audio/word_apple.m4a"
+  },
+  "word_moon": {
+    "text": "Moon.",
+    "m4a": "readingbasic_audio/word_moon.m4a"
+  },
+  "word_tree": {
+    "text": "Tree.",
+    "m4a": "readingbasic_audio/word_tree.m4a"
+  },
+  "word_kite": {
+    "text": "Kite.",
+    "m4a": "readingbasic_audio/word_kite.m4a"
+  },
+  "word_leaf": {
+    "text": "Leaf.",
+    "m4a": "readingbasic_audio/word_leaf.m4a"
+  },
+  "word_egg": {
+    "text": "Egg.",
+    "m4a": "readingbasic_audio/word_egg.m4a"
+  },
+  "word_pig": {
+    "text": "Pig.",
+    "m4a": "readingbasic_audio/word_pig.m4a"
+  },
+  "word_hen": {
+    "text": "Hen.",
+    "m4a": "readingbasic_audio/word_hen.m4a"
+  },
+  "word_cow": {
+    "text": "Cow.",
+    "m4a": "readingbasic_audio/word_cow.m4a"
+  },
+  "word_duck": {
+    "text": "Duck.",
+    "m4a": "readingbasic_audio/word_duck.m4a"
+  },
+  "word_frog": {
+    "text": "Frog.",
+    "m4a": "readingbasic_audio/word_frog.m4a"
+  },
+  "word_bee": {
+    "text": "Bee.",
+    "m4a": "readingbasic_audio/word_bee.m4a"
+  },
+  "word_ant": {
+    "text": "Ant.",
+    "m4a": "readingbasic_audio/word_ant.m4a"
+  },
+  "word_bat": {
+    "text": "Bat.",
+    "m4a": "readingbasic_audio/word_bat.m4a"
+  },
+  "word_rat": {
+    "text": "Rat.",
+    "m4a": "readingbasic_audio/word_rat.m4a"
+  },
+  "word_car": {
+    "text": "Car.",
+    "m4a": "readingbasic_audio/word_car.m4a"
+  },
+  "word_book": {
+    "text": "Book.",
+    "m4a": "readingbasic_audio/word_book.m4a"
+  },
+  "word_star": {
+    "text": "Star.",
+    "m4a": "readingbasic_audio/word_star.m4a"
+  },
+  "word_boat": {
+    "text": "Boat.",
+    "m4a": "readingbasic_audio/word_boat.m4a"
+  },
+  "word_rain": {
+    "text": "Rain.",
+    "m4a": "readingbasic_audio/word_rain.m4a"
+  },
+  "word_sock": {
+    "text": "Sock.",
+    "m4a": "readingbasic_audio/word_sock.m4a"
+  },
+  "word_cake": {
+    "text": "Cake.",
+    "m4a": "readingbasic_audio/word_cake.m4a"
+  },
+  "word_milk": {
+    "text": "Milk.",
+    "m4a": "readingbasic_audio/word_milk.m4a"
+  },
+  "word_hand": {
+    "text": "Hand.",
+    "m4a": "readingbasic_audio/word_hand.m4a"
+  },
+  "word_nose": {
+    "text": "Nose.",
+    "m4a": "readingbasic_audio/word_nose.m4a"
+  },
+  "word_ring": {
+    "text": "Ring.",
+    "m4a": "readingbasic_audio/word_ring.m4a"
+  },
+  "word_shoe": {
+    "text": "Shoe.",
+    "m4a": "readingbasic_audio/word_shoe.m4a"
+  },
+  "word_bird": {
+    "text": "Bird.",
+    "m4a": "readingbasic_audio/word_bird.m4a"
+  }
+}

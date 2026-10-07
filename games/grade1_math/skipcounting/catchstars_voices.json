@@ -1,0 +1,58 @@
+{
+  "welcome": {
+    "text": "Tap the golden stars! They follow the skip counting pattern!",
+    "m4a": "catchstars_audio/welcome.m4a"
+  },
+  "instructions": {
+    "text": "Red stars are wrong — don't tap them! Golden stars are right!",
+    "m4a": "catchstars_audio/instructions.m4a"
+  },
+  "correct_1": {
+    "text": "Great catch! You found the right number!",
+    "m4a": "catchstars_audio/correct_1.m4a"
+  },
+  "correct_2": {
+    "text": "You got it! Perfect skip counting!",
+    "m4a": "catchstars_audio/correct_2.m4a"
+  },
+  "correct_3": {
+    "text": "Nice grab! You really know your numbers!",
+    "m4a": "catchstars_audio/correct_3.m4a"
+  },
+  "correct_4": {
+    "text": "Amazing! You found the right star!",
+    "m4a": "catchstars_audio/correct_4.m4a"
+  },
+  "wrong_1": {
+    "text": "Oops! That's not in the pattern. Watch out!",
+    "m4a": "catchstars_audio/wrong_1.m4a"
+  },
+  "wrong_2": {
+    "text": "Not quite! That star doesn't belong. Be careful!",
+    "m4a": "catchstars_audio/wrong_2.m4a"
+  },
+  "wrong_3": {
+    "text": "Wrong star! Look for the next number in the pattern!",
+    "m4a": "catchstars_audio/wrong_3.m4a"
+  },
+  "encouragement_1": {
+    "text": "You're doing great! Keep counting!",
+    "m4a": "catchstars_audio/encouragement_1.m4a"
+  },
+  "encouragement_2": {
+    "text": "Awesome work! You're a skip counting star!",
+    "m4a": "catchstars_audio/encouragement_2.m4a"
+  },
+  "encouragement_3": {
+    "text": "Keep going! You've got this!",
+    "m4a": "catchstars_audio/encouragement_3.m4a"
+  },
+  "win": {
+    "text": "You counted all the way! What a champion!",
+    "m4a": "catchstars_audio/win.m4a"
+  },
+  "try_again": {
+    "text": "Good effort! Let's try counting again!",
+    "m4a": "catchstars_audio/try_again.m4a"
+  }
+}

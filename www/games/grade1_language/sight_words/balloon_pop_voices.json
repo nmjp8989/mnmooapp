@@ -1,0 +1,129 @@
+{
+  "welcome": {
+    "text": "Welcome to Balloon Pop! Listen to the word and pop the matching balloon!",
+    "m4a": "balloon_pop_audio/welcome.m4a"
+  },
+  "instructions": {
+    "text": "Listen carefully to the word. Tap the balloon with the matching word to pop it!",
+    "m4a": "balloon_pop_audio/instructions.m4a"
+  },
+  "correct_1": {
+    "text": "Great pop! That's the right word!",
+    "m4a": "balloon_pop_audio/correct_1.m4a"
+  },
+  "correct_2": {
+    "text": "Awesome! You found it!",
+    "m4a": "balloon_pop_audio/correct_2.m4a"
+  },
+  "correct_3": {
+    "text": "Perfect! You're a reading star!",
+    "m4a": "balloon_pop_audio/correct_3.m4a"
+  },
+  "correct_4": {
+    "text": "Amazing! You know that word!",
+    "m4a": "balloon_pop_audio/correct_4.m4a"
+  },
+  "correct_5": {
+    "text": "Wonderful! Keep popping!",
+    "m4a": "balloon_pop_audio/correct_5.m4a"
+  },
+  "correct_6": {
+    "text": "Fantastic reading!",
+    "m4a": "balloon_pop_audio/correct_6.m4a"
+  },
+  "correct_7": {
+    "text": "You're so smart!",
+    "m4a": "balloon_pop_audio/correct_7.m4a"
+  },
+  "correct_8": {
+    "text": "Incredible! That's the one!",
+    "m4a": "balloon_pop_audio/correct_8.m4a"
+  },
+  "wrong_1": {
+    "text": "Oops! Try a different balloon!",
+    "m4a": "balloon_pop_audio/wrong_1.m4a"
+  },
+  "wrong_2": {
+    "text": "Not that one! Listen again!",
+    "m4a": "balloon_pop_audio/wrong_2.m4a"
+  },
+  "wrong_3": {
+    "text": "Almost! Try another balloon!",
+    "m4a": "balloon_pop_audio/wrong_3.m4a"
+  },
+  "wrong_4": {
+    "text": "Listen to the word and try again!",
+    "m4a": "balloon_pop_audio/wrong_4.m4a"
+  },
+  "streak_3": {
+    "text": "Three in a row! You're on fire!",
+    "m4a": "balloon_pop_audio/streak_3.m4a"
+  },
+  "streak_5": {
+    "text": "Five in a row! Unstoppable!",
+    "m4a": "balloon_pop_audio/streak_5.m4a"
+  },
+  "streak_10": {
+    "text": "Ten in a row! You're a superstar!",
+    "m4a": "balloon_pop_audio/streak_10.m4a"
+  },
+  "level_up": {
+    "text": "Level up! New words ahead!",
+    "m4a": "balloon_pop_audio/level_up.m4a"
+  },
+  "encouragement_1": {
+    "text": "You're doing amazing!",
+    "m4a": "balloon_pop_audio/encouragement_1.m4a"
+  },
+  "encouragement_2": {
+    "text": "Keep it up, word wizard!",
+    "m4a": "balloon_pop_audio/encouragement_2.m4a"
+  },
+  "encouragement_3": {
+    "text": "You're a natural reader!",
+    "m4a": "balloon_pop_audio/encouragement_3.m4a"
+  },
+  "encouragement_4": {
+    "text": "So close to the next level!",
+    "m4a": "balloon_pop_audio/encouragement_4.m4a"
+  },
+  "win": {
+    "text": "Time's up! What a great score!",
+    "m4a": "balloon_pop_audio/win.m4a"
+  },
+  "try_again": {
+    "text": "Great effort! Let's try again!",
+    "m4a": "balloon_pop_audio/try_again.m4a"
+  },
+
+  "word_the":  { "text": "the",  "m4a": "balloon_pop_audio/word_the.m4a"  },
+  "word_is":   { "text": "is",   "m4a": "balloon_pop_audio/word_is.m4a"   },
+  "word_and":  { "text": "and",  "m4a": "balloon_pop_audio/word_and.m4a"  },
+  "word_was":  { "text": "was",  "m4a": "balloon_pop_audio/word_was.m4a"  },
+  "word_to":   { "text": "to",   "m4a": "balloon_pop_audio/word_to.m4a"   },
+  "word_for":  { "text": "for",  "m4a": "balloon_pop_audio/word_for.m4a"  },
+  "word_are":  { "text": "are",  "m4a": "balloon_pop_audio/word_are.m4a"  },
+  "word_but":  { "text": "but",  "m4a": "balloon_pop_audio/word_but.m4a"  },
+  "word_not":  { "text": "not",  "m4a": "balloon_pop_audio/word_not.m4a"  },
+  "word_you":  { "text": "you",  "m4a": "balloon_pop_audio/word_you.m4a"  },
+  "word_all":  { "text": "all",  "m4a": "balloon_pop_audio/word_all.m4a"  },
+  "word_can":  { "text": "can",  "m4a": "balloon_pop_audio/word_can.m4a"  },
+  "word_had":  { "text": "had",  "m4a": "balloon_pop_audio/word_had.m4a"  },
+  "word_her":  { "text": "her",  "m4a": "balloon_pop_audio/word_her.m4a"  },
+  "word_one":  { "text": "one",  "m4a": "balloon_pop_audio/word_one.m4a"  },
+  "word_our":  { "text": "our",  "m4a": "balloon_pop_audio/word_our.m4a"  },
+  "word_out":  { "text": "out",  "m4a": "balloon_pop_audio/word_out.m4a"  },
+  "word_day":  { "text": "day",  "m4a": "balloon_pop_audio/word_day.m4a"  },
+  "word_get":  { "text": "get",  "m4a": "balloon_pop_audio/word_get.m4a"  },
+  "word_has":  { "text": "has",  "m4a": "balloon_pop_audio/word_has.m4a"  },
+  "word_him":  { "text": "him",  "m4a": "balloon_pop_audio/word_him.m4a"  },
+  "word_his":  { "text": "his",  "m4a": "balloon_pop_audio/word_his.m4a"  },
+  "word_how":  { "text": "how",  "m4a": "balloon_pop_audio/word_how.m4a"  },
+  "word_its":  { "text": "its",  "m4a": "balloon_pop_audio/word_its.m4a"  },
+  "word_may":  { "text": "may",  "m4a": "balloon_pop_audio/word_may.m4a"  },
+  "word_new":  { "text": "new",  "m4a": "balloon_pop_audio/word_new.m4a"  },
+  "word_now":  { "text": "now",  "m4a": "balloon_pop_audio/word_now.m4a"  },
+  "word_old":  { "text": "old",  "m4a": "balloon_pop_audio/word_old.m4a"  },
+  "word_see":  { "text": "see",  "m4a": "balloon_pop_audio/word_see.m4a"  },
+  "word_way":  { "text": "way",  "m4a": "balloon_pop_audio/word_way.m4a"  }
+}

@@ -1,0 +1,53 @@
+{
+  "gameId": "frog_hopper_opus",
+  "gameTitle": "Egg Basket Verbs",
+  "voiceGuide": "Load the verb and non-verb word lists from JSON, then play the frog hopper narration from frog_hopper_audio. Speak the prompt, correct feedback, wrong feedback, halfway encouragement, win celebration, and retry prompt.",
+  "verbs": [
+    "run","jump","play","sing","dance","hop","skip","read","write","draw","sleep","eat","drink","walk","talk","smile","laugh","cry","yell","look","see","hear","listen","touch","push","pull","throw","catch","kick","climb","crawl","swim","fly","spin","turn","stop","go","sit","stand","open","close","wash","clean","brush","paint","build","make","break","fix","help","share","hug","kiss","think","dream","wave","point","hide","seek","grow"
+  ],
+  "nonVerbs": [
+    "apple","ball","cat","dog","sun","moon","tree","car","red","blue","big","small","happy","sad","fast","slow","hot","cold","boy","girl","house","book","pen","star","fish","bird","rock","water","milk","bed","toy","shoe","hat","door","window","chair","table","box","bag","cup","plate","sky","grass","flower","bug","cloud","rain","snow","sand","dirt"
+  ],
+  "phrases": {
+    "welcome": {
+      "text": "🥚 Welcome to Egg Basket Verbs! Push the right egg!",
+      "m4a": "frog_hopper_audio/welcome.m4a"
+    },
+    "instructions": {
+      "text": "Tap the egg with a VERB to push it into the basket!",
+      "m4a": "frog_hopper_audio/instructions.m4a"
+    },
+    "find_verb": {
+      "text": "🥚 Find the VERB",
+      "m4a": "frog_hopper_audio/find_verb.m4a"
+    },
+    "correct_1": {
+      "text": "🎉 Splash! That's a verb!",
+      "m4a": "frog_hopper_audio/correct_1.m4a"
+    },
+    "correct_2": {
+      "text": "🐸 Ribbit! That is an action word!",
+      "m4a": "frog_hopper_audio/correct_2.m4a"
+    },
+    "wrong_1": {
+      "text": "🥚 Oops! That is not a verb!",
+      "m4a": "frog_hopper_audio/wrong_1.m4a"
+    },
+    "wrong_2": {
+      "text": "💨 That's a noun or adjective, not a verb!",
+      "m4a": "frog_hopper_audio/wrong_2.m4a"
+    },
+    "halfway": {
+      "text": "🌿 Halfway there! 5 more eggs!",
+      "m4a": "frog_hopper_audio/halfway.m4a"
+    },
+    "win": {
+      "text": "🏆 All eggs in the basket! You know your verbs!",
+      "m4a": "frog_hopper_audio/win.m4a"
+    },
+    "try_again": {
+      "text": "🐸 Good effort! Try again?",
+      "m4a": "frog_hopper_audio/try_again.m4a"
+    }
+  }
+}

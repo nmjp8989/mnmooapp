@@ -1,0 +1,739 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width,initial-scale=1,maximum-scale=1,user-scalable=no,viewport-fit=cover">
+<title>EcoQuest Junior: Learn & Explore</title>
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+<link href="https://fonts.googleapis.com/css2?family=Fredoka:wght@500;600;700&family=Quicksand:wght@600;700;800&display=swap" rel="stylesheet">
+<style>
+:root {
+  --font-display: 'Fredoka', sans-serif;
+  --font-body: 'Quicksand', sans-serif;
+  --color-green: #2E7D32;
+  --color-green-light: #E8F5E9;
+  --color-red: #C62828;
+  --color-red-light: #FFEBEE;
+  --color-orange: #EF6C00;
+  --color-gold: #FFB300;
+  --radius-lg: 24px;
+  --radius-md: 16px;
+  --radius-pill: 50px;
+  --transition-bouncy: all 0.4s cubic-bezier(0.175, 0.885, 0.32, 1.275);
+  --shadow-soft: 0 6px 16px rgba(0,0,0,0.10);
+  --shadow-strong: 0 10px 24px rgba(0,0,0,0.18);
+}
+
+*, *::before, *::after { box-sizing: border-box; margin: 0; padding: 0; }
+
+html, body {
+  width: 100vw; height: 100vh; height: 100dvh; overflow: hidden;
+  font-family: var(--font-body); background-color: #0d1e15; color: #2C3E50;
+  touch-action: manipulation; user-select: none; -webkit-user-select: none;
+}
+
+/* ===== LANDSCAPE LOCK ===== */
+.landscape-overlay {
+  position: fixed; inset: 0; background: linear-gradient(135deg, #1b5e20, #0d3c26);
+  z-index: 99999; display: flex; flex-direction: column; justify-content: center;
+  align-items: center; color: #fff; text-align: center; padding: 24px;
+  opacity: 0; pointer-events: none; transition: opacity 0.35s ease;
+}
+.landscape-overlay.active { opacity: 1; pointer-events: auto; }
+.landscape-overlay-icon { font-size: 5rem; margin-bottom: 15px; animation: turnDevice 2.2s infinite ease-in-out; }
+.landscape-overlay h2 { font-family: var(--font-display); font-size: 2.2rem; margin-bottom: 12px; }
+.landscape-overlay p { font-size: 1.2rem; opacity: 0.9; max-width: 400px; line-height: 1.4; }
+@keyframes turnDevice { 0%,100%{transform:rotate(0deg);} 50%{transform:rotate(-90deg);} }
+@media (orientation: portrait) {
+  .landscape-overlay { opacity: 1; pointer-events: auto; }
+  .app-container { display: none !important; }
+}
+
+/* ===== MASTER CONTAINER ===== */
+.app-container { width: 100%; height: 100%; position: relative; overflow: hidden; background: #F1F8E9; }
+
+/* ===== SCREENS ===== */
+.screen { position: absolute; inset: 0; opacity: 0; pointer-events: none; transition: opacity 0.45s ease-in-out; display: flex; flex-direction: column; }
+.screen.active { opacity: 1; pointer-events: auto; }
+h1,h2,h3,h4 { font-family: var(--font-display); font-weight: 700; line-height: 1.2; }
+
+/* ===== SPRITE SYSTEM ===== */
+.sprite { display: inline-block; background-repeat: no-repeat; image-rendering: auto; }
+.sprite-animals { background-image: url('sprites/animals_sheet.webp'); }
+.sprite-guides { background-image: url('sprites/guides_sheet.webp'); background-size: 400% 100%; }
+.sp-guide-owl    { background-position: 0% 0%; }
+.sp-guide-camel  { background-position: 33.33% 0%; }
+.sp-guide-whale  { background-position: 66.66% 0%; }
+.sp-guide-penguin{ background-position: 100% 0%; }
+
+.sprite-ui { background-image: url('sprites/ui_sheet.webp'); background-size: 400% 300%; }
+.sp-star-gold   { background-position: 0% 0%; }
+.sp-trophy      { background-position: 100% 0%; }
+.sp-play        { background-position: 100% 50%; }
+
+.sprite-map { background-image: url('sprites/map_elements_sheet.webp'); background-size: 300% 300%; }
+.sp-compass   { background-position: 0% 0%; }
+
+/* ===== BUTTONS ===== */
+.btn-jumbo {
+  font-family: var(--font-display); font-weight: 700; border: none; background: #fff; color: #2D3E50;
+  cursor: pointer; padding: clamp(14px,3vh,22px) clamp(28px,5vw,48px); border-radius: var(--radius-pill);
+  box-shadow: var(--shadow-soft); transition: var(--transition-bouncy); font-size: clamp(1.2rem,3vh,1.7rem);
+  display: inline-flex; align-items: center; gap: 14px; position: relative; overflow: hidden;
+}
+.btn-jumbo::after { content:''; position:absolute; inset:0; background:linear-gradient(180deg,rgba(255,255,255,0.25) 0%,transparent 60%); border-radius:inherit; pointer-events:none; }
+.btn-jumbo:active { transform: scale(0.90); box-shadow: 0 2px 6px rgba(0,0,0,0.12); }
+.btn-brand { background: linear-gradient(135deg,#FFB300,#FF6F00); color: white; text-shadow: 0 2px 4px rgba(0,0,0,0.15); box-shadow: 0 6px 20px rgba(255,111,0,0.35); }
+.btn-green { background: linear-gradient(135deg,#66BB6A,#2E7D32); color: white; text-shadow: 0 2px 4px rgba(0,0,0,0.15); box-shadow: 0 6px 20px rgba(46,125,50,0.35); }
+
+/* ===== MAP SCREEN ===== */
+.screen-map { background: linear-gradient(180deg,#E8F5E9 0%,#C8E6C9 100%); padding: clamp(10px,2.5vh,18px) clamp(14px,3vw,24px); justify-content: space-between; }
+.map-nav { display:flex; justify-content:space-between; align-items:center; flex-shrink:0; }
+.map-title { font-size: clamp(1.3rem,3.5vh,2rem); color:#1B5E20; display:flex; align-items:center; gap:10px; }
+.map-title .sprite { width: clamp(28px,6vh,40px); height: clamp(28px,6vh,40px); }
+.map-score-pill { background:white; padding:8px 20px; border-radius: var(--radius-pill); font-family: var(--font-display); font-size: clamp(1.05rem,2.8vh,1.5rem); font-weight:700; color:#E65100; box-shadow: var(--shadow-soft); display:flex; align-items:center; gap:8px; }
+.map-score-pill .sprite { width: clamp(22px,5vh,32px); height: clamp(22px,5vh,32px); }
+.map-grid { display:grid; grid-template-columns: repeat(4,1fr); gap: clamp(10px,2vw,18px); margin: clamp(8px,2vh,14px) 0; flex:1; min-height:0; }
+.map-card { background:white; border-radius: var(--radius-lg); overflow:hidden; box-shadow: var(--shadow-soft); border:4px solid white; cursor:pointer; transition: var(--transition-bouncy); display:flex; flex-direction:column; position:relative; }
+.map-card:hover { transform: translateY(-5px) scale(1.02); box-shadow: var(--shadow-strong); }
+.map-card:active { transform: scale(0.95); }
+.map-card-canvas { height:52%; display:flex; justify-content:center; align-items:center; position:relative; overflow:hidden; }
+.map-card-canvas img { width:100%; height:100%; object-fit:cover; }
+.map-card-emoji-overlay { position:absolute; font-size: clamp(2.2rem,8vh,3.5rem); filter: drop-shadow(0 3px 6px rgba(0,0,0,0.2)); z-index:2; }
+.map-card-details { padding: clamp(6px,1.5vh,12px); text-align:center; flex:1; display:flex; flex-direction:column; justify-content:space-between; align-items:center; }
+.map-card-title { font-size: clamp(0.95rem,2.4vh,1.35rem); color:#37474F; }
+.map-card-status { font-size: clamp(0.72rem,1.9vh,0.95rem); font-weight:800; padding:4px 14px; border-radius: var(--radius-pill); background:#ECEFF1; color:#546E7A; }
+.map-card.restored { border-color:#81C784; }
+.map-card.restored .map-card-status { background:#E8F5E9; color:#2E7D32; }
+.map-card.restored::after { content:'⭐'; position:absolute; top:8px; right:8px; font-size:1.4rem; z-index:3; animation: floatSoft 2s ease-in-out infinite; }
+
+/* ===== PLAY SCREEN ===== */
+.screen-play { flex-direction: row; }
+.viewport-panel { flex:1.15; position:relative; overflow:hidden; background:#CFD8DC; display:flex; flex-direction:column; }
+.viewport-controls-row { position:absolute; top: clamp(8px,2vh,14px); left: clamp(8px,2vh,14px); right: clamp(8px,2vh,14px); display:flex; justify-content:space-between; align-items:center; z-index:10; }
+.btn-round-ui { width: clamp(40px,10vh,54px); height: clamp(40px,10vh,54px); border-radius:50%; display:flex; justify-content:center; align-items:center; background:white; border:none; font-size: clamp(1.2rem,3.2vh,1.6rem); cursor:pointer; box-shadow: var(--shadow-soft); transition: var(--transition-bouncy); }
+.btn-round-ui:active { transform: scale(0.82); }
+.step-track-pills { display:flex; gap:8px; background: rgba(255,255,255,0.92); padding:8px 16px; border-radius: var(--radius-pill); backdrop-filter: blur(6px); box-shadow: 0 2px 8px rgba(0,0,0,0.08); }
+.step-pill { width: clamp(10px,2.8vh,16px); height: clamp(10px,2.8vh,16px); border-radius:50%; background:#CFD8DC; transition: var(--transition-bouncy); }
+.step-pill.active { background: var(--color-gold); transform: scale(1.35); box-shadow: 0 0 8px rgba(255,179,0,0.5); }
+.step-pill.completed { background:#4CAF50; }
+
+.play-canvas { position:absolute; inset:0; z-index:1; background-size:cover; background-position:center; }
+.scene-forest { background-image: url('sprites/bg_forest.webp'); background-color:#388e3c; }
+.scene-desert { background-image: url('sprites/bg_desert.webp'); background-color:#e67e22; }
+.scene-ocean  { background-image: url('sprites/bg_ocean.webp');  background-color:#1d6a96; }
+.scene-arctic { background-image: url('sprites/bg_arctic.webp'); background-color:#90a4ae; }
+.particle-element { position:absolute; pointer-events:none; animation: fallDown linear infinite; opacity:0.7; z-index:2; }
+
+/* Placed animals */
+.placed-sprite { position:absolute; z-index:5; cursor:pointer; animation: landJump 0.6s cubic-bezier(0.175,0.885,0.32,1.275) both; display:flex; flex-direction:column; align-items:center; gap:2px; }
+.placed-sprite .animal-img { width: clamp(58px,15vh,88px); height: auto; filter: drop-shadow(0 6px 10px rgba(0,0,0,0.25)); transition: var(--transition-bouncy); }
+.placed-sprite:active .animal-img { animation: wiggle 0.4s ease; }
+.placed-sprite .animal-label { font-family: var(--font-display); font-size: clamp(0.6rem,1.6vh,0.85rem); font-weight:700; color:white; background: rgba(0,0,0,0.5); padding:2px 10px; border-radius: var(--radius-pill); white-space:nowrap; backdrop-filter: blur(3px); }
+.placed-sprite .tap-hint { font-size: clamp(0.55rem,1.4vh,0.72rem); color:#FFD54F; font-weight:800; animation: pulseHint 1.5s ease-in-out infinite; }
+
+.character-box { position:absolute; bottom: clamp(8px,2vh,14px); left: clamp(8px,2vh,14px); right: clamp(8px,2vh,14px); background: rgba(255,255,255,0.97); border-radius: var(--radius-md); padding: clamp(8px,2vh,14px) clamp(12px,3vw,20px); display:flex; align-items:center; gap: clamp(10px,2.5vw,16px); box-shadow: 0 6px 24px rgba(0,0,0,0.18); z-index:8; border-left:6px solid #4CAF50; }
+.character-avatar { width: clamp(42px,11vh,60px); height: clamp(42px,11vh,60px); flex-shrink:0; animation: hoverFloat 2.5s ease-in-out infinite alternate; }
+.character-text-box { flex:1; }
+.character-badge { font-size: clamp(0.65rem,1.7vh,0.82rem); color:#E65100; font-weight:800; text-transform:uppercase; letter-spacing:0.5px; margin-bottom:2px; }
+.character-speech { font-size: clamp(1rem,2.6vh,1.3rem); color:#2C3E50; font-weight:700; line-height:1.35; }
+
+.control-panel { flex:0.85; background:#FFF; border-left:2px solid #E8E8E8; display:flex; flex-direction:column; padding: clamp(12px,3vh,22px); justify-content:space-between; height:100%; overflow:hidden; }
+.question-block { text-align:center; margin-bottom: clamp(4px,1vh,8px); }
+.block-heading { font-size: clamp(0.7rem,1.8vh,0.9rem); color:#78909C; text-transform:uppercase; letter-spacing:1px; margin-bottom:3px; font-weight:800; }
+.block-question { font-size: clamp(1.1rem,3vh,1.55rem); color:#263238; font-weight:700; line-height:1.3; }
+
+.choices-container { display:flex; flex-direction:column; gap: clamp(8px,1.6vh,14px); margin: clamp(6px,1.5vh,12px) 0; flex:1; justify-content:center; min-height:0; }
+.choice-card { background:#F8FAFB; border:3px solid #E0E0E0; border-radius: var(--radius-md); padding: clamp(8px,2vh,16px) clamp(12px,3vw,20px); display:flex; align-items:center; gap: clamp(12px,2.5vw,18px); cursor:pointer; transition: var(--transition-bouncy); min-height:0; position:relative; overflow:hidden; }
+.choice-card::before { content:''; position:absolute; inset:0; background:linear-gradient(180deg,rgba(255,255,255,0.4) 0%,transparent 50%); pointer-events:none; border-radius:inherit; }
+.choice-card:hover { border-color:#B0BEC5; transform: scale(1.02); box-shadow: 0 4px 12px rgba(0,0,0,0.08); }
+.choice-card:active { transform: scale(0.96); }
+.choice-card-emoticon { width: clamp(44px,11vh,62px); height: clamp(44px,11vh,62px); border-radius:16px; display:flex; align-items:center; justify-content:center; flex-shrink:0; background:white; box-shadow: 0 2px 6px rgba(0,0,0,0.08); }
+.choice-emoji { font-size: clamp(1.7rem,5.2vh,2.7rem); line-height:1; }
+.choice-card-string { font-size: clamp(1rem,2.6vh,1.35rem); font-weight:700; color:#37474F; line-height:1.25; }
+
+.choice-card.speaking { border-color:#29B6F6; background-color:#E1F5FE; box-shadow: 0 0 14px rgba(41,182,246,0.4); }
+.choice-card.correct { border-color: var(--color-green); background-color: var(--color-green-light); box-shadow: 0 0 16px rgba(46,125,50,0.3); }
+.choice-card.wrong { border-color: var(--color-red); background-color: var(--color-red-light); animation: shakeMe 0.45s ease; }
+.choice-card.dimmed { opacity:0.4; pointer-events:none; }
+
+.bottom-bar { display:flex; justify-content:space-between; align-items:center; flex-shrink:0; }
+.stat-indicator { font-size: clamp(0.85rem,2.2vh,1.1rem); color:#78909C; font-weight:800; }
+.btn-next { visibility:hidden; padding:8px 24px; font-size: clamp(1rem,2.6vh,1.3rem); border-radius: var(--radius-pill); }
+.btn-next.show { visibility:visible; }
+
+/* ===== CONFETTI ===== */
+.confetti-container { position:fixed; inset:0; pointer-events:none; z-index:9998; overflow:hidden; }
+.confetti-piece { position:absolute; width:12px; height:12px; border-radius:3px; animation: confettiFall 1.8s ease-out forwards; }
+@keyframes confettiFall { 0%{transform:translateY(0) rotate(0deg) scale(1);opacity:1;} 100%{transform:translateY(100vh) rotate(720deg) scale(0.3);opacity:0;} }
+
+/* ===== FACT MODAL ===== */
+.fact-lightbox { position:fixed; inset:0; z-index:9999; background: rgba(0,0,0,0.5); backdrop-filter: blur(6px); display:flex; justify-content:center; align-items:center; opacity:0; pointer-events:none; transition: opacity 0.3s ease; }
+.fact-lightbox.active { opacity:1; pointer-events:auto; }
+.fact-card { background:white; border-radius: var(--radius-lg); width: min(400px,88vw); padding: clamp(18px,4vh,28px); text-align:center; box-shadow: 0 16px 40px rgba(0,0,0,0.35); transform: scale(0.8) translateY(20px); transition: var(--transition-bouncy); position:relative; overflow:hidden; }
+.fact-lightbox.active .fact-card { transform: scale(1) translateY(0); }
+.fact-badge { position:absolute; top:0; left:0; right:0; background: linear-gradient(135deg,#FFB300,#FF6F00); color:white; font-family: var(--font-display); font-weight:700; font-size: clamp(0.8rem,2vh,1rem); padding:6px; text-transform:uppercase; letter-spacing:1.5px; }
+.fact-avatar { width: clamp(72px,17vh,100px); height: auto; margin: 22px auto 10px; display:block; animation: floatSoft 3s ease-in-out infinite; }
+.fact-title { font-size: clamp(1.3rem,3.5vh,1.8rem); color:#37474F; margin-bottom:8px; }
+.fact-body { font-size: clamp(1.05rem,2.8vh,1.4rem); color:#455A64; line-height:1.45; margin-bottom:20px; font-weight:600; }
+
+/* ===== END SCREEN ===== */
+.screen-end { background: radial-gradient(ellipse at 50% 40%, #FFD54F 0%, #F57C00 70%, #E65100 100%); justify-content:center; align-items:center; color:white; text-align:center; padding:20px; position:relative; overflow:hidden; }
+.end-trophy { width: clamp(80px,20vh,130px); height: clamp(80px,20vh,130px); margin-bottom:14px; animation: trophySpin 2.5s ease-in-out infinite alternate; }
+.end-headline { font-size: clamp(2rem,6vh,3.5rem); margin-bottom:10px; text-shadow: 0 4px 8px rgba(0,0,0,0.2); }
+.end-subheading { font-size: clamp(1.15rem,3vh,1.5rem); max-width:520px; margin-bottom:10px; opacity:0.95; line-height:1.4; font-weight:700; }
+.end-stars { font-size: clamp(1.3rem,3.5vh,1.8rem); font-family: var(--font-display); font-weight:700; margin-bottom:24px; background: rgba(255,255,255,0.2); padding:8px 24px; border-radius: var(--radius-pill); }
+
+/* ===== ANIMATIONS ===== */
+@keyframes floatSoft { 0%,100%{transform:translateY(0);} 50%{transform:translateY(-12px);} }
+@keyframes hoverFloat { 0%{transform:translateY(0) rotate(-2deg);} 100%{transform:translateY(-8px) rotate(2deg);} }
+@keyframes landJump { 0%{transform:scale(0) rotate(-18deg);opacity:0;} 60%{transform:scale(1.3) rotate(6deg);opacity:1;} 100%{transform:scale(1) rotate(0);opacity:1;} }
+@keyframes shakeMe { 0%,100%{transform:translateX(0);} 20%,60%{transform:translateX(-10px);} 40%,80%{transform:translateX(10px);} }
+@keyframes wiggle { 0%,100%{transform:rotate(0);} 25%{transform:rotate(10deg) scale(1.1);} 75%{transform:rotate(-10deg) scale(1.1);} }
+@keyframes trophySpin { 0%{transform:rotate(-5deg) scale(0.95);} 100%{transform:rotate(5deg) scale(1.08);} }
+@keyframes fallDown { 0%{transform:translateY(-20px) rotate(0deg);opacity:0;} 10%{opacity:0.7;} 90%{opacity:0.7;} 100%{transform:translateY(110vh) rotate(360deg);opacity:0;} }
+@keyframes pulseHint { 0%,100%{opacity:1;} 50%{opacity:0.4;} }
+</style>
+</head>
+<body>
+
+  <div class="landscape-overlay" id="landscapeOverlay">
+    <div class="landscape-overlay-icon">📱</div>
+    <h2>Turn Your Phone!</h2>
+    <p>Rotate your device sideways to start playing! 🎮</p>
+  </div>
+
+  <div class="app-container">
+
+    <!-- MAP SCREEN (Now the Start Screen) -->
+    <div id="screenMap" class="screen screen-map active">
+      <div class="map-nav">
+        <h2 class="map-title"><span class="sprite sprite-map sp-compass"></span> Pick a Place to Explore!</h2>
+        <div class="map-score-pill"><span class="sprite sprite-ui sp-star-gold"></span> <span id="starCounter">0</span> Stars</div>
+      </div>
+      <div class="map-grid" id="biomesContainer"></div>
+    </div>
+
+    <!-- PLAY -->
+    <div id="screenPlay" class="screen screen-play">
+      <div class="viewport-panel">
+        <div class="viewport-controls-row">
+          <button class="btn-round-ui" id="btnBackToMap" title="Back to Map">🗺️</button>
+          <div class="step-track-pills" id="pillsTrack"></div>
+          <button class="btn-round-ui" id="btnSoundToggle" title="Sound">🔊</button>
+        </div>
+        <div class="play-canvas" id="canvasView"></div>
+        <div class="character-box" id="guideBox">
+          <div class="character-avatar sprite sprite-guides sp-guide-owl" id="guideAvatar"></div>
+          <div class="character-text-box">
+            <div class="character-badge" id="guideBadge">Owl Friend</div>
+            <p class="character-speech" id="guideSpeechBubble">Let's find a home!</p>
+          </div>
+        </div>
+      </div>
+      <div class="control-panel">
+        <div class="question-block">
+          <div class="block-heading" id="promptCategory">🌟 Fun Question!</div>
+          <h3 class="block-question" id="promptTitle">Question here</h3>
+        </div>
+        <div class="choices-container" id="choicesBox"></div>
+        <div class="bottom-bar">
+          <div class="stat-indicator" id="statIndicator">Question 1 of 3</div>
+          <button class="btn-jumbo btn-green btn-next" id="btnContinueFlow">Next! ➡️</button>
+        </div>
+      </div>
+    </div>
+
+    <!-- END -->
+    <div id="screenEnd" class="screen screen-end">
+      <div class="end-trophy sprite sprite-ui sp-trophy"></div>
+      <h1 class="end-headline">You Did It! 🎉</h1>
+      <p class="end-subheading">You helped ALL the animals find their homes! You are a Super Nature Explorer!</p>
+      <div class="end-stars" id="endStarCount">⭐ 0 Stars Collected!</div>
+      <button class="btn-jumbo btn-brand" id="btnRestart">Play Again! 🔄</button>
+    </div>
+
+  </div>
+
+  <!-- FACT MODAL -->
+  <div class="fact-lightbox" id="infoModal">
+    <div class="fact-card">
+      <div class="fact-badge">🌟 Fun Fact! 🌟</div>
+      <div class="fact-avatar sprite sprite-animals" id="modalAvatar"></div>
+      <h4 class="fact-title" id="modalTitle">Animal Name</h4>
+      <p class="fact-body" id="modalBody">Fun fact here!</p>
+      <button class="btn-jumbo btn-brand" style="width:100%;justify-content:center;" id="btnCloseModal">Cool! Got It! 👍</button>
+    </div>
+  </div>
+
+  <div class="confetti-container" id="confettiContainer"></div>
+
+<script>
+/* ============================================================
+   ANIMAL SPRITE SHEET LOGIC
+   ============================================================ */
+const IMG_ASPECT = 1.7778; 
+const ANIMAL_RECTS = {
+  "sp-owl":       [0.065, 0.015, 0.135, 0.300],
+  "sp-squirrel":  [0.295, 0.015, 0.150, 0.300],
+  "sp-bear":      [0.545, 0.025, 0.135, 0.285],
+  "sp-camel":     [0.745, 0.025, 0.215, 0.300],
+  "sp-lizard":    [0.035, 0.345, 0.195, 0.255],
+  "sp-scorpion":  [0.275, 0.330, 0.200, 0.270],
+  "sp-clownfish": [0.520, 0.365, 0.195, 0.200],
+  "sp-octopus":   [0.765, 0.330, 0.190, 0.260],
+  "sp-shark":     [0.015, 0.625, 0.230, 0.330],
+  "sp-polarbear": [0.295, 0.610, 0.160, 0.345],
+  "sp-penguin":   [0.535, 0.610, 0.185, 0.350],
+  "sp-reindeer":  [0.775, 0.600, 0.180, 0.360]
+};
+
+function setAnimalSprite(el, key) {
+  const r = ANIMAL_RECTS[key];
+  if (!r || !el) return;
+  const [sx, sy, sw, sh] = r;
+  el.style.backgroundSize     = (100 / sw) + '% ' + (100 / sh) + '%';
+  el.style.backgroundPosition = (sx / (1 - sw) * 100) + '% ' + (sy / (1 - sh) * 100) + '%';
+  el.style.aspectRatio        = (sw * IMG_ASPECT / sh).toFixed(4);
+}
+
+/* ============================================================
+   NARRATIVE TEXTS (Exactly matching provided JSON)
+   ============================================================ */
+const NARRATIVE_TEXTS = {
+  "welcome": { text: "Welcome, explorer! Help animals find their home!", m4a: "geozones_audio/welcome.m4a" },
+  "correct_1": { text: "Yes! That's right!", m4a: "geozones_audio/correct_1.m4a" },
+  "correct_2": { text: "Great job! That's right!", m4a: "geozones_audio/correct_2.m4a" },
+  "correct_3": { text: "Amazing! You found it!", m4a: "geozones_audio/correct_3.m4a" },
+  "wrong_1": { text: "Hmm, try again! Think about where this animal lives.", m4a: "geozones_audio/wrong_1.m4a" },
+  "wrong_2": { text: "Not quite! You can do it!", m4a: "geozones_audio/wrong_2.m4a" },
+  "biome_complete": { text: "Wow! You explored the whole area!", m4a: "geozones_audio/biome_complete.m4a" },
+  "all_done": { text: "You explored every biome! Amazing work!", m4a: "geozones_audio/all_done.m4a" },
+
+  "q_forest_1": { text: "An owl sleeps during the bright day. Where is the safest place for them to hide?", m4a: "geozones_audio/q_forest_1.m4a" },
+  "q_forest_1_a": { text: "A hollow hole inside a tree trunk", m4a: "geozones_audio/q_forest_1_a.m4a" },
+  "q_forest_1_b": { text: "Underneath a wet river rock", m4a: "geozones_audio/q_forest_1_b.m4a" },
+  "q_forest_1_c": { text: "On top of an open, sunny flower", m4a: "geozones_audio/q_forest_1_c.m4a" },
+  "fact_forest_1": { text: "Spotted owls sleep inside dark hollow trees. Their brown feathers blend in with the bark to keep them safe from danger!", m4a: "geozones_audio/fact_forest_1.m4a" },
+  
+  "q_forest_2": { text: "Squirrels need food to survive the cold winter. What do they harvest and store in the autumn?", m4a: "geozones_audio/q_forest_2.m4a" },
+  "q_forest_2_a": { text: "Fallen oak acorns and seeds", m4a: "geozones_audio/q_forest_2_a.m4a" },
+  "q_forest_2_b": { text: "Fresh green seaweed", m4a: "geozones_audio/q_forest_2_b.m4a" },
+  "q_forest_2_c": { text: "Shiny blue river stones", m4a: "geozones_audio/q_forest_2_c.m4a" },
+  "fact_forest_2": { text: "Squirrels hide thousands of nuts in secret places under the ground. The nuts they forget grow into beautiful new trees!", m4a: "geozones_audio/fact_forest_2.m4a" },
+  
+  "q_forest_3": { text: "Grizzly bears must eat a lot of food before their long winter sleep. What is their favorite meal?", m4a: "geozones_audio/q_forest_3.m4a" },
+  "q_forest_3_a": { text: "Fresh river fish and sweet honey", m4a: "geozones_audio/q_forest_3_a.m4a" },
+  "q_forest_3_b": { text: "Dry pinecones and twigs", m4a: "geozones_audio/q_forest_3_b.m4a" },
+  "q_forest_3_c": { text: "Dry sand and small pebbles", m4a: "geozones_audio/q_forest_3_c.m4a" },
+  "fact_forest_3": { text: "Grizzly bears eat lots of fat-rich salmon and wild berries to grow strong before sleeping all through the snowy winter!", m4a: "geozones_audio/fact_forest_3.m4a" },
+
+  "q_desert_1": { text: "A camel travels over very hot sand dunes. Where do they store fuel when food is hard to find?", m4a: "geozones_audio/q_desert_1.m4a" },
+  "q_desert_1_a": { text: "Inside their big back hump", m4a: "geozones_audio/q_desert_1_a.m4a" },
+  "q_desert_1_b": { text: "Inside their soft floppy ears", m4a: "geozones_audio/q_desert_1_b.m4a" },
+  "q_desert_1_c": { text: "Underneath their hard feet", m4a: "geozones_audio/q_desert_1_c.m4a" },
+  "fact_desert_1": { text: "A camel's hump is full of fat. When food is scarce, their body turns that fat into energy to help them walk for many days.", m4a: "geozones_audio/fact_desert_1.m4a" },
+  
+  "q_desert_2": { text: "The desert sun is super hot during the day. How does a little lizard stay nice and cool?", m4a: "geozones_audio/q_desert_2.m4a" },
+  "q_desert_2_a": { text: "Hiding deep under the cool sand", m4a: "geozones_audio/q_desert_2_a.m4a" },
+  "q_desert_2_b": { text: "Climbing up a pine tree branch", m4a: "geozones_audio/q_desert_2_b.m4a" },
+  "q_desert_2_c": { text: "Jumping into cold ocean waves", m4a: "geozones_audio/q_desert_2_c.m4a" },
+  "fact_desert_2": { text: "Desert lizards crawl into underground holes to rest during the hottest hours, and do a little dance to lift their toes off the hot sand!", m4a: "geozones_audio/fact_desert_2.m4a" },
+  
+  "q_desert_3": { text: "A scorpion hunts bugs in the dark desert night. How do they find food without bright light?", m4a: "geozones_audio/q_desert_3.m4a" },
+  "q_desert_3_a": { text: "Using sensitive hairs to feel steps", m4a: "geozones_audio/q_desert_3_a.m4a" },
+  "q_desert_3_b": { text: "Holding bright little flashlights", m4a: "geozones_audio/q_desert_3_b.m4a" },
+  "q_desert_3_c": { text: "Tasting dry sand on the wind", m4a: "geozones_audio/q_desert_3_c.m4a" },
+  "fact_desert_3": { text: "Scorpions have tiny hairs on their legs that feel bug footsteps in the sand. They also glow bright blue under the moonlight!", m4a: "geozones_audio/fact_desert_3.m4a" },
+
+  "q_ocean_1": { text: "Little clownfish need a safe place to live. Where is the best spot for them to hide?", m4a: "geozones_audio/q_ocean_1.m4a" },
+  "q_ocean_1_a": { text: "Waving tentacles of an anemone", m4a: "geozones_audio/q_ocean_1_a.m4a" },
+  "q_ocean_1_b": { text: "Underneath cold ice sheets", m4a: "geozones_audio/q_ocean_1_b.m4a" },
+  "q_ocean_1_c": { text: "Behind a prickly desert cactus", m4a: "geozones_audio/q_ocean_1_c.m4a" },
+  "fact_ocean_1": { text: "Clownfish live safely inside stinging sea anemones. Their special slimy skin shields them from the anemone's stings!", m4a: "geozones_audio/fact_ocean_1.m4a" },
+  
+  "q_ocean_2": { text: "An octopus has no bones. What do they do to escape from a big hungry shark?", m4a: "geozones_audio/q_ocean_2.m4a" },
+  "q_ocean_2_a": { text: "Shoot a cloud of dark ink", m4a: "geozones_audio/q_ocean_2_a.m4a" },
+  "q_ocean_2_b": { text: "Sing a loud song to make friends", m4a: "geozones_audio/q_ocean_2_b.m4a" },
+  "q_ocean_2_c": { text: "Hide inside a giant clam shell", m4a: "geozones_audio/q_ocean_2_c.m4a" },
+  "fact_ocean_2": { text: "An octopus shoots ink to confuse predators and can change their skin color in an instant to blend in with ocean rocks!", m4a: "geozones_audio/fact_ocean_2.m4a" },
+  
+  "q_ocean_3": { text: "Sharks must keep moving through the deep sea. Why is swimming constantly so important?", m4a: "geozones_audio/q_ocean_3.m4a" },
+  "q_ocean_3_a": { text: "To push fresh water through gills", m4a: "geozones_audio/q_ocean_3_a.m4a" },
+  "q_ocean_3_b": { text: "To keep their muscular fins warm", m4a: "geozones_audio/q_ocean_3_b.m4a" },
+  "q_ocean_3_c": { text: "To find shiny lost treasures", m4a: "geozones_audio/q_ocean_3_c.m4a" },
+  "fact_ocean_3": { text: "Many sharks must swim day and night. Moving forward keeps water flowing across their gills so they can breathe while resting!", m4a: "geozones_audio/fact_ocean_3.m4a" },
+
+  "q_arctic_1": { text: "Polar bears live in freezing blizzards. How do they stay warm in the ice and snow?", m4a: "geozones_audio/q_arctic_1.m4a" },
+  "q_arctic_1_a": { text: "Thick fat and clear hollow fur", m4a: "geozones_audio/q_arctic_1_a.m4a" },
+  "q_arctic_1_b": { text: "Drinking hot cocoa by a campfire", m4a: "geozones_audio/q_arctic_1_b.m4a" },
+  "q_arctic_1_c": { text: "Wearing warm wool socks", m4a: "geozones_audio/q_arctic_1_c.m4a" },
+  "fact_arctic_1": { text: "Polar bear fur isn't actually white! Their hair is clear and hollow, trapping the warm sunshine right against their black skin.", m4a: "geozones_audio/fact_arctic_1.m4a" },
+  
+  "q_arctic_2": { text: "Father penguins look after their single egg in the winter. How do they keep it cozy?", m4a: "geozones_audio/q_arctic_2.m4a" },
+  "q_arctic_2_a": { text: "Cradling the egg on warm feet", m4a: "geozones_audio/q_arctic_2_a.m4a" },
+  "q_arctic_2_b": { text: "Building a nest with dry mud", m4a: "geozones_audio/q_arctic_2_b.m4a" },
+  "q_arctic_2_c": { text: "Hanging the egg from cold ice", m4a: "geozones_audio/q_arctic_2_c.m4a" },
+  "fact_arctic_2": { text: "Penguin fathers balance the egg on top of their feet under a warm belly flap to shield it from freezing winds.", m4a: "geozones_audio/fact_arctic_2.m4a" },
+  
+  "q_arctic_3": { text: "Reindeer look for food deep under heavy winter snow. What helps them dig through the ice?", m4a: "geozones_audio/q_arctic_3.m4a" },
+  "q_arctic_3_a": { text: "Wide hooves that scoop snow", m4a: "geozones_audio/q_arctic_3_a.m4a" },
+  "q_arctic_3_b": { text: "Long sticky tongues", m4a: "geozones_audio/q_arctic_3_b.m4a" },
+  "q_arctic_3_c": { text: "A glowing red nose", m4a: "geozones_audio/q_arctic_3_c.m4a" },
+  "fact_arctic_3": { text: "Reindeer have wide, scoop-shaped hooves that act like snow shovels to dig up tasty plants hidden deep under the winter snow!", m4a: "geozones_audio/fact_arctic_3.m4a" }
+};
+
+/* ============================================================
+   BIOME DATA
+   ============================================================ */
+const BIOME_SCHEMAS = {
+  forest: {
+    name: "Pine Forest", key: "forest", emoji: "🌲", bgImg: "sprites/bg_forest.webp", canvasClass: "scene-forest",
+    particles: ["🍃","","🌿"], guideSprite: "sp-guide-owl", guideName: "Owl Friend",
+    steps: [
+      { audioKey:"q_forest_1", choices:[
+          { audioKey:"q_forest_1_a", isCorrect:true,  icon:"🕳️" },
+          { audioKey:"q_forest_1_b", isCorrect:false, icon:"🪨" },
+          { audioKey:"q_forest_1_c", isCorrect:false, icon:"🌻" } ],
+        animal:"🦉", animalSprite:"sp-owl", animalName:"Spotted Owl", factKey:"fact_forest_1", pos:{x:"18%",y:"42%"} },
+      { audioKey:"q_forest_2", choices:[
+          { audioKey:"q_forest_2_a", isCorrect:true,  icon:"🌰" },
+          { audioKey:"q_forest_2_b", isCorrect:false, icon:"🌿" },
+          { audioKey:"q_forest_2_c", isCorrect:false, icon:"💎" } ],
+        animal:"🐿️", animalSprite:"sp-squirrel", animalName:"Forest Squirrel", factKey:"fact_forest_2", pos:{x:"45%",y:"60%"} },
+      { audioKey:"q_forest_3", choices:[
+          { audioKey:"q_forest_3_a", isCorrect:true,  icon:"🐟" },
+          { audioKey:"q_forest_3_b", isCorrect:false, icon:"🌲" },
+          { audioKey:"q_forest_3_c", isCorrect:false, icon:"🪨" } ],
+        animal:"🐻", animalSprite:"sp-bear", animalName:"Grizzly Bear", factKey:"fact_forest_3", pos:{x:"70%",y:"52%"} }
+    ]
+  },
+  desert: {
+    name: "Sunny Desert", key: "desert", emoji: "🏜️", bgImg: "sprites/bg_desert.webp", canvasClass: "scene-desert",
+    particles: ["💨","✨","☀️"], guideSprite: "sp-guide-camel", guideName: "Camel Friend",
+    steps: [
+      { audioKey:"q_desert_1", choices:[
+          { audioKey:"q_desert_1_a", isCorrect:true,  icon:"🐫" },
+          { audioKey:"q_desert_1_b", isCorrect:false, icon:"👂" },
+          { audioKey:"q_desert_1_c", isCorrect:false, icon:"🐾" } ],
+        animal:"🐫", animalSprite:"sp-camel", animalName:"Dromedary Camel", factKey:"fact_desert_1", pos:{x:"22%",y:"50%"} },
+      { audioKey:"q_desert_2", choices:[
+          { audioKey:"q_desert_2_a", isCorrect:true,  icon:"🕳️" },
+          { audioKey:"q_desert_2_b", isCorrect:false, icon:"🌲" },
+          { audioKey:"q_desert_2_c", isCorrect:false, icon:"🌊" } ],
+        animal:"🦎", animalSprite:"sp-lizard", animalName:"Horned Lizard", factKey:"fact_desert_2", pos:{x:"52%",y:"62%"} },
+      { audioKey:"q_desert_3", choices:[
+          { audioKey:"q_desert_3_a", isCorrect:true,  icon:"🦂" },
+          { audioKey:"q_desert_3_b", isCorrect:false, icon:"💡" },
+          { audioKey:"q_desert_3_c", isCorrect:false, icon:"💨" } ],
+        animal:"🦂", animalSprite:"sp-scorpion", animalName:"Sand Scorpion", factKey:"fact_desert_3", pos:{x:"74%",y:"55%"} }
+    ]
+  },
+  ocean: {
+    name: "Blue Ocean", key: "ocean", emoji: "🌊", bgImg: "sprites/bg_ocean.webp", canvasClass: "scene-ocean",
+    particles: ["🫧","✨","💧"], guideSprite: "sp-guide-whale", guideName: "Whale Friend",
+    steps: [
+      { audioKey:"q_ocean_1", choices:[
+          { audioKey:"q_ocean_1_a", isCorrect:true,  icon:"🪸" },
+          { audioKey:"q_ocean_1_b", isCorrect:false, icon:"🧊" },
+          { audioKey:"q_ocean_1_c", isCorrect:false, icon:"🌵" } ],
+        animal:"🐠", animalSprite:"sp-clownfish", animalName:"Clownfish", factKey:"fact_ocean_1", pos:{x:"20%",y:"48%"} },
+      { audioKey:"q_ocean_2", choices:[
+          { audioKey:"q_ocean_2_a", isCorrect:true,  icon:"💨" },
+          { audioKey:"q_ocean_2_b", isCorrect:false, icon:"🎵" },
+          { audioKey:"q_ocean_2_c", isCorrect:false, icon:"🐚" } ],
+        animal:"🐙", animalSprite:"sp-octopus", animalName:"Mimic Octopus", factKey:"fact_ocean_2", pos:{x:"50%",y:"55%"} },
+      { audioKey:"q_ocean_3", choices:[
+          { audioKey:"q_ocean_3_a", isCorrect:true,  icon:"🫁" },
+          { audioKey:"q_ocean_3_b", isCorrect:false, icon:"🌡️" },
+          { audioKey:"q_ocean_3_c", isCorrect:false, icon:"⚡" } ],
+        animal:"🦈", animalSprite:"sp-shark", animalName:"Great White Shark", factKey:"fact_ocean_3", pos:{x:"74%",y:"40%"} }
+    ]
+  },
+  arctic: {
+    name: "Cold Arctic", key: "arctic", emoji: "❄️", bgImg: "sprites/bg_arctic.webp", canvasClass: "scene-arctic",
+    particles: ["❄️","✨","🌨️"], guideSprite: "sp-guide-penguin", guideName: "Penguin Friend",
+    steps: [
+      { audioKey:"q_arctic_1", choices:[
+          { audioKey:"q_arctic_1_a", isCorrect:true,  icon:"🧥" },
+          { audioKey:"q_arctic_1_b", isCorrect:false, icon:"☕" },
+          { audioKey:"q_arctic_1_c", isCorrect:false, icon:"🧦" } ],
+        animal:"🐻‍❄️", animalSprite:"sp-polarbear", animalName:"Polar Bear", factKey:"fact_arctic_1", pos:{x:"22%",y:"52%"} },
+      { audioKey:"q_arctic_2", choices:[
+          { audioKey:"q_arctic_2_a", isCorrect:true,  icon:"🥚" },
+          { audioKey:"q_arctic_2_b", isCorrect:false, icon:"🪵" },
+          { audioKey:"q_arctic_2_c", isCorrect:false, icon:"🧊" } ],
+        animal:"🐧", animalSprite:"sp-penguin", animalName:"Emperor Penguin", factKey:"fact_arctic_2", pos:{x:"50%",y:"56%"} },
+      { audioKey:"q_arctic_3", choices:[
+          { audioKey:"q_arctic_3_a", isCorrect:true,  icon:"🦌" },
+          { audioKey:"q_arctic_3_b", isCorrect:false, icon:"👅" },
+          { audioKey:"q_arctic_3_c", isCorrect:false, icon:"🔴" } ],
+        animal:"🦌", animalSprite:"sp-reindeer", animalName:"Caribou", factKey:"fact_arctic_3", pos:{x:"76%",y:"46%"} }
+    ]
+  }
+};
+
+/* ============================================================
+   STATE
+   ============================================================ */
+const STATE = { screen:"screenMap", stars:0, activeBiome:null, stepIndex:0, wrongAttempts:0, completedBiomes:[], soundOn:true, answered:false };
+
+/* ============================================================
+   ROBUST GLOBAL AUDIO CONTROLLER
+   ============================================================ */
+const globalAudio = new Audio();
+
+const AudioController = {
+  playlist: [],
+  playlistIndex: 0,
+  onStartCb: null,
+  onEndCb: null,
+
+  _initEvents() {
+    globalAudio.onplay = () => { if (this.onStartCb) this.onStartCb(); };
+    globalAudio.onended = () => {
+      const cb = this.onEndCb;
+      this.onStartCb = null;
+      this.onEndCb = null;
+      if (cb) cb();
+    };
+    globalAudio.onerror = () => {
+      const cb = this.onEndCb;
+      this.onStartCb = null;
+      this.onEndCb = null;
+      if (cb) cb();
+    };
+  },
+
+  stopAll() {
+    globalAudio.pause();
+    globalAudio.currentTime = 0;
+    this.playlist = [];
+    this.playlistIndex = 0;
+    this.clearHighlights();
+    this.onStartCb = null;
+    this.onEndCb = null;
+  },
+
+  play(key, onStart, onEnd) {
+    this.stopAll();
+    if (!STATE.soundOn || !NARRATIVE_TEXTS[key]) {
+      if (onEnd) onEnd();
+      return;
+    }
+    this.onStartCb = onStart;
+    this.onEndCb = onEnd;
+    globalAudio.src = NARRATIVE_TEXTS[key].m4a;
+    globalAudio.play().catch(() => {
+      const cb = this.onEndCb;
+      this.onStartCb = null;
+      this.onEndCb = null;
+      if (cb) cb();
+    });
+  },
+
+  playSequence(items) {
+    this.stopAll();
+    if (!STATE.soundOn || items.length === 0) return;
+    this.playlist = items;
+    this.playlistIndex = 0;
+    this._next();
+  },
+
+  _next() {
+    if (this.playlistIndex >= this.playlist.length) {
+      this.stopAll();
+      return;
+    }
+    const it = this.playlist[this.playlistIndex];
+    if (!NARRATIVE_TEXTS[it.key]) {
+      this.playlistIndex++;
+      this._next();
+      return;
+    }
+    this.onStartCb = it.onStart;
+    this.onEndCb = () => {
+      if (it.onEnd) it.onEnd();
+      this.playlistIndex++;
+      this._next();
+    };
+    globalAudio.src = NARRATIVE_TEXTS[it.key].m4a;
+    globalAudio.play().catch(() => {
+      const cb = this.onEndCb;
+      this.onStartCb = null;
+      this.onEndCb = null;
+      if (cb) cb();
+    });
+  },
+
+  clearHighlights() {
+    document.querySelectorAll(".choice-card").forEach(el => el.classList.remove("speaking"));
+  }
+};
+AudioController._initEvents();
+
+/* ============================================================
+   CONFETTI
+   ============================================================ */
+function burstConfetti(){
+  const c=document.getElementById("confettiContainer");
+  const cols=["#FF6F00","#FFB300","#4CAF50","#29B6F6","#E91E63","#9C27B0","#FF5722","#00BCD4"];
+  for(let i=0;i<50;i++){ const p=document.createElement("div"); p.className="confetti-piece"; p.style.left=Math.random()*100+"%"; p.style.top="-5%"; p.style.background=cols[Math.floor(Math.random()*cols.length)]; p.style.width=(8+Math.random()*10)+"px"; p.style.height=(8+Math.random()*10)+"px"; p.style.borderRadius=Math.random()>0.5?"50%":"3px"; p.style.animationDelay=(Math.random()*0.5)+"s"; p.style.animationDuration=(1.2+Math.random()*1.2)+"s"; c.appendChild(p); setTimeout(()=>p.remove(),3000); }
+}
+
+/* ============================================================
+   NAVIGATION & UI
+   ============================================================ */
+function navigateTo(id){ document.querySelectorAll(".screen").forEach(s=>s.classList.remove("active")); document.getElementById(id).classList.add("active"); STATE.screen=id; AudioController.stopAll(); }
+function updateDialogue(key){ const d=NARRATIVE_TEXTS[key]; if(d){ document.getElementById("guideSpeechBubble").textContent=d.text; AudioController.play(key); } }
+
+/* ============================================================
+   MAP
+   ============================================================ */
+function renderMapScreen(){
+  const c=document.getElementById("biomesContainer"); c.innerHTML=""; document.getElementById("starCounter").textContent=STATE.stars;
+  Object.values(BIOME_SCHEMAS).forEach(b=>{ const done=STATE.completedBiomes.includes(b.key); const card=document.createElement("div"); card.className=`map-card ${done?'restored':''}`;
+    card.innerHTML=`<div class="map-card-canvas"><img src="${b.bgImg}" alt="${b.name}" onerror="this.style.display='none'"><span class="map-card-emoji-overlay">${b.emoji}</span></div><div class="map-card-details"><h3 class="map-card-title">${b.name}</h3><span class="map-card-status">${done?'⭐ Done!':'🧭 Tap to Play!'}</span></div>`;
+    card.addEventListener("click",()=>enterBiome(b.key)); c.appendChild(card); });
+}
+
+/* ============================================================
+   WEATHER
+   ============================================================ */
+let weatherTicker=null;
+function startWeather(b){ stopWeather(); const cv=document.getElementById("canvasView"); weatherTicker=setInterval(()=>{ if(STATE.screen!=="screenPlay")return; const p=document.createElement("div"); p.className="particle-element"; p.textContent=b.particles[Math.floor(Math.random()*b.particles.length)]; p.style.left=Math.random()*95+"%"; p.style.top="-5%"; p.style.fontSize=(1.2+Math.random()*1.5)+"rem"; p.style.animationDuration=(5+Math.random()*5)+"s"; cv.appendChild(p); setTimeout(()=>p.remove(),10000); },1100); }
+function stopWeather(){ if(weatherTicker)clearInterval(weatherTicker); }
+
+/* ============================================================
+   PLAY FLOW
+   ============================================================ */
+function enterBiome(key){
+  STATE.activeBiome=BIOME_SCHEMAS[key]; STATE.stepIndex=0; STATE.wrongAttempts=0; STATE.answered=false;
+  const cv=document.getElementById("canvasView"); cv.className=`play-canvas ${STATE.activeBiome.canvasClass}`; cv.innerHTML="";
+  const av=document.getElementById("guideAvatar"); av.className=`character-avatar sprite sprite-guides ${STATE.activeBiome.guideSprite}`;
+  document.getElementById("guideBadge").textContent=STATE.activeBiome.guideName;
+  buildPills(); navigateTo("screenPlay"); displayStep(); startWeather(STATE.activeBiome);
+}
+function buildPills(){ const t=document.getElementById("pillsTrack"); t.innerHTML=""; for(let i=0;i<STATE.activeBiome.steps.length;i++){ const p=document.createElement("div"); p.className="step-pill"+(i===0?" active":""); t.appendChild(p); } }
+function syncPills(){ document.querySelectorAll(".step-pill").forEach((p,i)=>{ p.className="step-pill"+(i<STATE.stepIndex?" completed":i===STATE.stepIndex?" active":""); }); }
+
+function displayStep(){
+  STATE.answered=false; const step=STATE.activeBiome.steps[STATE.stepIndex];
+  document.getElementById("promptCategory").textContent="🌟 Fun Question!";
+  document.getElementById("promptTitle").textContent=NARRATIVE_TEXTS[step.audioKey].text;
+  document.getElementById("statIndicator").textContent=`Question ${STATE.stepIndex+1} of 3`;
+  const box=document.getElementById("choicesBox"); box.innerHTML="";
+  step.choices.forEach((ch,idx)=>{
+    const card=document.createElement("div"); card.className="choice-card"; card.id=`choiceCard-${idx}`;
+    card.innerHTML=`<div class="choice-card-emoticon"><span class="choice-emoji">${ch.icon}</span></div><div class="choice-card-string">${NARRATIVE_TEXTS[ch.audioKey].text}</div>`;
+    card.addEventListener("click",()=>selectAnswer(ch,card)); box.appendChild(card);
+  });
+  document.getElementById("btnContinueFlow").classList.remove("show");
+  document.getElementById("guideSpeechBubble").textContent=NARRATIVE_TEXTS[step.audioKey].text;
+  
+  const pl=[{key:step.audioKey}];
+  step.choices.forEach((c,i)=>{ pl.push({ key:c.audioKey, onStart:()=>{const el=document.getElementById(`choiceCard-${i}`);if(el)el.classList.add("speaking");}, onEnd:()=>{const el=document.getElementById(`choiceCard-${i}`);if(el)el.classList.remove("speaking");} }); });
+  AudioController.playSequence(pl);
+}
+
+function selectAnswer(choice,cardEl){
+  if(STATE.answered || cardEl.classList.contains("correct") || cardEl.classList.contains("dimmed")) return;
+  AudioController.stopAll();
+  
+  if(choice.isCorrect){ 
+    STATE.answered=true; 
+    cardEl.className="choice-card correct"; 
+    document.querySelectorAll(".choice-card").forEach(el=>{if(el!==cardEl)el.classList.add("dimmed");}); 
+    handleCorrect(); 
+  } else { 
+    cardEl.classList.add("wrong"); 
+    STATE.wrongAttempts++; 
+    updateDialogue(STATE.wrongAttempts%2===0?"wrong_1":"wrong_2"); 
+    setTimeout(()=>cardEl.classList.remove("wrong"),600); 
+  }
+}
+
+function handleCorrect(){
+  const step=STATE.activeBiome.steps[STATE.stepIndex]; const cv=document.getElementById("canvasView");
+  const w=document.createElement("div"); w.className="placed-sprite"; w.style.left=step.pos.x; w.style.top=step.pos.y;
+  w.innerHTML=`<div class="animal-img sprite sprite-animals"></div><span class="animal-label">${step.animalName}</span><span class="tap-hint">👆 Tap me!</span>`;
+  cv.appendChild(w);
+  setAnimalSprite(w.querySelector(".animal-img"), step.animalSprite);
+  w.addEventListener("click",()=>showFact(step));
+
+  STATE.stars += (STATE.wrongAttempts===0?4:STATE.wrongAttempts===1?3:2);
+  burstConfetti();
+  const cheers=["correct_1","correct_2","correct_3"]; updateDialogue(cheers[Math.floor(Math.random()*cheers.length)]);
+  const btn=document.getElementById("btnContinueFlow"); btn.classList.add("show");
+  btn.onclick=()=>{ btn.classList.remove("show"); STATE.stepIndex++; STATE.wrongAttempts=0; if(STATE.stepIndex<STATE.activeBiome.steps.length){ syncPills(); displayStep(); } else { finishBiome(); } };
+}
+
+function finishBiome(){
+  stopWeather(); 
+  if(!STATE.completedBiomes.includes(STATE.activeBiome.key)) STATE.completedBiomes.push(STATE.activeBiome.key);
+  burstConfetti();
+  
+  const checkAllDone = () => {
+    if(STATE.completedBiomes.length >= Object.keys(BIOME_SCHEMAS).length){
+      document.getElementById("guideSpeechBubble").textContent = NARRATIVE_TEXTS["all_done"].text;
+      // Wait for "all_done" to finish before transitioning to End screen
+      AudioController.play("all_done", null, () => {
+        document.getElementById("endStarCount").textContent = `⭐ ${STATE.stars} Stars Collected!`; 
+        navigateTo("screenEnd"); 
+        burstConfetti();
+      });
+    } else {
+      navigateTo("screenMap"); 
+      renderMapScreen();
+    }
+  };
+
+  document.getElementById("guideSpeechBubble").textContent = NARRATIVE_TEXTS["biome_complete"].text;
+  
+  // Wait for "biome_complete" audio to fully finish before checking progress (prevents cutoff entirely)
+  AudioController.play("biome_complete", null, () => {
+    checkAllDone();
+  });
+}
+
+/* ============================================================
+   FACT MODAL
+   ============================================================ */
+function showFact(step){
+  const av=document.getElementById("modalAvatar");
+  av.className="fact-avatar sprite sprite-animals";
+  setAnimalSprite(av, step.animalSprite);
+  document.getElementById("modalTitle").textContent=step.animalName;
+  document.getElementById("modalBody").textContent=NARRATIVE_TEXTS[step.factKey].text;
+  document.getElementById("infoModal").classList.add("active");
+  AudioController.play(step.factKey);
+}
+
+/* ============================================================
+   BINDINGS
+   ============================================================ */
+document.getElementById("btnBackToMap").addEventListener("click",()=>{ stopWeather(); navigateTo("screenMap"); renderMapScreen(); });
+document.getElementById("btnCloseModal").addEventListener("click",()=>{ document.getElementById("infoModal").classList.remove("active"); AudioController.stopAll(); });
+
+// Restart loops seamlessly back to the Map
+document.getElementById("btnRestart").addEventListener("click",()=>{ 
+  STATE.stars=0; 
+  STATE.completedBiomes=[]; 
+  navigateTo("screenMap"); 
+  renderMapScreen(); 
+});
+
+document.getElementById("btnSoundToggle").addEventListener("click",function(){ STATE.soundOn=!STATE.soundOn; this.textContent=STATE.soundOn?"🔊":"🔇"; if(!STATE.soundOn)AudioController.stopAll(); });
+
+/* ============================================================
+   LANDSCAPE ENFORCE + INIT
+   ============================================================ */
+function enforceLandscape(){ const p=window.matchMedia("(orientation: portrait)").matches; const o=document.getElementById("landscapeOverlay"); if(p){ o.classList.add("active"); AudioController.stopAll(); } else { o.classList.remove("active"); } }
+window.addEventListener("resize",enforceLandscape);
+window.addEventListener("orientationchange",enforceLandscape);
+enforceLandscape();
+renderMapScreen(); // Render map immediately on load
+</script>
+</body>
+</html>

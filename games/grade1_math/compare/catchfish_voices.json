@@ -1,0 +1,79 @@
+{
+  "gameId": "catchfish",
+  "gameTitle": "Catch the Heavier Fish",
+  "voiceGuide": "Help children identify the fish with the highest weight number. Encourage careful comparison of numbers. Celebrate correct catches and gently guide on mistakes.",
+  "phrases": {
+    "welcome": {
+      "text": "Welcome, little fisher! Let's catch some heavy fish!",
+      "m4a": "catchfish_audio/welcome.m4a"
+    },
+    "instructions": {
+      "text": "Tap the fish with the biggest number — that's the heaviest one!",
+      "m4a": "catchfish_audio/instructions.m4a"
+    },
+    "correct_1": {
+      "text": "Great catch! That fish is a whopper!",
+      "m4a": "catchfish_audio/correct_1.m4a"
+    },
+    "correct_2": {
+      "text": "Awesome! You found the heaviest one!",
+      "m4a": "catchfish_audio/correct_2.m4a"
+    },
+    "correct_3": {
+      "text": "Wow, nice catch! You're a fishing pro!",
+      "m4a": "catchfish_audio/correct_3.m4a"
+    },
+    "correct_4": {
+      "text": "That's the big one! Amazing job!",
+      "m4a": "catchfish_audio/correct_4.m4a"
+    },
+    "correct_5": {
+      "text": "Superb! You picked the heaviest fish!",
+      "m4a": "catchfish_audio/correct_5.m4a"
+    },
+    "wrong_1": {
+      "text": "Oops! That fish is too light. Try again!",
+      "m4a": "catchfish_audio/wrong_1.m4a"
+    },
+    "wrong_2": {
+      "text": "Not quite! Look for a bigger number.",
+      "m4a": "catchfish_audio/wrong_2.m4a"
+    },
+    "wrong_3": {
+      "text": "Hmm, that one's small. Find the heaviest!",
+      "m4a": "catchfish_audio/wrong_3.m4a"
+    },
+    "wrong_4": {
+      "text": "Almost! Check the numbers again.",
+      "m4a": "catchfish_audio/wrong_4.m4a"
+    },
+    "encouragement_1": {
+      "text": "You're doing great! Keep going!",
+      "m4a": "catchfish_audio/encouragement_1.m4a"
+    },
+    "encouragement_2": {
+      "text": "Almost there! You've got this!",
+      "m4a": "catchfish_audio/encouragement_2.m4a"
+    },
+    "encouragement_3": {
+      "text": "Nice work, fisher! A few more to go!",
+      "m4a": "catchfish_audio/encouragement_3.m4a"
+    },
+    "encouragement_4": {
+      "text": "You're getting better every time!",
+      "m4a": "catchfish_audio/encouragement_4.m4a"
+    },
+    "win": {
+      "text": "You did it! What an amazing fisher you are!",
+      "m4a": "catchfish_audio/win.m4a"
+    },
+    "try_again": {
+      "text": "Good effort! Want to try again and beat your score?",
+      "m4a": "catchfish_audio/try_again.m4a"
+    },
+    "perfect_score": {
+      "text": "Incredible! You got every single one right! You're a fishing champion!",
+      "m4a": "catchfish_audio/perfect_score.m4a"
+    }
+  }
+}

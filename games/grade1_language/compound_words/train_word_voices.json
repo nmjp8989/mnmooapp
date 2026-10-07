@@ -1,0 +1,54 @@
+{
+  "welcome": {
+    "text": "All aboard the Compound Word Express! Load the crates and build words!",
+    "m4a": "train_audio/welcome.m4a"
+  },
+  "instructions": {
+    "text": "Tap word crates to load them onto the flatbeds. Match the picture to send the train!",
+    "m4a": "train_audio/instructions.m4a"
+  },
+  "hint": {
+    "text": "Load two crates that make a new word.",
+    "m4a": "train_audio/hint.m4a"
+  },
+  "correct_1": {
+    "text": "Choo choo! That is correct!",
+    "m4a": "train_audio/correct_1.m4a"
+  },
+  "correct_2": {
+    "text": "All aboard! The word is loaded!",
+    "m4a": "train_audio/correct_2.m4a"
+  },
+  "correct_3": {
+    "text": "Toot toot! Great job building that word!",
+    "m4a": "train_audio/correct_3.m4a"
+  },
+  "wrong_1": {
+    "text": "Wrong crates! The train won't move. Try again!",
+    "m4a": "train_audio/wrong_1.m4a"
+  },
+  "wrong_2": {
+    "text": "Oops! Those crates don't match. Try again!",
+    "m4a": "train_audio/wrong_2.m4a"
+  },
+  "halfway": {
+    "text": "Half the deliveries done! Keep loading!",
+    "m4a": "train_audio/halfway.m4a"
+  },
+  "level_up": {
+    "text": "Express speed! The train is picking up pace!",
+    "m4a": "train_audio/level_up.m4a"
+  },
+  "win": {
+    "text": "All deliveries complete! You're a Train Conductor!",
+    "m4a": "train_audio/win.m4a"
+  },
+  "try_again": {
+    "text": "Good effort! Want to ride the train again?",
+    "m4a": "train_audio/try_again.m4a"
+  },
+  "reset_train": {
+    "text": "Train reset. You can try those crates again!",
+    "m4a": "train_audio/reset_train.m4a"
+  }
+}

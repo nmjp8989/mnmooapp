@@ -1,0 +1,63 @@
+{
+  "gameId": "numberlinejump",
+  "gameTitle": "Number Line Jump",
+  "voiceGuide": "Help children identify the missing number in a skip counting sequence. Encourage them to look at the pattern and figure out what number fills the blank. Celebrate correct answers and gently guide on mistakes.",
+  "phrases": {
+    "welcome": {
+      "text": "Hi there! Help Froggy jump across the number line!",
+      "m4a": "jump_audio/welcome.m4a"
+    },
+    "instructions": {
+      "text": "Look at the pattern! Tap the number that fills the blank!",
+      "m4a": "jump_audio/instructions.m4a"
+    },
+    "correct_1": {
+      "text": "Great",
+      "m4a": "jump_audio/correct_1.m4a"
+    },
+    "correct_2": {
+      "text": "Awesome!",
+      "m4a": "jump_audio/correct_2.m4a"
+    },
+    "correct_3": {
+      "text": "Wow!",
+      "m4a": "jump_audio/correct_3.m4a"
+    },
+    "correct_4": {
+      "text": "Nice",
+      "m4a": "jump_audio/correct_4.m4a"
+    },
+    "wrong_1": {
+      "text": "Oops!",
+      "m4a": "jump_audio/wrong_1.m4a"
+    },
+    "wrong_2": {
+      "text": "Not quite! ",
+      "m4a": "jump_audio/wrong_2.m4a"
+    },
+    "wrong_3": {
+      "text": "Hmm",
+      "m4a": "jump_audio/wrong_3.m4a"
+    },
+    "encouragement_1": {
+      "text": "Good",
+      "m4a": "jump_audio/encouragement_1.m4a"
+    },
+    "encouragement_2": {
+      "text": "Great",
+      "m4a": "jump_audio/encouragement_2.m4a"
+    },
+    "encouragement_3": {
+      "text": "Nice work! ",
+      "m4a": "jump_audio/encouragement_3.m4a"
+    },
+    "win": {
+      "text": "You did it! ",
+      "m4a": "jump_audio/win.m4a"
+    },
+    "try_again": {
+      "text": "Good effort! ",
+      "m4a": "jump_audio/try_again.m4a"
+    }
+  }
+}

@@ -1,0 +1,115 @@
+{
+  "gameId": "catchfireflies_opus",
+  "gameTitle": "Firefly Jar Opus",
+  "voiceGuide": "Guide the child through catching fireflies on canvas, learning firefly facts, and completing a nocturnal animal quiz. Celebrate each catch and correct quiz answer.",
+  "phrases": {
+    "welcome": {
+      "text": "Welcome to the Firefly Jar! Let's catch some glowing friends!",
+      "m4a": "catchfireflies_audio/welcome.m4a"
+    },
+    "catch_instructions": {
+      "text": "Tap the fireflies to catch them! They're glowing in the dark!",
+      "m4a": "catchfireflies_audio/catch_instructions.m4a"
+    },
+    "caught_1": {
+      "text": "You caught one! Nice tap!",
+      "m4a": "catchfireflies_audio/caught_1.m4a"
+    },
+    "caught_2": {
+      "text": "Great catch! Two down!",
+      "m4a": "catchfireflies_audio/caught_2.m4a"
+    },
+    "caught_3": {
+      "text": "You're fast! Three fireflies!",
+      "m4a": "catchfireflies_audio/caught_3.m4a"
+    },
+    "caught_4": {
+      "text": "Amazing reflexes! Four caught!",
+      "m4a": "catchfireflies_audio/caught_4.m4a"
+    },
+    "caught_5": {
+      "text": "Halfway there! Five fireflies!",
+      "m4a": "catchfireflies_audio/caught_5.m4a"
+    },
+    "caught_6": {
+      "text": "Six in the jar! Keep going!",
+      "m4a": "catchfireflies_audio/caught_6.m4a"
+    },
+    "caught_7": {
+      "text": "Lucky seven! You're a pro!",
+      "m4a": "catchfireflies_audio/caught_7.m4a"
+    },
+    "caught_8": {
+      "text": "Almost done! Eight caught!",
+      "m4a": "catchfireflies_audio/caught_8.m4a"
+    },
+    "caught_9": {
+      "text": "One more to go! You can do it!",
+      "m4a": "catchfireflies_audio/caught_9.m4a"
+    },
+    "caught_10": {
+      "text": "You caught them all! The jar is glowing!",
+      "m4a": "catchfireflies_audio/caught_10.m4a"
+    },
+    "species_name": {
+      "text": "That was a new species!",
+      "m4a": "catchfireflies_audio/species_name.m4a"
+    },
+    "fact_intro": {
+      "text": "Now let's learn some cool firefly facts! Tap each glowing dot in the jar.",
+      "m4a": "catchfireflies_audio/fact_intro.m4a"
+    },
+    "fact_1": {
+      "text": "Fireflies are actually beetles, not flies!",
+      "m4a": "catchfireflies_audio/fact_1.m4a"
+    },
+    "fact_2": {
+      "text": "They make their own light! It's called bioluminescence.",
+      "m4a": "catchfireflies_audio/fact_2.m4a"
+    },
+    "fact_3": {
+      "text": "Fireflies are nocturnal — they come out at night!",
+      "m4a": "catchfireflies_audio/fact_3.m4a"
+    },
+    "fact_4": {
+      "text": "They flash their lights to talk to each other!",
+      "m4a": "catchfireflies_audio/fact_4.m4a"
+    },
+    "fact_5": {
+      "text": "Each species has its own flash pattern, like a secret code!",
+      "m4a": "catchfireflies_audio/fact_5.m4a"
+    },
+    "fact_6": {
+      "text": "Firefly light is cold light — it makes no heat at all!",
+      "m4a": "catchfireflies_audio/fact_6.m4a"
+    },
+    "fact_7": {
+      "text": "Baby fireflies are called glowworms, and they glow too!",
+      "m4a": "catchfireflies_audio/fact_7.m4a"
+    },
+    "fact_8": {
+      "text": "Jellyfish, anglerfish, and even some mushrooms can glow!",
+      "m4a": "catchfireflies_audio/fact_8.m4a"
+    },
+    "quiz_intro": {
+      "text": "Now let's play a game! Which animals are awake at night?",
+      "m4a": "catchfireflies_audio/quiz_intro.m4a"
+    },
+    "nocturnal_correct": {
+      "text": "Yes! That one is awake at night!",
+      "m4a": "catchfireflies_audio/nocturnal_correct.m4a"
+    },
+    "nocturnal_wrong": {
+      "text": "That one sleeps at night! Try another one.",
+      "m4a": "catchfireflies_audio/nocturnal_wrong.m4a"
+    },
+    "win": {
+      "text": "Amazing work, little scientist! You're a firefly expert!",
+      "m4a": "catchfireflies_audio/win.m4a"
+    },
+    "try_again": {
+      "text": "Good effort! Want to play again?",
+      "m4a": "catchfireflies_audio/try_again.m4a"
+    }
+  }
+}

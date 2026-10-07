@@ -1,0 +1,95 @@
+{
+  "gameTitle": "Star Hop",
+  "voices": {
+    "welcome": {
+      "text": "Lets number hop",
+      "m4a": "starhop/welcome.m4a"
+    },
+    "instructions_main": {
+      "text": "Drag Astro-Frog to the stars in number order, from smallest to biggest.",
+      "m4a": "starhop/instructions_main.m4a"
+    },
+    "instructions_hint": {
+      "text": "Look for the smallest number first to start your constellation.",
+      "m4a": "starhop/instructions_hint.m4a"
+    },
+    "feedback_correct_1": {
+      "text": "Great jump!",
+      "m4a": "starhop/feedback_correct_1.m4a"
+    },
+    "feedback_correct_2": {
+      "text": "Perfect! Keep going.",
+      "m4a": "starhop/feedback_correct_2.m4a"
+    },
+    "feedback_wrong_larger": {
+      "text": "Oops! ",
+      "m4a": "starhop/feedback_wrong_larger.m4a"
+    },
+    "feedback_wrong_smaller": {
+      "text": "Boing!  Find a bigger number.",
+      "m4a": "starhop/feedback_wrong_smaller.m4a"
+    },
+    "idle_prompt": {
+      "text": "Which number comes next? You can do it!",
+      "m4a": "starhop/idle_prompt.m4a"
+    },
+    "level_complete": {
+      "text": "Great!",
+      "m4a": "starhop/level_complete.m4a"
+    },
+    "game_complete": {
+      "text": "Great Frog!",
+      "m4a": "starhop/game_complete.m4a"
+    },
+    "1": { "text": "1", "m4a": "starhop/1.m4a" },
+    "2": { "text": "2", "m4a": "starhop/2.m4a" },
+    "3": { "text": "3", "m4a": "starhop/3.m4a" },
+    "4": { "text": "4", "m4a": "starhop/4.m4a" },
+    "5": { "text": "5", "m4a": "starhop/5.m4a" },
+    "6": { "text": "6", "m4a": "starhop/6.m4a" },
+    "7": { "text": "7", "m4a": "starhop/7.m4a" },
+    "8": { "text": "8", "m4a": "starhop/8.m4a" },
+    "9": { "text": "9", "m4a": "starhop/9.m4a" },
+    "10": { "text": "10", "m4a": "starhop/10.m4a" },
+    "11": { "text": "11", "m4a": "starhop/11.m4a" },
+    "12": { "text": "12", "m4a": "starhop/12.m4a" },
+    "13": { "text": "13", "m4a": "starhop/13.m4a" },
+    "14": { "text": "14", "m4a": "starhop/14.m4a" },
+    "15": { "text": "15", "m4a": "starhop/15.m4a" },
+    "16": { "text": "16", "m4a": "starhop/16.m4a" },
+    "17": { "text": "17", "m4a": "starhop/17.m4a" },
+    "18": { "text": "18", "m4a": "starhop/18.m4a" },
+    "19": { "text": "19", "m4a": "starhop/19.m4a" },
+    "20": { "text": "20", "m4a": "starhop/20.m4a" },
+    "21": { "text": "21", "m4a": "starhop/21.m4a" },
+    "22": { "text": "22", "m4a": "starhop/22.m4a" },
+    "23": { "text": "23", "m4a": "starhop/23.m4a" },
+    "24": { "text": "24", "m4a": "starhop/24.m4a" },
+    "25": { "text": "25", "m4a": "starhop/25.m4a" },
+    "26": { "text": "26", "m4a": "starhop/26.m4a" },
+    "27": { "text": "27", "m4a": "starhop/27.m4a" },
+    "28": { "text": "28", "m4a": "starhop/28.m4a" },
+    "29": { "text": "29", "m4a": "starhop/29.m4a" },
+    "30": { "text": "30", "m4a": "starhop/30.m4a" },
+    "31": { "text": "31", "m4a": "starhop/31.m4a" },
+    "32": { "text": "32", "m4a": "starhop/32.m4a" },
+    "33": { "text": "33", "m4a": "starhop/33.m4a" },
+    "34": { "text": "34", "m4a": "starhop/34.m4a" },
+    "35": { "text": "35", "m4a": "starhop/35.m4a" },
+    "36": { "text": "36", "m4a": "starhop/36.m4a" },
+    "37": { "text": "37", "m4a": "starhop/37.m4a" },
+    "38": { "text": "38", "m4a": "starhop/38.m4a" },
+    "39": { "text": "39", "m4a": "starhop/39.m4a" },
+    "40": { "text": "40", "m4a": "starhop/40.m4a" },
+    "41": { "text": "41", "m4a": "starhop/41.m4a" },
+    "42": { "text": "42", "m4a": "starhop/42.m4a" },
+    "43": { "text": "43", "m4a": "starhop/43.m4a" },
+    "44": { "text": "44", "m4a": "starhop/44.m4a" },
+    "45": { "text": "45", "m4a": "starhop/45.m4a" },
+    "46": { "text": "46", "m4a": "starhop/46.m4a" },
+    "47": { "text": "47", "m4a": "starhop/47.m4a" },
+    "48": { "text": "48", "m4a": "starhop/48.m4a" },
+    "49": { "text": "49", "m4a": "starhop/49.m4a" },
+    "50": { "text": "50", "m4a": "starhop/50.m4a" }
+  }
+}

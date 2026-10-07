@@ -1,0 +1,284 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no, viewport-fit=cover">
+    <title>Our Five Senses Game</title>
+    <style>
+        * {
+            box-sizing: border-box;
+        }
+
+        body {
+            background-color: #edf6f2;
+            margin: 0;
+            padding: 0;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            width: 100vw;
+            height: 100vh;
+            overflow: hidden;
+            user-select: none;
+            -webkit-user-select: none;
+            font-family: 'Comic Sans MS', 'Comic Sans', cursive;
+        }
+
+        /* Portrait Orientation Warning Screen */
+        .portrait-warning {
+            display: none;
+            position: fixed;
+            top: 0;
+            left: 0;
+            width: 100%;
+            height: 100%;
+            background-color: #6a1b9a;
+            color: white;
+            z-index: 100;
+            flex-direction: column;
+            align-items: center;
+            justify-content: center;
+            text-align: center;
+            padding: 20px;
+        }
+
+        .portrait-warning svg {
+            width: 80px;
+            height: 80px;
+            fill: white;
+            margin-bottom: 20px;
+            animation: rotate 2s ease-in-out infinite;
+        }
+
+        @keyframes rotate {
+            0% { transform: rotate(0deg); }
+            50% { transform: rotate(-90deg); }
+            100% { transform: rotate(0deg); }
+        }
+
+        @media (orientation: portrait) {
+            .portrait-warning {
+                display: flex;
+            }
+        }
+
+        /* Full Screen Game Container */
+        .game-container {
+            position: relative;
+            width: 100vw;
+            height: 100vh;
+            background-image: url('senses_game_background.jpg');
+            background-size: 100% 100%;
+            background-repeat: no-repeat;
+            background-position: center;
+            overflow: hidden;
+        }
+
+        /* Interaction Hotspots */
+        .hotspot {
+            position: absolute;
+            cursor: pointer;
+            border-radius: 50px; /* Rounded pill shape for a softer glow */
+            background-color: rgba(255, 255, 255, 0);
+            -webkit-tap-highlight-color: transparent;
+            transition: background-color 0.1s;
+        }
+
+        /* The glowing flash effect when tapped */
+        .hotspot.tapped {
+            animation: flashGlow 0.6s ease-out forwards;
+        }
+
+        @keyframes flashGlow {
+            0% { background-color: rgba(255, 255, 255, 0.5); box-shadow: 0 0 30px rgba(255, 255, 255, 0.8); }
+            100% { background-color: rgba(255, 255, 255, 0); box-shadow: 0 0 0px rgba(255, 255, 255, 0); }
+        }
+
+        /* Floating Particle Effect CSS */
+        .particle {
+            position: absolute;
+            pointer-events: none; /* Clicks pass right through it */
+            font-size: 2.5rem;
+            z-index: 10;
+            animation: floatUp 1s ease-out forwards;
+            filter: drop-shadow(0px 3px 3px rgba(0,0,0,0.2));
+        }
+
+        @keyframes floatUp {
+            0% { transform: translateY(0) scale(0.5); opacity: 1; }
+            50% { transform: translateY(-40px) scale(1.2); opacity: 1; }
+            100% { transform: translateY(-80px) scale(1); opacity: 0; }
+        }
+
+        /* Start Overlay Screen */
+        .start-overlay {
+            position: fixed;
+            top: 0; left: 0; width: 100%; height: 100%;
+            background-color: rgba(106, 27, 154, 0.95);
+            z-index: 50;
+            display: flex;
+            flex-direction: column;
+            align-items: center;
+            justify-content: center;
+            color: white;
+            text-align: center;
+        }
+
+        .btn {
+            background-color: #ffcc00;
+            color: #2a0845;
+            border: none;
+            padding: 16px 40px;
+            font-size: 1.5rem;
+            font-weight: bold;
+            border-radius: 30px;
+            cursor: pointer;
+            box-shadow: 0 4px 10px rgba(0,0,0,0.2);
+            transition: transform 0.15s, background-color 0.15s;
+        }
+
+        .btn:active {
+            transform: scale(0.95);
+        }
+    </style>
+</head>
+<body>
+
+    <!-- Device Rotation Alert -->
+    <div class="portrait-warning">
+        <svg viewBox="0 0 24 24">
+            <path d="M16,1H8C6.9,1,6,1.9,6,3v18c0,1.1,0.9,2,2,2h8c1.1,0,2-0.9,2-2V3C18,1.9,17.1,1,16,1z M16,19H8V5h8V19z"/>
+        </svg>
+        <h2>Please Rotate Your Device</h2>
+        <p>This game is designed for landscape mode screens.</p>
+    </div>
+
+    <!-- Start Audio Policy Gate Screen -->
+    <div class="start-overlay" id="start-overlay" onclick="startGame()">
+        <h2 style="font-size: 2.2rem; margin-bottom: 25px;">Our Five Senses</h2>
+        <button class="btn">START</button>
+    </div>
+
+    <!-- Interactive Game Board -->
+    <div class="game-container" id="game-board">
+        <!-- Hotspots are populated here via script -->
+    </div>
+
+    <script>
+        // Mapping of local narrative audio files matching directory structure
+        const narrationJSON = {
+            "welcome": "hover_audio/welcome.m4a",
+            "touch": "hover_audio/sense_touch.m4a",
+            "taste": "hover_audio/sense_taste.m4a",
+            "smell": "hover_audio/sense_smell.m4a",
+            "hearing": "hover_audio/sense_hearing.m4a",
+            "sight": "hover_audio/sense_sight.m4a"
+        };
+
+        // Hotspot coordinates WITH magical emoji particles added for each sense
+        const hotspotsConfig = [
+            { id: 'touch',   audioKey: 'touch',   top: '37%', left: '6%',  width: '16%', height: '52%', icon: '✨' },
+            { id: 'taste',   audioKey: 'taste',   top: '39%', left: '27%', width: '14%', height: '50%', icon: '🍦' },
+            { id: 'smell',   audioKey: 'smell',   top: '39%', left: '42%', width: '14%', height: '50%', icon: '🌸' },
+            { id: 'hearing', audioKey: 'hearing', top: '39%', left: '62%', width: '14%', height: '50%', icon: '🎵' },
+            { id: 'sight',   audioKey: 'sight',   top: '39%', left: '77%', width: '14%', height: '50%', icon: '👁️' }
+        ];
+
+        let currentNarration = null;
+
+        function playAudio(key) {
+            // Stop any audio track currently playing
+            if (currentNarration) {
+                currentNarration.pause();
+                currentNarration.currentTime = 0;
+            }
+
+            const audioFile = narrationJSON[key];
+            if (audioFile) {
+                currentNarration = new Audio(audioFile);
+                currentNarration.play().catch(error => {
+                    console.log("Audio playback error: ", error);
+                });
+            }
+        }
+
+        function startGame() {
+            document.getElementById('start-overlay').style.display = 'none';
+            playAudio('welcome');
+        }
+
+        // Particle generator function
+        function spawnParticles(x, y, icon) {
+            const board = document.getElementById('game-board');
+            
+            // Create 3 little floating icons per tap
+            for (let i = 0; i < 3; i++) {
+                const particle = document.createElement('div');
+                particle.className = 'particle';
+                particle.innerText = icon;
+                
+                // Randomize position slightly around the tap point
+                const offsetX = (Math.random() * 60) - 30; // Random number between -30 and 30
+                const offsetY = (Math.random() * 40) - 20; 
+                
+                // Position the particle
+                particle.style.left = (x + offsetX - 15) + 'px'; 
+                particle.style.top = (y + offsetY - 15) + 'px';
+                
+                // Randomize animation duration slightly for natural effect
+                particle.style.animationDuration = (0.8 + Math.random() * 0.5) + 's';
+
+                board.appendChild(particle);
+
+                // Remove the element from the screen after animation finishes
+                setTimeout(() => {
+                    particle.remove();
+                }, 1500);
+            }
+        }
+
+        function createBoard() {
+            const board = document.getElementById('game-board');
+            board.innerHTML = '';
+            
+            hotspotsConfig.forEach(spot => {
+                const element = document.createElement('div');
+                element.id = spot.id;
+                element.className = 'hotspot';
+                element.style.top = spot.top;
+                element.style.left = spot.left;
+                element.style.width = spot.width;
+                element.style.height = spot.height;
+                
+                // Add click listener
+                element.addEventListener('click', (e) => {
+                    // Play audio
+                    playAudio(spot.audioKey);
+
+                    // 1. Trigger Glow Effect
+                    element.classList.remove('tapped');
+                    void element.offsetWidth; // small hack to force animation restart if clicked rapidly
+                    element.classList.add('tapped');
+
+                    // 2. Spawn Floating Particles at click coordinates
+                    spawnParticles(e.clientX, e.clientY, spot.icon);
+                });
+                
+                board.appendChild(element);
+            });
+        }
+
+        // Prevent double-tap zoom behavior on iOS devices
+        let lastTouchTime = 0;
+        document.addEventListener('touchend', function (event) {
+            const currentTime = (new Date()).getTime();
+            if (currentTime - lastTouchTime <= 300) {
+                event.preventDefault();
+            }
+            lastTouchTime = currentTime;
+        }, { passive: false });
+
+        createBoard();
+    </script>
+</body>
+</html>

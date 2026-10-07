@@ -1,0 +1,1437 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width,initial-scale=1,maximum-scale=1,user-scalable=no,viewport-fit=cover">
+<meta name="theme-color" content="#69c7ff">
+<title>Magical Sight Words</title>
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+<link href="https://fonts.googleapis.com/css2?family=Fredoka:wght@500;600;700&family=Nunito:wght@600;700;800;900&display=swap" rel="stylesheet">
+<style>
+:root {
+  --blue: #2589ff;
+  --yellow: #ffd84d;
+  --green: #50c878;
+  --ink: #17324d;
+  --safe-top: env(safe-area-inset-top, 0px);
+  --safe-right: env(safe-area-inset-right, 0px);
+  --safe-bottom: env(safe-area-inset-bottom, 0px);
+  --safe-left: env(safe-area-inset-left, 0px);
+}
+*, *::before, *::after { box-sizing: border-box; margin: 0; padding: 0; }
+html, body {
+  width: 100%;
+  height: 100%;
+  min-height: 100%;
+  overflow: hidden;
+  font-family: 'Nunito', system-ui, sans-serif;
+  background: #70cfff;
+  color: var(--ink);
+  -webkit-user-select: none;
+  user-select: none;
+  touch-action: manipulation;
+  overscroll-behavior: none;
+  -webkit-tap-highlight-color: transparent;
+}
+button { font: inherit; }
+.screen {
+  position: fixed;
+  inset: 0;
+  display: grid;
+  place-items: center;
+  overflow: hidden;
+}
+
+/* Landscape guard */
+#rotate-screen {
+  display: none;
+  z-index: 5000;
+  padding: 24px;
+  text-align: center;
+  background: linear-gradient(160deg, #71d1ff, #4b9cff);
+}
+.rotate-card {
+  width: min(88vw, 420px);
+  padding: 28px 24px;
+  border-radius: 28px;
+  background: white;
+  box-shadow: 0 18px 50px rgba(20, 69, 115, .22);
+}
+.rotate-phone {
+  width: 58px;
+  height: 94px;
+  margin: 0 auto 18px;
+  border: 6px solid var(--ink);
+  border-radius: 13px;
+  animation: rotatePhone 1.8s ease-in-out infinite;
+}
+.rotate-card h2 {
+  font-family: 'Fredoka', sans-serif;
+  font-size: 1.45rem;
+  margin-bottom: 8px;
+}
+.rotate-card p { font-weight: 800; color: #52687d; }
+@keyframes rotatePhone {
+  0%, 25% { transform: rotate(0); }
+  65%, 100% { transform: rotate(90deg); }
+}
+@media (orientation: portrait) and (max-width: 900px) {
+  #rotate-screen { display: grid; }
+}
+
+/* Shared sky */
+.sky-scene {
+  position: absolute;
+  inset: 0;
+  overflow: hidden;
+  background:
+    radial-gradient(circle at 88% 14%, rgba(255,255,255,.95) 0 5.5%, rgba(255,231,118,.95) 5.7% 8.6%, transparent 8.8%),
+    linear-gradient(180deg, #8be0ff 0%, #5abaf8 58%, #36a8eb 100%);
+}
+.cloud {
+  position: absolute;
+  width: 14vw;
+  min-width: 90px;
+  height: 5.2vw;
+  min-height: 34px;
+  border-radius: 999px;
+  background: rgba(255,255,255,.78);
+  filter: drop-shadow(0 6px 10px rgba(62,125,174,.13));
+  animation: cloudDrift 24s linear infinite;
+}
+.cloud::before,
+.cloud::after {
+  content: "";
+  position: absolute;
+  bottom: 0;
+  border-radius: 50%;
+  background: inherit;
+}
+.cloud::before { width: 44%; height: 135%; left: 18%; }
+.cloud::after { width: 36%; height: 112%; right: 14%; }
+.cloud.c1 { top: 15%; left: -15%; animation-duration: 27s; }
+.cloud.c2 { top: 43%; left: 22%; opacity: .65; animation-duration: 34s; animation-delay: -13s; }
+.cloud.c3 { top: 6%; left: 52%; opacity: .54; animation-duration: 40s; animation-delay: -25s; }
+@keyframes cloudDrift { to { transform: translateX(125vw); } }
+.hill {
+  position: absolute;
+  left: -10%;
+  right: -10%;
+  bottom: -13vh;
+  height: 37vh;
+  border-radius: 50% 50% 0 0;
+  background: #61ce72;
+}
+.hill.back { bottom: -8vh; transform: translateX(20%); background: #78dc84; opacity: .92; }
+.grass {
+  position: absolute;
+  left: 0;
+  right: 0;
+  bottom: 0;
+  height: clamp(24px, 6.2vh, 52px);
+  z-index: 7;
+  background:
+    linear-gradient(135deg, transparent 48%, rgba(255,255,255,.18) 49% 52%, transparent 53%) 0 0 / 20px 20px,
+    linear-gradient(180deg, #5bd56c, #2da853);
+  border-radius: 50% 50% 0 0 / 18px 18px 0 0;
+}
+
+/* Game layout */
+#game-screen { z-index: 20; }
+
+.clue-panel {
+  position: absolute;
+  z-index: 55;
+  top: calc(var(--safe-top) + clamp(20px, 6vh, 40px));
+  left: calc(var(--safe-left) + 16px);
+  bottom: calc(var(--safe-bottom) + clamp(26px, 7vh, 58px));
+  width: clamp(185px, 28vw, 290px);
+  display: grid;
+  grid-template-rows: auto auto 1fr;
+  align-items: start;
+  gap: clamp(6px, 1.4vh, 12px);
+  padding: clamp(10px, 2vh, 18px);
+  border: 4px solid rgba(255,255,255,.88);
+  border-radius: 27px;
+  background: rgba(255,255,255,.92);
+  box-shadow: 0 13px 36px rgba(15,71,122,.2);
+}
+.clue-main {
+  display: grid;
+  grid-template-columns: clamp(62px, 10vw, 98px) 1fr;
+  align-items: center;
+  gap: clamp(8px, 1.5vw, 15px);
+}
+.svg-box {
+  aspect-ratio: 1;
+  border: 4px solid #72c5ff;
+  border-radius: 21px;
+  background: linear-gradient(180deg, white, #eff9ff);
+  display: grid;
+  place-items: center;
+  box-shadow: inset 0 -5px 0 rgba(37,137,255,.08);
+}
+.svg-box svg { width: 82%; height: 82%; }
+.clue-copy { min-width: 0; }
+.clue-label {
+  font-size: clamp(.64rem, 1.7vh, .82rem);
+  text-transform: uppercase;
+  letter-spacing: .08em;
+  font-weight: 900;
+  color: #7690a6;
+}
+.next-letter {
+  font-family: 'Fredoka', sans-serif;
+  font-size: clamp(2.2rem, 8vh, 4.1rem);
+  line-height: 1;
+  color: var(--blue);
+  text-shadow: 0 4px 0 #d8edff;
+}
+.slots-container {
+  display: flex;
+  justify-content: center;
+  flex-wrap: wrap;
+  gap: clamp(4px, 1vw, 8px);
+  min-height: clamp(36px, 8vh, 54px);
+}
+.slot {
+  width: clamp(28px, 4.5vw, 44px);
+  height: clamp(34px, 7.5vh, 50px);
+  display: grid;
+  place-items: center;
+  border: 3px solid #bfd8e8;
+  border-bottom-width: 6px;
+  border-radius: 12px;
+  background: #f4fbff;
+  color: transparent;
+  font-family: 'Fredoka', sans-serif;
+  font-size: clamp(1.1rem, 4.5vh, 2rem);
+  font-weight: 700;
+  transition: transform .25s ease, background .25s ease, border-color .25s ease;
+}
+.slot.active {
+  border-color: #ffbd3f;
+  background: #fff8d9;
+  animation: activeSlot 1s ease-in-out infinite;
+}
+.slot.filled {
+  color: white;
+  border-color: #1680df;
+  background: linear-gradient(180deg, #4eaeff, #2589ff);
+  transform: translateY(-3px);
+  animation: slotPop .38s cubic-bezier(.2,1.7,.4,1);
+}
+@keyframes activeSlot { 50% { transform: translateY(-3px); } }
+@keyframes slotPop { 0% { transform: scale(.3) rotate(-10deg); } 75% { transform: scale(1.16) rotate(3deg); } }
+.message-bar {
+  align-self: center;
+  max-width: 100%;
+  padding: 6px 10px;
+  border-radius: 12px;
+  background: #fff4c7;
+  color: #9b6200;
+  font-family: 'Fredoka', sans-serif;
+  font-size: clamp(.68rem, 2.1vh, .92rem);
+  text-align: center;
+}
+.clue-mascot-space { display: none; }
+.mascot-float {
+  position: absolute;
+  z-index: 60;
+  right: calc(var(--safe-right) + 10px);
+  left: auto;
+  bottom: calc(var(--safe-bottom) + clamp(20px, 5.5vh, 46px));
+  transform-origin: bottom right;
+  pointer-events: none;
+  opacity: 0;
+  transition: opacity .35s;
+}
+.mascot-float.show { opacity: 1; }
+#mascotSprite {
+  transform: translateZ(0) scaleX(-1);
+}
+.mascot-speech {
+  position: absolute;
+  right: calc(100% - 8px);
+  left: auto;
+  top: 2px;
+  width: max-content;
+  max-width: 112px;
+  padding: 6px 8px;
+  border-radius: 12px 12px 3px 12px;
+  background: white;
+  box-shadow: 0 5px 15px rgba(43,83,115,.14);
+  color: #50718c;
+  font-size: clamp(.58rem, 1.6vh, .75rem);
+  font-weight: 900;
+  opacity: 0;
+  transform: translateY(5px);
+  transition: .25s ease;
+}
+.mascot-speech,
+.mascot-speech.show { display: none !important; }
+
+#balloon-area {
+  position: absolute;
+  z-index: 20;
+  top: calc(var(--safe-top) + clamp(20px, 6vh, 40px));
+  left: calc(var(--safe-left) + clamp(210px, 31vw, 330px));
+  right: var(--safe-right);
+  bottom: calc(var(--safe-bottom) + clamp(18px, 5.5vh, 46px));
+  overflow: hidden;
+}
+.play-hint {
+  position: absolute;
+  z-index: 1;
+  left: 50%;
+  top: 46%;
+  transform: translate(-50%, -50%);
+  width: min(70%, 420px);
+  text-align: center;
+  color: rgba(255,255,255,.55);
+  font-family: 'Fredoka', sans-serif;
+  font-weight: 700;
+  font-size: clamp(1rem, 4vh, 2.1rem);
+  pointer-events: none;
+}
+
+/* Balloons */
+.balloon {
+  --size: clamp(54px, 12vh, 88px);
+  --drift: 22px;
+  --tilt: 4deg;
+  position: absolute;
+  z-index: 15;
+  left: 10%;
+  bottom: calc(var(--size) * -1.35);
+  width: var(--size);
+  height: calc(var(--size) * 1.18);
+  display: grid;
+  place-items: center;
+  border: 0;
+  border-radius: 50% 50% 48% 48% / 42% 42% 58% 58%;
+  background:
+    radial-gradient(circle at 32% 24%, rgba(255,255,255,.92) 0 7%, rgba(255,255,255,.3) 8% 17%, transparent 18%),
+    var(--b-color, #ef5350);
+  color: white;
+  box-shadow:
+    inset -10px -12px 16px rgba(75,21,46,.16),
+    0 9px 16px rgba(20,75,112,.18);
+  font-family: 'Fredoka', sans-serif;
+  font-size: clamp(1.55rem, 5.8vh, 2.7rem);
+  font-weight: 700;
+  text-shadow: 0 3px 0 rgba(0,0,0,.16);
+  cursor: pointer;
+  touch-action: manipulation;
+  animation: balloonRise var(--duration, 8.8s) linear var(--delay, -2.2s) infinite;
+  will-change: transform;
+}
+.balloon::before {
+  content: "";
+  position: absolute;
+  left: 50%;
+  bottom: -9px;
+  transform: translateX(-50%);
+  border-left: 7px solid transparent;
+  border-right: 7px solid transparent;
+  border-bottom: 12px solid var(--b-color, #ef5350);
+  filter: brightness(.92);
+}
+.balloon::after {
+  content: "";
+  position: absolute;
+  left: 50%;
+  top: calc(100% + 3px);
+  width: 2px;
+  height: clamp(30px, 8vh, 60px);
+  transform: translateX(-50%);
+  background: linear-gradient(180deg, rgba(255,255,255,.92), rgba(52,83,105,.35));
+  border-radius: 999px;
+}
+.balloon:active { filter: brightness(.96); }
+.balloon.popped {
+  pointer-events: none;
+  animation: balloonPop .22s cubic-bezier(.2,.8,.2,1) forwards !important;
+}
+.balloon.wrong-flash {
+  animation: balloonWrong .32s ease !important;
+}
+.balloon.hint {
+  filter: drop-shadow(0 0 13px #fff7a3) brightness(1.1);
+  animation-duration: 7.5s;
+}
+.balloon.target-reset {
+  animation: none !important;
+}
+.balloon.hint::before { filter: brightness(1.05); }
+@keyframes balloonRise {
+  0% { transform: translate3d(0, 0, 0) rotate(calc(var(--tilt) * -1)); }
+  28% { transform: translate3d(var(--drift), -35vh, 0) rotate(var(--tilt)); }
+  58% { transform: translate3d(calc(var(--drift) * -.65), -70vh, 0) rotate(calc(var(--tilt) * -1)); }
+  100% { transform: translate3d(calc(var(--drift) * .25), -125vh, 0) rotate(var(--tilt)); }
+}
+@keyframes balloonPop {
+  0% { transform: scale(1); opacity: 1; }
+  38% { transform: scale(1.3); opacity: 1; filter: brightness(1.25); }
+  100% { transform: scale(.05); opacity: 0; }
+}
+@keyframes balloonWrong {
+  0%,100% { transform: translateX(0) rotate(0); }
+  20% { transform: translateX(-13px) rotate(-10deg); }
+  40% { transform: translateX(11px) rotate(9deg); }
+  60% { transform: translateX(-8px) rotate(-6deg); }
+  80% { transform: translateX(5px) rotate(4deg); }
+}
+.burst {
+  position: absolute;
+  z-index: 100;
+  width: 8px;
+  height: 8px;
+  border-radius: 2px;
+  pointer-events: none;
+  background: var(--burst-color, white);
+  animation: burstFly .55s ease-out forwards;
+}
+@keyframes burstFly {
+  to { transform: translate(var(--dx), var(--dy)) rotate(180deg) scale(.2); opacity: 0; }
+}
+.feedback-float {
+  position: absolute;
+  z-index: 120;
+  pointer-events: none;
+  font-family: 'Fredoka', sans-serif;
+  font-weight: 700;
+  color: white;
+  text-shadow: 0 3px 0 rgba(19,84,126,.28);
+  animation: feedbackUp .8s ease-out forwards;
+}
+@keyframes feedbackUp { to { transform: translateY(-38px) scale(1.15); opacity: 0; } }
+
+/* Word celebration */
+.word-celebration {
+  position: absolute;
+  z-index: 150;
+  left: 50%;
+  top: 50%;
+  width: min(65vw, 430px);
+  transform: translate(-50%, -50%) scale(.65);
+  padding: clamp(16px, 3vh, 24px);
+  border: 4px solid white;
+  border-radius: 26px;
+  background: rgba(255,255,255,.96);
+  box-shadow: 0 18px 55px rgba(18,72,114,.25);
+  text-align: center;
+  opacity: 0;
+  pointer-events: none;
+  transition: .3s cubic-bezier(.2,1.4,.4,1);
+}
+.word-celebration.show { opacity: 1; transform: translate(-50%, -50%) scale(1); }
+.word-celebration .big-word {
+  font-family: 'Fredoka', sans-serif;
+  font-size: clamp(2rem, 8vh, 4rem);
+  color: var(--blue);
+  letter-spacing: .08em;
+}
+.word-stars {
+  font-size: clamp(1.1rem, 4vh, 2rem);
+  letter-spacing: .12em;
+  color: #ffbd3f;
+}
+.word-celebration p {
+  color: #597086;
+  font-weight: 900;
+  font-size: clamp(.72rem, 2.2vh, .95rem);
+}
+
+/* Voice bubble */
+.voice-bubble {
+  position: fixed;
+  z-index: 3000;
+  left: 50%;
+  bottom: calc(var(--safe-bottom) + 9px);
+  transform: translateX(-50%);
+  width: max-content;
+  max-width: min(82vw, 680px);
+  padding: 8px 16px;
+  border: 3px solid rgba(255,255,255,.45);
+  border-radius: 15px;
+  background: rgba(17,49,76,.9);
+  color: white;
+  box-shadow: 0 8px 20px rgba(17,49,76,.2);
+  text-align: center;
+  font-size: clamp(.7rem, 2.1vh, .96rem);
+  font-weight: 800;
+  pointer-events: none;
+  transition: opacity .25s ease, transform .25s ease;
+}
+.voice-bubble.hidden { opacity: 0; transform: translate(-50%, 8px); }
+
+#voice-bubble,
+.voice-bubble { display: none !important; }
+
+/* Confetti */
+.confetti-piece {
+  position: fixed;
+  z-index: 4000;
+  pointer-events: none;
+  animation: confettiFall linear forwards;
+}
+@keyframes confettiFall {
+  0% { transform: translateY(-12vh) rotate(0); opacity: 1; }
+  100% { transform: translateY(115vh) rotate(720deg); opacity: 0; }
+}
+
+/* Mascot sprite classes */
+.mascot-center { display:flex; justify-content:center; margin-bottom:8px; }
+.mascot-container { transform:scale(1.1); transform-origin:center; }
+.mascot-sprite { width:72px; height:128px; image-rendering:pixelated; transform:translateZ(0); }
+.mascot-sprite.idle {
+  background-image:url('../../assets/cow/idle.webp');
+  background-size:216px 128px;
+  animation:spIdle .6s steps(3) infinite;
+}
+@keyframes spIdle { 100% { background-position:-216px 0; } }
+.mascot-sprite.dancing {
+  background-image:url('../../assets/cow/rhythm.webp');
+  background-size:432px 128px;
+}
+.mascot-sprite.sad {
+  background-image:url('../../assets/cow/sadface.webp');
+  background-size:144px 128px;
+  animation:spSad .5s steps(2) infinite;
+}
+@keyframes spSad { 100% { background-position:-144px 0; } }
+
+/* Short landscape devices */
+@media (max-height: 430px) {
+  .clue-panel { width: clamp(180px, 28vw, 250px); padding: 9px; }
+  .clue-main { grid-template-columns: 66px 1fr; }
+  .mascot-float { right: calc(var(--safe-right) + 5px); bottom: calc(var(--safe-bottom) + 8px); transform: scale(.82); }
+  #balloon-area { left: calc(var(--safe-left) + clamp(200px, 30vw, 275px)); }
+  .balloon { --size: clamp(50px, 13vh, 72px); }
+}
+@media (max-width: 740px) and (orientation: landscape) {
+  .clue-panel { width: 190px; }
+  #balloon-area { left: calc(var(--safe-left) + 202px); }
+  .next-letter { font-size: clamp(2rem, 8vh, 3rem); }
+  .slot { width: 30px; }
+}
+@media (prefers-reduced-motion: reduce) {
+  .cloud, .slot.active { animation: none; }
+  .balloon { animation-duration: 18s; }
+}
+</style>
+</head>
+<body>
+
+<div id="rotate-screen" class="screen" aria-label="Rotate device">
+  <div class="rotate-card">
+    <div class="rotate-phone" aria-hidden="true"></div>
+    <h2>Turn your phone sideways</h2>
+    <p>This game is made for landscape play.</p>
+  </div>
+</div>
+<audio id="audio-cheer" preload="auto" src="cheer.m4a"></audio>
+<audio id="audio-sad" preload="auto" src="sad.m4a"></audio>
+
+<div id="game-screen" class="screen">
+  <div class="sky-scene" aria-hidden="true">
+    <div class="cloud c1"></div><div class="cloud c2"></div><div class="cloud c3"></div>
+    <div class="hill back"></div><div class="hill"></div><div class="grass"></div>
+  </div>
+
+  <aside class="clue-panel">
+    <div class="clue-main">
+      <div class="svg-box" id="svg-box" aria-label="Sight Words Book">
+        <!-- Magic Sight Words Book Icon -->
+        <svg viewBox="0 0 100 100">
+          <rect x="15" y="20" width="70" height="60" fill="#e76f51" rx="5"/>
+          <path d="M 50 20 L 50 80" stroke="#264653" stroke-width="4"/>
+          <rect x="20" y="25" width="25" height="50" fill="#fff9eb" rx="2"/>
+          <rect x="55" y="25" width="25" height="50" fill="#fff9eb" rx="2"/>
+          <text x="32" y="52" font-family="Fredoka, sans-serif" font-size="14" fill="#264653" font-weight="bold" text-anchor="middle">A</text>
+          <text x="67" y="52" font-family="Fredoka, sans-serif" font-size="14" fill="#264653" font-weight="bold" text-anchor="middle">B</text>
+          <text x="50" y="72" font-family="Fredoka, sans-serif" font-size="12" fill="#264653" font-weight="bold" text-anchor="middle">C</text>
+        </svg>
+      </div>
+      <div class="clue-copy">
+        <div class="clue-label">Find letter</div>
+        <div class="next-letter" id="next-letter">A</div>
+      </div>
+    </div>
+    <div>
+      <div class="slots-container" id="slots-container" aria-label="Word letter spaces"></div>
+      <div class="message-bar" id="message">Find the first letter!</div>
+    </div>
+    <div class="clue-mascot-space" aria-hidden="true"></div>
+  </aside>
+
+  <div class="mascot-float" id="mascotFloat">
+    <div class="mascot-speech" id="mascotSpeech">You can do it!</div>
+    <div class="mascot-container">
+      <div class="mascot-sprite idle" id="mascotSprite" aria-hidden="true"></div>
+    </div>
+  </div>
+
+  <section id="balloon-area" aria-label="Balloon play area">
+    <div class="play-hint" aria-hidden="true">Pop the next letter!</div>
+  </section>
+
+  <div id="word-celebration" class="word-celebration" aria-live="polite">
+    <div class="word-stars" id="word-stars">⭐⭐⭐</div>
+    <div class="big-word" id="big-word">CAT</div>
+    <p>Great reading!</p>
+  </div>
+</div>
+
+<script>
+// Large list of sight words for continuous play
+const SIGHT_WORDS = [
+  "THE", "OF", "AND", "TO", "IN", "IS", "YOU", "THAT", "IT", "HE", 
+  "WAS", "FOR", "ON", "ARE", "AS", "WITH", "HIS", "THEY", "AT", "BE", 
+  "THIS", "HAVE", "FROM", "OR", "ONE", "HAD", "WORD", "BUT", "NOT", "WHAT", 
+  "ALL", "WERE", "WHEN", "YOUR", "CAN", "SAID", "THERE", "USE", "EACH", "WHICH", 
+  "SHE", "HOW", "THEIR", "WILL", "UP", "OTHER", "ABOUT", "OUT", "MANY", "THEN"
+];
+
+const BALLOON_COLORS = ['#EF5350','#42A5F5','#FFB74D','#AB47BC','#26C6DA','#66BB6A','#FF7043','#5C6BC0'];
+
+const OpusAudio = (() => {
+  let ctx = null;
+  function getCtx() {
+    if (!ctx) ctx = new (window.AudioContext || window.webkitAudioContext)();
+    if (ctx.state === 'suspended') ctx.resume();
+    return ctx;
+  }
+  function play(type, freq, dur, vol = 0.15) {
+    const c = getCtx();
+    const o = c.createOscillator();
+    const g = c.createGain();
+    o.type = type;
+    o.frequency.setValueAtTime(freq, c.currentTime);
+    g.gain.setValueAtTime(vol, c.currentTime);
+    g.gain.exponentialRampToValueAtTime(0.001, c.currentTime + dur);
+    o.connect(g).connect(c.destination);
+    o.start(); o.stop(c.currentTime + dur);
+  }
+  return {
+    correct() {
+      play('sine', 523, 0.12, 0.15);
+      setTimeout(() => play('sine', 659, 0.12, 0.15), 100);
+      setTimeout(() => play('sine', 784, 0.18, 0.15), 200);
+    },
+    wrong() {
+      play('square', 200, 0.15, 0.1);
+      setTimeout(() => play('square', 160, 0.2, 0.1), 120);
+    },
+    pop() { play('sine', 900, 0.06, 0.12); }
+  };
+})();
+
+// ═══ Mascot Controller ═══
+const MascotCtrl=(()=>{
+  const FW=72;let st=null,ct=null;
+  function gEl(){return document.getElementById('mascotSprite')}
+  function clr(){clearTimeout(st);clearTimeout(ct)}
+  function setSp(el,state,fi){
+    if(!el)return;
+    el.className='mascot-sprite '+state;
+    if(state==='dancing'&&fi!==undefined)el.style.backgroundPosition=`-${fi*FW}px 0px`;
+    else el.style.backgroundPosition='';
+  }
+  function idle(el){if(!el)return;clr();setSp(el,'idle')}
+  function sad(el,dur){if(!el)return;clr();setSp(el,'sad');st=setTimeout(()=>setSp(el,'idle'),dur)}
+  function danceQuick(el){
+    if(!el)return;clr();const fr=[0,1,2,3,4,5];let i=0;
+    (function n(){if(i>=fr.length){setSp(el,'idle');return}setSp(el,'dancing',fr[i]);i++;ct=setTimeout(n,100)})();
+  }
+  return{
+    show(){const f=document.getElementById('mascotFloat');if(f)f.classList.add('show')},
+    hide(){const f=document.getElementById('mascotFloat');if(f)f.classList.remove('show')},
+    idle(){idle(gEl())},
+    sad(d=1800){sad(gEl(),d)},
+    danceQuick(){danceQuick(gEl())}
+  };
+})();
+
+const VOICES = {
+  "welcome": {
+    "text": "Welcome to Magical Sight Words!",
+    "m4a": "sight_words_audio/welcome.m4a"
+  },
+  "word_done": {
+    "text": "You spelled the word!",
+    "m4a": "sight_words_audio/word_done.m4a"
+  },
+  "letter_A": {
+    "text": "A",
+    "m4a": "sight_words_audio/letter_a.m4a"
+  },
+  "letter_B": {
+    "text": "B",
+    "m4a": "sight_words_audio/letter_b.m4a"
+  },
+  "letter_C": {
+    "text": "C",
+    "m4a": "sight_words_audio/letter_c.m4a"
+  },
+  "letter_D": {
+    "text": "D",
+    "m4a": "sight_words_audio/letter_d.m4a"
+  },
+  "letter_E": {
+    "text": "E",
+    "m4a": "sight_words_audio/letter_e.m4a"
+  },
+  "letter_F": {
+    "text": "F",
+    "m4a": "sight_words_audio/letter_f.m4a"
+  },
+  "letter_G": {
+    "text": "G",
+    "m4a": "sight_words_audio/letter_g.m4a"
+  },
+  "letter_H": {
+    "text": "H",
+    "m4a": "sight_words_audio/letter_h.m4a"
+  },
+  "letter_I": {
+    "text": "I",
+    "m4a": "sight_words_audio/letter_i.m4a"
+  },
+  "letter_J": {
+    "text": "J",
+    "m4a": "sight_words_audio/letter_j.m4a"
+  },
+  "letter_K": {
+    "text": "K",
+    "m4a": "sight_words_audio/letter_k.m4a"
+  },
+  "letter_L": {
+    "text": "L",
+    "m4a": "sight_words_audio/letter_l.m4a"
+  },
+  "letter_M": {
+    "text": "M",
+    "m4a": "sight_words_audio/letter_m.m4a"
+  },
+  "letter_N": {
+    "text": "N",
+    "m4a": "sight_words_audio/letter_n.m4a"
+  },
+  "letter_O": {
+    "text": "O",
+    "m4a": "sight_words_audio/letter_o.m4a"
+  },
+  "letter_P": {
+    "text": "P",
+    "m4a": "sight_words_audio/letter_p.m4a"
+  },
+  "letter_Q": {
+    "text": "Q",
+    "m4a": "sight_words_audio/letter_q.m4a"
+  },
+  "letter_R": {
+    "text": "R",
+    "m4a": "sight_words_audio/letter_r.m4a"
+  },
+  "letter_S": {
+    "text": "S",
+    "m4a": "sight_words_audio/letter_s.m4a"
+  },
+  "letter_T": {
+    "text": "T",
+    "m4a": "sight_words_audio/letter_t.m4a"
+  },
+  "letter_U": {
+    "text": "U",
+    "m4a": "sight_words_audio/letter_u.m4a"
+  },
+  "letter_V": {
+    "text": "V",
+    "m4a": "sight_words_audio/letter_v.m4a"
+  },
+  "letter_W": {
+    "text": "W",
+    "m4a": "sight_words_audio/letter_w.m4a"
+  },
+  "letter_X": {
+    "text": "X",
+    "m4a": "sight_words_audio/letter_x.m4a"
+  },
+  "letter_Y": {
+    "text": "Y",
+    "m4a": "sight_words_audio/letter_y.m4a"
+  },
+  "letter_Z": {
+    "text": "Z",
+    "m4a": "sight_words_audio/letter_z.m4a"
+  },
+  "word_THE": {
+    "text": "The",
+    "m4a": "sight_words_audio/word_the.m4a"
+  },
+  "word_OF": {
+    "text": "Of",
+    "m4a": "sight_words_audio/word_of.m4a"
+  },
+  "word_AND": {
+    "text": "And",
+    "m4a": "sight_words_audio/word_and.m4a"
+  },
+  "word_TO": {
+    "text": "To",
+    "m4a": "sight_words_audio/word_to.m4a"
+  },
+  "word_IN": {
+    "text": "In",
+    "m4a": "sight_words_audio/word_in.m4a"
+  },
+  "word_IS": {
+    "text": "Is",
+    "m4a": "sight_words_audio/word_is.m4a"
+  },
+  "word_YOU": {
+    "text": "You",
+    "m4a": "sight_words_audio/word_you.m4a"
+  },
+  "word_THAT": {
+    "text": "That",
+    "m4a": "sight_words_audio/word_that.m4a"
+  },
+  "word_IT": {
+    "text": "It",
+    "m4a": "sight_words_audio/word_it.m4a"
+  },
+  "word_HE": {
+    "text": "He",
+    "m4a": "sight_words_audio/word_he.m4a"
+  },
+  "word_WAS": {
+    "text": "Was",
+    "m4a": "sight_words_audio/word_was.m4a"
+  },
+  "word_FOR": {
+    "text": "For",
+    "m4a": "sight_words_audio/word_for.m4a"
+  },
+  "word_ON": {
+    "text": "On",
+    "m4a": "sight_words_audio/word_on.m4a"
+  },
+  "word_ARE": {
+    "text": "Are",
+    "m4a": "sight_words_audio/word_are.m4a"
+  },
+  "word_AS": {
+    "text": "As",
+    "m4a": "sight_words_audio/word_as.m4a"
+  },
+  "word_WITH": {
+    "text": "With",
+    "m4a": "sight_words_audio/word_with.m4a"
+  },
+  "word_HIS": {
+    "text": "His",
+    "m4a": "sight_words_audio/word_his.m4a"
+  },
+  "word_THEY": {
+    "text": "They",
+    "m4a": "sight_words_audio/word_they.m4a"
+  },
+  "word_AT": {
+    "text": "At",
+    "m4a": "sight_words_audio/word_at.m4a"
+  },
+  "word_BE": {
+    "text": "Be",
+    "m4a": "sight_words_audio/word_be.m4a"
+  },
+  "word_THIS": {
+    "text": "This",
+    "m4a": "sight_words_audio/word_this.m4a"
+  },
+  "word_HAVE": {
+    "text": "Have",
+    "m4a": "sight_words_audio/word_have.m4a"
+  },
+  "word_FROM": {
+    "text": "From",
+    "m4a": "sight_words_audio/word_from.m4a"
+  },
+  "word_OR": {
+    "text": "Or",
+    "m4a": "sight_words_audio/word_or.m4a"
+  },
+  "word_ONE": {
+    "text": "One",
+    "m4a": "sight_words_audio/word_one.m4a"
+  },
+  "word_HAD": {
+    "text": "Had",
+    "m4a": "sight_words_audio/word_had.m4a"
+  },
+  "word_WORD": {
+    "text": "Word",
+    "m4a": "sight_words_audio/word_word.m4a"
+  },
+  "word_BUT": {
+    "text": "But",
+    "m4a": "sight_words_audio/word_but.m4a"
+  },
+  "word_NOT": {
+    "text": "Not",
+    "m4a": "sight_words_audio/word_not.m4a"
+  },
+  "word_WHAT": {
+    "text": "What",
+    "m4a": "sight_words_audio/word_what.m4a"
+  },
+  "word_ALL": {
+    "text": "All",
+    "m4a": "sight_words_audio/word_all.m4a"
+  },
+  "word_WERE": {
+    "text": "Were",
+    "m4a": "sight_words_audio/word_were.m4a"
+  },
+  "word_WHEN": {
+    "text": "When",
+    "m4a": "sight_words_audio/word_when.m4a"
+  },
+  "word_YOUR": {
+    "text": "Your",
+    "m4a": "sight_words_audio/word_your.m4a"
+  },
+  "word_CAN": {
+    "text": "Can",
+    "m4a": "sight_words_audio/word_can.m4a"
+  },
+  "word_SAID": {
+    "text": "Said",
+    "m4a": "sight_words_audio/word_said.m4a"
+  },
+  "word_THERE": {
+    "text": "There",
+    "m4a": "sight_words_audio/word_there.m4a"
+  },
+  "word_USE": {
+    "text": "Use",
+    "m4a": "sight_words_audio/word_use.m4a"
+  },
+  "word_EACH": {
+    "text": "Each",
+    "m4a": "sight_words_audio/word_each.m4a"
+  },
+  "word_WHICH": {
+    "text": "Which",
+    "m4a": "sight_words_audio/word_which.m4a"
+  },
+  "word_SHE": {
+    "text": "She",
+    "m4a": "sight_words_audio/word_she.m4a"
+  },
+  "word_HOW": {
+    "text": "How",
+    "m4a": "sight_words_audio/word_how.m4a"
+  },
+  "word_THEIR": {
+    "text": "Their",
+    "m4a": "sight_words_audio/word_their.m4a"
+  },
+  "word_WILL": {
+    "text": "Will",
+    "m4a": "sight_words_audio/word_will.m4a"
+  },
+  "word_UP": {
+    "text": "Up",
+    "m4a": "sight_words_audio/word_up.m4a"
+  },
+  "word_OTHER": {
+    "text": "Other",
+    "m4a": "sight_words_audio/word_other.m4a"
+  },
+  "word_ABOUT": {
+    "text": "About",
+    "m4a": "sight_words_audio/word_about.m4a"
+  },
+  "word_OUT": {
+    "text": "Out",
+    "m4a": "sight_words_audio/word_out.m4a"
+  },
+  "word_MANY": {
+    "text": "Many",
+    "m4a": "sight_words_audio/word_many.m4a"
+  },
+  "word_THEN": {
+    "text": "Then",
+    "m4a": "sight_words_audio/word_then.m4a"
+  }
+};
+
+let narrationQueue = Promise.resolve();
+let narrationGeneration = 0;
+let currentNarrationAudio = null;
+let pendingNarrationTask = null;
+let narrationUnlocked = false;
+
+function stopNarration() {
+  if (currentNarrationAudio) {
+    currentNarrationAudio.pause();
+    currentNarrationAudio.currentTime = 0;
+    currentNarrationAudio = null;
+  }
+}
+
+function playNarrationClip(key, generation) {
+  const entry = VOICES[key];
+  if (!entry) return Promise.resolve(true);
+
+  return new Promise(resolve => {
+    if (generation !== narrationGeneration) {
+      resolve(false);
+      return;
+    }
+
+    const audio = new Audio(entry.m4a);
+    audio.preload = 'auto';
+    audio.volume = 0.86;
+    currentNarrationAudio = audio;
+
+    let settled = false;
+    const finish = success => {
+      if (settled) return;
+      settled = true;
+      if (currentNarrationAudio === audio) currentNarrationAudio = null;
+      audio.onended = null;
+      audio.onerror = null;
+      resolve(success);
+    };
+
+    audio.onended = () => finish(true);
+    audio.onerror = () => finish(false);
+
+    try {
+      const playResult = audio.play();
+      if (playResult && typeof playResult.catch === 'function') {
+        playResult.then(() => {
+          narrationUnlocked = true;
+        }).catch(() => {
+          if (currentNarrationAudio === audio) currentNarrationAudio = null;
+          finish(false);
+        });
+      } else {
+        narrationUnlocked = true;
+      }
+    } catch (error) {
+      finish(false);
+    }
+  });
+}
+
+async function runNarrationTask(task, generation) {
+  for (const key of task.keys) {
+    if (generation !== narrationGeneration) return false;
+
+    const played = await playNarrationClip(key, generation);
+    if (!played) {
+      if (!narrationUnlocked) pendingNarrationTask = task;
+      return false;
+    }
+
+    if (generation !== narrationGeneration) return false;
+    await new Promise(resolve => setTimeout(resolve, 45));
+  }
+
+  if (generation === narrationGeneration) pendingNarrationTask = null;
+  return true;
+}
+
+function narrateSequence(keys, options = {}) {
+  const cleanKeys = keys.filter(key => VOICES[key]);
+
+  if (options.replace) {
+    narrationGeneration += 1;
+    stopNarration();
+    narrationQueue = Promise.resolve();
+  }
+
+  if (!cleanKeys.length) return Promise.resolve(true);
+
+  const task = { keys: cleanKeys };
+  const generation = narrationGeneration;
+
+  const queued = narrationQueue.then(
+    () => runNarrationTask(task, generation),
+    () => runNarrationTask(task, generation)
+  );
+
+  narrationQueue = queued.then(() => undefined, () => undefined);
+  return queued;
+}
+
+function letterVoiceKey(letter) {
+  return `letter_${letter}`;
+}
+
+function wordVoiceKey(word) {
+  return `word_${word}`;
+}
+
+function narrateLetterPrompt(letter, firstLetter = false, replace = true) {
+  return narrateSequence(
+    [firstLetter ? 'find_first_letter' : 'find_next_letter', letterVoiceKey(letter)],
+    { replace }
+  );
+}
+
+function silentlyUnlockNarration() {
+  if (narrationUnlocked && !pendingNarrationTask) return;
+
+  narrationUnlocked = true;
+  if (pendingNarrationTask) {
+    const task = pendingNarrationTask;
+    pendingNarrationTask = null;
+    narrationGeneration += 1;
+    stopNarration();
+    const generation = narrationGeneration;
+    const running = runNarrationTask(task, generation);
+    narrationQueue = running.then(() => undefined, () => undefined);
+  }
+}
+
+document.addEventListener('pointerdown', silentlyUnlockNarration, {
+  once: true,
+  capture: true
+});
+
+let targetWord = '';
+let currentLetterIdx = 0;
+let activeBalloons = [];
+let hintTimer = null;
+let targetWatchTimer = null;
+let roundLocked = false;
+
+const balloonArea = document.getElementById('balloon-area');
+const slotsContainer = document.getElementById('slots-container');
+const messageDisplay = document.getElementById('message');
+const nextLetterDisplay = document.getElementById('next-letter');
+
+
+function shuffle(items) {
+  const result = [...items];
+  for (let i = result.length - 1; i > 0; i--) {
+    const j = Math.floor(Math.random() * (i + 1));
+    [result[i], result[j]] = [result[j], result[i]];
+  }
+  return result;
+}
+
+// Start Game automatically on load
+window.addEventListener('DOMContentLoaded', () => {
+  MascotCtrl.show();
+  MascotCtrl.idle();
+  loadNextWord(false);
+
+  const firstLetter = targetWord[currentLetterIdx];
+  narrateSequence(
+    ['welcome', letterVoiceKey(firstLetter)],
+    { replace: true }
+  );
+});
+
+function loadNextWord(speakPrompt = true) {
+  clearTimeout(hintTimer);
+  roundLocked = false;
+  
+  // Pick random word
+  targetWord = SIGHT_WORDS[Math.floor(Math.random() * SIGHT_WORDS.length)];
+  currentLetterIdx = 0;
+
+  slotsContainer.innerHTML = '';
+  targetWord.split('').forEach((_, index) => {
+    const slot = document.createElement('div');
+    slot.className = 'slot' + (index === 0 ? ' active' : '');
+    slotsContainer.appendChild(slot);
+  });
+
+  updatePrompt();
+  clearBalloons();
+  spawnBalloons();
+  scheduleHint();
+
+  if (speakPrompt) {
+    narrateSequence(
+      [letterVoiceKey(targetWord[0])],
+      { replace: true }
+    );
+  }
+}
+
+function updatePrompt() {
+  const needed = targetWord[currentLetterIdx] || '';
+  nextLetterDisplay.textContent = needed;
+  messageDisplay.textContent = currentLetterIdx === 0
+    ? 'Find the first letter!'
+    : `Now find ${needed}`;
+  [...slotsContainer.children].forEach((slot, index) => {
+    slot.classList.toggle('active', index === currentLetterIdx);
+  });
+}
+
+function buildLetters() {
+  const needed = targetWord[currentLetterIdx];
+  const alphabet = 'ABCDEFGHIJKLMNOPQRSTUVWXYZ';
+  const decoys = [];
+
+  while (decoys.length < 4) {
+    const letter = alphabet[Math.floor(Math.random() * alphabet.length)];
+    if (letter !== needed && !decoys.includes(letter)) decoys.push(letter);
+  }
+
+  return shuffle([needed, ...decoys]);
+}
+
+function spawnBalloons() {
+  const letters = buildLetters();
+  const laneCount = letters.length;
+  const usableWidth = 86;
+  const laneWidth = usableWidth / laneCount;
+
+  letters.forEach((letter, index) => {
+    const button = document.createElement('button');
+    button.type = 'button';
+    button.className = 'balloon';
+    button.textContent = letter;
+    button.setAttribute('aria-label', `Letter ${letter}`);
+    button.dataset.letter = letter;
+    if (letter === targetWord[currentLetterIdx]) button.dataset.target = 'true';
+
+    const color = BALLOON_COLORS[Math.floor(Math.random() * BALLOON_COLORS.length)];
+    const laneCenter = 7 + laneWidth * index + laneWidth / 2;
+    const jitter = (Math.random() - .5) * Math.min(6, laneWidth * .45);
+    button.style.left = `calc(${laneCenter + jitter}% - var(--size) / 2)`;
+    button.style.setProperty('--b-color', color);
+    const duration = 8.2 + Math.random() * 1.8;
+    const visibleProgress = 0.20 + (index / Math.max(1, laneCount - 1)) * 0.34;
+    button.style.setProperty('--duration', `${duration}s`);
+    button.style.setProperty('--delay', `${-(duration * visibleProgress)}s`);
+    button.style.setProperty('--drift', `${(Math.random() - .5) * 46}px`);
+    button.style.setProperty('--tilt', `${2 + Math.random() * 5}deg`);
+
+    button.addEventListener('pointerdown', event => {
+      event.preventDefault();
+      handleBalloonClick(button, letter);
+    });
+
+    button.addEventListener('animationiteration', () => {
+      if (roundLocked || button.classList.contains('popped')) return;
+      const newJitter = (Math.random() - .5) * Math.min(8, laneWidth * .55);
+      button.style.left = `calc(${laneCenter + newJitter}% - var(--size) / 2)`;
+    });
+
+    balloonArea.appendChild(button);
+    activeBalloons.push(button);
+  });
+
+  startTargetWatch();
+}
+
+function startTargetWatch() {
+  clearInterval(targetWatchTimer);
+
+  targetWatchTimer = setInterval(() => {
+    if (roundLocked) return;
+
+    const needed = targetWord[currentLetterIdx];
+    const target = activeBalloons.find(balloon =>
+      !balloon.classList.contains('popped') &&
+      balloon.dataset.letter === needed
+    );
+
+    if (!target) {
+      clearBalloons();
+      spawnBalloons();
+      return;
+    }
+
+    const balloonRect = target.getBoundingClientRect();
+    const areaRect = balloonArea.getBoundingClientRect();
+    const visible =
+      balloonRect.right > areaRect.left + 8 &&
+      balloonRect.left < areaRect.right - 8 &&
+      balloonRect.bottom > areaRect.top + 8 &&
+      balloonRect.top < areaRect.bottom - 8;
+
+    if (!visible) {
+      target.classList.add('target-reset');
+      target.style.bottom = '28%';
+      target.style.transform = 'translate3d(0,0,0)';
+      void target.offsetWidth;
+      target.classList.remove('target-reset');
+      target.style.setProperty('--delay', '-2.2s');
+    }
+  }, 650);
+}
+
+function scheduleHint() {
+  clearTimeout(hintTimer);
+  hintTimer = setTimeout(() => {
+    if (roundLocked) return;
+    const needed = targetWord[currentLetterIdx];
+    activeBalloons.forEach(balloon => {
+      if (!balloon.classList.contains('popped') && balloon.dataset.letter === needed) {
+        balloon.classList.add('hint');
+        setTimeout(() => balloon.classList.remove('hint'), 1500);
+      }
+    });
+    mascotSay();
+  }, 2600);
+}
+
+function mascotSay() {
+  // Narration is audio-only; no text speech callout is displayed.
+}
+
+function handleBalloonClick(element, letter) {
+  if (roundLocked || element.classList.contains('popped')) return;
+  const needed = targetWord[currentLetterIdx];
+
+  if (letter === needed) {
+    clearTimeout(hintTimer);
+    OpusAudio.pop(); // First interaction will unlock browser AudioContext automatically
+    createBurst(element);
+    createFloatingText(element, 'POP!');
+    element.classList.add('popped');
+
+    const slot = slotsContainer.children[currentLetterIdx];
+    slot.textContent = letter;
+    slot.classList.remove('active');
+    slot.classList.add('filled');
+
+    currentLetterIdx += 1;
+
+    if (currentLetterIdx < targetWord.length) {
+      updatePrompt();
+      clearBalloons();
+      spawnBalloons();
+      narrateSequence(
+        [letterVoiceKey(targetWord[currentLetterIdx])],
+        { replace: true }
+      );
+      mascotSay();
+      scheduleHint();
+    } else {
+      finishWord();
+    }
+  } else {
+    OpusAudio.wrong();
+    MascotCtrl.sad();
+    element.classList.remove('wrong-flash');
+    void element.offsetWidth;
+    element.classList.add('wrong-flash');
+    mascotSay();
+    scheduleHint();
+  }
+}
+
+function finishWord() {
+  roundLocked = true;
+  clearTimeout(hintTimer);
+
+  messageDisplay.textContent = 'You did it! 🎉';
+  nextLetterDisplay.textContent = '✓';
+  OpusAudio.correct();
+  MascotCtrl.danceQuick();
+  const completionNarration = narrateSequence(
+    [wordVoiceKey(targetWord)],
+    { replace: true }
+  );
+
+  activeBalloons.forEach(balloon => {
+    if (!balloon.classList.contains('popped')) balloon.classList.add('popped');
+  });
+
+  document.getElementById('big-word').textContent = targetWord;
+  const celebration = document.getElementById('word-celebration');
+  celebration.classList.add('show');
+  playfieldConfetti(24);
+
+  // Start the next word after the full static narration has finished.
+  completionNarration.finally(() => {
+    setTimeout(() => {
+      celebration.classList.remove('show');
+      loadNextWord(true);
+    }, 120);
+  });
+}
+
+function createBurst(balloon) {
+  const balloonRect = balloon.getBoundingClientRect();
+  const areaRect = balloonArea.getBoundingClientRect();
+  const x = balloonRect.left - areaRect.left + balloonRect.width / 2;
+  const y = balloonRect.top - areaRect.top + balloonRect.height / 2;
+  const colors = ['#fff','#ffe45e','#8bf0ff'];
+
+  for (let i = 0; i < 12; i++) {
+    const particle = document.createElement('span');
+    particle.className = 'burst';
+    particle.style.left = `${x}px`;
+    particle.style.top = `${y}px`;
+    particle.style.setProperty('--burst-color', colors[i % colors.length]);
+    const angle = (Math.PI * 2 * i) / 12;
+    const distance = 28 + Math.random() * 38;
+    particle.style.setProperty('--dx', `${Math.cos(angle) * distance}px`);
+    particle.style.setProperty('--dy', `${Math.sin(angle) * distance}px`);
+    balloonArea.appendChild(particle);
+    setTimeout(() => particle.remove(), 650);
+  }
+}
+
+function createFloatingText(balloon, text) {
+  const balloonRect = balloon.getBoundingClientRect();
+  const areaRect = balloonArea.getBoundingClientRect();
+  const label = document.createElement('span');
+  label.className = 'feedback-float';
+  label.textContent = text;
+  label.style.left = `${balloonRect.left - areaRect.left + balloonRect.width / 2 - 20}px`;
+  label.style.top = `${balloonRect.top - areaRect.top}px`;
+  balloonArea.appendChild(label);
+  setTimeout(() => label.remove(), 900);
+}
+
+function playfieldConfetti(amount) {
+  const colors = ['#42A5F5','#FFD54F','#81C784','#BA68C8','#FF8A65'];
+  for (let i = 0; i < amount; i++) {
+    const particle = document.createElement('span');
+    particle.className = 'burst';
+    particle.style.left = `${25 + Math.random() * 50}%`;
+    particle.style.top = `${30 + Math.random() * 30}%`;
+    particle.style.setProperty('--burst-color', colors[i % colors.length]);
+    particle.style.setProperty('--dx', `${(Math.random() - .5) * 260}px`);
+    particle.style.setProperty('--dy', `${(Math.random() - .5) * 180}px`);
+    balloonArea.appendChild(particle);
+    setTimeout(() => particle.remove(), 700);
+  }
+}
+
+function clearBalloons() {
+  clearInterval(targetWatchTimer);
+  activeBalloons.forEach(balloon => balloon.remove());
+  activeBalloons = [];
+  balloonArea.querySelectorAll('.burst,.feedback-float').forEach(node => node.remove());
+}
+
+document.addEventListener('visibilitychange', () => {
+  if (document.hidden) {
+    clearTimeout(hintTimer);
+    clearInterval(targetWatchTimer);
+  } else if (!roundLocked) {
+    scheduleHint();
+    startTargetWatch();
+  }
+});
+</script>
+</body>
+</html>

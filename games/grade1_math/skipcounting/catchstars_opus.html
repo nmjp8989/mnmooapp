@@ -1,0 +1,400 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width,initial-scale=1,maximum-scale=1,user-scalable=no,viewport-fit=cover">
+<title>Skip Counting Stars!</title>
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+<link href="https://fonts.googleapis.com/css2?family=Fredoka:wght@400;600;700&family=Nunito:wght@400;600;700;800&display=swap" rel="stylesheet">
+<style>
+:root{--ac:#FF6B4A;--card:#FFF;--gold:#FFD700;--ok:#4CAF50;--bad:#EF5350}
+*,*::before,*::after{box-sizing:border-box;margin:0;padding:0}
+html,body{width:100vw;height:100dvh;overflow:hidden;font-family:'Nunito',sans-serif;background:linear-gradient(135deg,#FFF5F0,#F0F4FF);user-select:none;-webkit-user-select:none;touch-action:manipulation;overscroll-behavior:none}
+h1,h2,h3{font-family:'Fredoka',sans-serif}
+.screen{position:absolute;inset:0;display:flex;flex-direction:column;align-items:center;justify-content:center;transition:opacity .4s}
+
+/* GAME */
+#game-screen{background:linear-gradient(180deg,#0D1B2A 0%,#1B2838 30%,#162030 60%,#0D1520 100%);flex-direction:column;overflow:hidden;z-index:1}
+.find-bar{position:absolute;top:3vh;left:50%;transform:translateX(-50%);z-index:28;pointer-events:none;background:rgba(255,215,0,.15);border:2px solid rgba(255,215,0,.4);backdrop-filter:blur(6px);border-radius:14px;padding:.5vh 3vw;font-family:'Fredoka',sans-serif;font-weight:700;font-size:clamp(16px,3.5vh,24px);color:var(--gold);white-space:nowrap}
+.find-bar span{font-size:1.2em;text-shadow:0 0 12px rgba(255,215,0,.5)}
+.nlw{position:absolute;top:10vh;left:50%;transform:translateX(-50%);z-index:25;pointer-events:none;display:flex;align-items:center;background:rgba(0,0,0,.35);backdrop-filter:blur(6px);border-radius:14px;padding:.4vh 1.5vw;max-width:96vw;overflow-x:auto;-webkit-overflow-scrolling:touch;gap:0}
+.nc{width:clamp(22px,5.5vw,32px);height:clamp(22px,5.5vw,32px);border-radius:50%;display:flex;align-items:center;justify-content:center;font-family:'Fredoka',sans-serif;font-weight:700;font-size:clamp(10px,2.4vw,14px);transition:all .35s;flex-shrink:0}
+.nc.done{background:var(--ok);color:#fff;border:2px solid #66BB6A;box-shadow:0 0 6px rgba(76,175,80,.3)}
+.nc.cur{background:rgba(255,215,0,.18);color:var(--gold);border:2px solid var(--gold);animation:pls 1.2s ease-in-out infinite;box-shadow:0 0 10px rgba(255,215,0,.3)}
+.nc.wait{background:rgba(255,255,255,.06);color:rgba(255,255,255,.2);border:1.5px solid rgba(255,255,255,.1)}
+@keyframes pls{0%,100%{transform:scale(1)}50%{transform:scale(1.18)}}
+.na{color:rgba(255,255,255,.1);font-size:clamp(7px,1.4vw,10px);flex-shrink:0}.na.ok{color:var(--ok)}
+#sky{position:absolute;inset:0;overflow:hidden}
+.star-entity{position:absolute;z-index:10;touch-action:none;-webkit-touch-callout:none;pointer-events:auto;cursor:pointer}
+.star-entity svg{display:block;pointer-events:none}
+.star-entity.gd svg{filter:drop-shadow(0 0 14px rgba(255,215,0,.6))}
+@keyframes starFall{from{top:-14vh}to{top:112vh}}
+
+/* MASCOT */
+.mascot-float{position:absolute;top:14vh;left:2vw;z-index:35;pointer-events:none;opacity:0;transition:opacity .4s}
+.mascot-float.show{opacity:1}
+.mascot-container{transform:scale(1.1);transform-origin:center}
+.mascot-sprite{width:72px;height:128px;image-rendering:pixelated;transform:translateZ(0)}
+.mascot-sprite.idle{background-image:url('../../assets/cow/idle.webp');background-size:216px 128px;animation:spIdle .6s steps(3) infinite}
+@keyframes spIdle{100%{background-position:-216px 0}}
+.mascot-sprite.dancing{background-image:url('../../assets/cow/rhythm.webp');background-size:432px 128px}
+.mascot-sprite.sad{background-image:url('../../assets/cow/sadface.webp');background-size:144px 128px;animation:spSad .5s steps(2) infinite}
+@keyframes spSad{100%{background-position:-144px 0}}
+.mascot-center{display:flex;justify-content:center;margin-bottom:8px}
+
+/* VOICE BUBBLE */
+.voice-bubble{position:absolute;bottom:8vh;left:50%;transform:translateX(-50%);background:#fff;border-radius:16px;padding:1vh 3vw;box-shadow:0 4px 20px rgba(0,0,0,.12);z-index:60;max-width:70vw;font-size:clamp(16px,3.5vh,22px);color:#444;font-weight:600;text-align:center;animation:popIn .3s ease-out;pointer-events:none}
+.voice-bubble::after{content:'';position:absolute;bottom:-8px;left:50%;transform:translateX(-50%);border-left:8px solid transparent;border-right:8px solid transparent;border-top:8px solid #fff;width:0;height:0}
+.voice-bubble.hidden{display:none}
+
+/* EFFECTS */
+.pt{position:absolute;border-radius:50%;pointer-events:none;z-index:90;animation:pp .6s forwards ease-out}
+@keyframes pp{0%{opacity:1;transform:translate(-50%,-50%) scale(1)}100%{opacity:0;transform:translate(-50%,-50%) scale(.1)}}
+.twinkle{position:absolute;width:2px;height:2px;background:rgba(255,255,255,.6);border-radius:50%;pointer-events:none;animation:twA 2s ease-in-out infinite}
+@keyframes twA{0%,100%{opacity:.2}50%{opacity:1}}
+@keyframes popIn{0%{transform:scale(0);opacity:0}60%{transform:scale(1.15)}100%{transform:scale(1);opacity:1}}
+@keyframes cfl{0%{opacity:1;transform:translateY(0) rotate(0deg)}100%{opacity:0;transform:translateY(100vh) rotate(720deg)}}
+</style>
+</head>
+<body>
+
+<div id="game-screen" class="screen">
+ <div class="mascot-float" id="mascotFloat">
+  <div class="mascot-container">
+   <div class="mascot-sprite idle" id="mascotSprite" aria-hidden="true"></div>
+  </div>
+ </div>
+ <div class="find-bar" id="fb">Find the number <span id="ft">2</span></div>
+ <div class="nlw" id="nw"></div>
+ <div id="sky"></div>
+</div>
+
+<div id="voice-bubble" class="voice-bubble hidden"></div>
+
+<script>
+// ═══ AUDIO ═══
+const OpusAudio=(()=>{let c;function g(){if(!c)c=new(window.AudioContext||window.webkitAudioContext)();if(c.state==='suspended')c.resume();return c}
+function p(t,f,d,v){try{const a=g(),o=a.createOscillator(),n=a.createGain();o.type=t;o.frequency.setValueAtTime(f,a.currentTime);n.gain.setValueAtTime(v||.15,a.currentTime);n.gain.exponentialRampToValueAtTime(.001,a.currentTime+d);o.connect(n).connect(a.destination);o.start();o.stop(a.currentTime+d)}catch(e){}}
+return{
+click(){p('sine',800,.08,.1)},
+correct(){p('sine',523,.12,.15);setTimeout(()=>p('sine',659,.12,.15),100);setTimeout(()=>p('sine',784,.18,.15),200)},
+wrong(){p('square',200,.15,.1);setTimeout(()=>p('square',160,.2,.1),120)},
+win(){[523,659,784,1047].forEach((f,i)=>setTimeout(()=>p('sine',f,.25,.12),i*150))},
+levelUp(){[659,784,988,1175].forEach((f,i)=>setTimeout(()=>p('sine',f,.2,.12),i*100))}
+}})();
+
+// ═══ OPUS MEDIA ═══
+const OpusMedia=(()=>{
+  function play(src){try{const a=new Audio(src);a.play().catch(()=>{})}catch(e){}}
+  return{
+    cheer(){play('../../assets/audio/cheer.m4a')},
+    sad(){play('../../assets/audio/sad.m4a')},
+    voice(filePath){
+      try{
+        if(window._pv){window._pv.pause();window._pv=null}
+        const a=new Audio(filePath);
+        window._pv=a;
+        a.play().catch(()=>{})
+      }catch(e){}
+    }
+  };
+})();
+
+// ═══ MASCOT CONTROLLER ═══
+const MascotCtrl=(()=>{
+  const FW=72;let st=null,ct=null;
+  function gEl(){return document.getElementById('mascotSprite')}
+  function clr(){clearTimeout(st);clearTimeout(ct)}
+  function setSp(el,state,fi){
+    if(!el)return;el.className='mascot-sprite '+state;
+    if(state==='dancing'&&fi!==undefined)el.style.backgroundPosition=`-${fi*FW}px 0px`;
+    else el.style.backgroundPosition='';
+  }
+  function idle(el){if(!el)return;clr();setSp(el,'idle')}
+  function sad(el,dur){if(!el)return;clr();setSp(el,'sad');st=setTimeout(()=>setSp(el,'idle'),dur)}
+  function danceQuick(el){
+    if(!el)return;clr();const fr=[0,1,2,3,4,5];let i=0;
+    (function n(){if(i>=fr.length){setSp(el,'idle');return}setSp(el,'dancing',fr[i]);i++;ct=setTimeout(n,100)})();
+  }
+  function celebrate(el,dur){
+    if(!el)return;clr();const af=[0,1,2,3,4,5];let i=0;const s=Date.now();
+    (function lp(){if(Date.now()-s>dur){setSp(el,'idle');return}setSp(el,'dancing',af[i%6]);i++;ct=setTimeout(lp,180)})();
+  }
+  return{
+    show(){const f=document.getElementById('mascotFloat');if(f)f.classList.add('show')},
+    hide(){const f=document.getElementById('mascotFloat');if(f)f.classList.remove('show')},
+    idle(){idle(gEl())},sad(d=1800){sad(gEl(),d)},danceQuick(){danceQuick(gEl())},celebrate(d=2200){celebrate(gEl(),d)}
+  };
+})();
+
+// ═══ CONFETTI ═══
+function opusConfetti(){const c=['#FF6B4A','#FFD54F','#4FC3F7','#81C784','#BA68C8','#FF8A65','#64B5F6'];for(let i=0;i<60;i++){const e=document.createElement('div');e.style.cssText=`position:fixed;z-index:999;pointer-events:none;left:${Math.random()*100}vw;top:${-5+Math.random()*8}vh;width:${6+Math.random()*8}px;height:${6+Math.random()*8}px;background:${c[Math.random()*7|0]};border-radius:${Math.random()>.5?'50%':'2px'};animation:cfl ${1.5+Math.random()*2}s ${Math.random()*.8}s forwards ease-in;`;document.body.appendChild(e);setTimeout(()=>e.remove(),4000)}}
+
+// ═══ VOICE BUBBLE ═══
+const VOICES={
+  "welcome": {
+    "text": "Tap the golden stars! They follow the skip counting pattern!",
+    "m4a": "catchstars_audio/welcome.m4a"
+  },
+  "instructions": {
+    "text": "Red stars are wrong — don't tap them! Golden stars are right!",
+    "m4a": "catchstars_audio/instructions.m4a"
+  },
+  "correct_1": {
+    "text": "Great catch! You found the right number!",
+    "m4a": "catchstars_audio/correct_1.m4a"
+  },
+  "correct_2": {
+    "text": "You got it! Perfect skip counting!",
+    "m4a": "catchstars_audio/correct_2.m4a"
+  },
+  "correct_3": {
+    "text": "Nice grab! You really know your numbers!",
+    "m4a": "catchstars_audio/correct_3.m4a"
+  },
+  "correct_4": {
+    "text": "Amazing! You found the right star!",
+    "m4a": "catchstars_audio/correct_4.m4a"
+  },
+  "wrong_1": {
+    "text": "Oops! That's not in the pattern. Watch out!",
+    "m4a": "catchstars_audio/wrong_1.m4a"
+  },
+  "wrong_2": {
+    "text": "Not quite! That star doesn't belong. Be careful!",
+    "m4a": "catchstars_audio/wrong_2.m4a"
+  },
+  "wrong_3": {
+    "text": "Wrong star! Look for the next number in the pattern!",
+    "m4a": "catchstars_audio/wrong_3.m4a"
+  },
+  "encouragement_1": {
+    "text": "You're doing great! Keep counting!",
+    "m4a": "catchstars_audio/encouragement_1.m4a"
+  },
+  "encouragement_2": {
+    "text": "Awesome work! You're a skip counting star!",
+    "m4a": "catchstars_audio/encouragement_2.m4a"
+  },
+  "encouragement_3": {
+    "text": "Keep going! You've got this!",
+    "m4a": "catchstars_audio/encouragement_3.m4a"
+  },
+  "win": {
+    "text": "You counted all the way! What a champion!",
+    "m4a": "catchstars_audio/win.m4a"
+  },
+  "try_again": {
+    "text": "Good effort! Let's try counting again!",
+    "m4a": "catchstars_audio/try_again.m4a"
+  }
+};
+
+let vbt=null;
+function showVoiceBubble(textOrKey,dur=2500){
+  let text, mp3Path=null;
+  if(VOICES[textOrKey]){
+    text=VOICES[textOrKey].text;
+    mp3Path=VOICES[textOrKey].m4a;
+  }else{
+    text=textOrKey;
+  }
+  const b=document.getElementById('voice-bubble');b.textContent=text;b.classList.remove('hidden');
+  clearTimeout(vbt);vbt=setTimeout(()=>b.classList.add('hidden'),dur);
+  if(mp3Path)OpusMedia.voice(mp3Path);
+}
+
+// ═══ GRADE 1 PATTERNS ═══
+const PATTERNS=[
+  {step:2,length:12,label:"2s"},   // 2 to 24
+  {step:5,length:12,label:"5s"},   // 5 to 60
+  {step:10,length:12,label:"10s"}, // 10 to 120
+  {step:1,length:15,label:"1s"}    // 1 to 15
+];
+
+// ═══ GAME STATE ═══
+let tgt=2,patternIdx=0,seq=[],si=0,on=false,stars=[],spI=null;
+
+// ═══ AUTO START ON LOAD ═══
+window.addEventListener('load', () => {
+  startGame();
+});
+
+function startGame(){
+  patternIdx=0;
+  loadSequence();
+  MascotCtrl.show();
+  MascotCtrl.idle();
+  
+  // Audio instructions might be blocked until the player's first tap. 
+  // It will fail silently and catch audio naturally once they tap the first star.
+  setTimeout(()=>{
+    showVoiceBubble('welcome',3000);
+    setTimeout(()=>{
+      showVoiceBubble('instructions',3000);
+      setTimeout(()=>{
+        on=true;
+        startRain();
+      },1800);
+    },2200);
+  },400);
+  
+  setupInput();
+}
+
+function loadSequence(){
+  const pat=PATTERNS[patternIdx%PATTERNS.length];
+  tgt=pat.step;
+  seq=[];
+  for(let i=1;i<=pat.length;i++)seq.push(tgt*i);
+  si=0;
+  buildNL();
+  updateNL();
+}
+
+// ═══ INPUT ═══
+let inputReady=false;
+function setupInput(){
+  if(inputReady)return;inputReady=true;
+  const gs=document.getElementById('game-screen');
+  gs.addEventListener('pointerdown',e=>{if(!on)return;e.preventDefault();handleTap(e.clientX,e.clientY)},{passive:false});
+  gs.addEventListener('touchstart',e=>e.preventDefault(),{passive:false});
+}
+
+function handleTap(x,y){
+  // Resume audio context if the browser suspended it initially
+  try {
+    let aCtx = window.AudioContext || window.webkitAudioContext;
+    if(aCtx && OpusAudio.g && OpusAudio.g().state === 'suspended') {
+      OpusAudio.g().resume();
+    }
+  } catch(e) {}
+
+  for(let i=stars.length-1;i>=0;i--){
+    const s=stars[i];if(s.hit||!s.el.parentNode)continue;
+    const r=s.el.getBoundingClientRect(),pad=20;
+    if(x>=r.left-pad&&x<=r.right+pad&&y>=r.top-pad&&y<=r.bottom+pad){
+      s.hit=true;doCatch(s,x,y);return;
+    }
+  }
+}
+
+// ═══ STAR SVG ═══
+function starSVG(v,ok){
+  const f='#FFD700',i='#FFFACD',sk='#DAA520',tc='#8B6914';
+  const sz=v>=100?20:v>=10?24:28;
+  return`<svg width="110" height="110" viewBox="-44 -44 88 88"><polygon points="0,-40 12,-14 40,-14 18,6 25,34 0,20 -25,34 -18,6 -40,-14 -12,-14" fill="${f}" stroke="${sk}" stroke-width="2.5"/><polygon points="0,-28 8,-10 28,-10 12,3 17,23 0,14 -17,23 -12,3 -28,-10 -8,-10" fill="${i}" opacity=".5"/><text x="0" y="${v>=100?8:7}" text-anchor="middle" font-family="Fredoka,sans-serif" font-weight="700" font-size="${sz}" fill="${tc}">${v}</text></svg>`}
+
+// ═══ RAIN SPAWNING ═══
+function startRain(){
+  if(spI)clearInterval(spI);
+  spI=setInterval(()=>{
+    if(!on)return;
+    const currentCount = stars.filter(s=>s.val===seq[si]).length;
+    if(currentCount<2){
+      spawnOne();
+    }
+  },1200);
+  spawnOne();
+  setTimeout(()=>{if(on)spawnOne()},600);
+}
+
+function spawnOne(){
+  if(!on||si>=seq.length)return;
+  const val=seq[si];
+  const el=document.createElement('div');
+  el.className='star-entity gd';
+  el.innerHTML=starSVG(val,true);
+  el.style.left=(4+Math.random()*82)+'%';el.style.top='-14vh';
+  const dur=5.5+Math.random()*3;el.style.animation=`starFall ${dur}s linear forwards`;
+  document.getElementById('sky').appendChild(el);
+  const d={el,val,ok:true,hit:false};stars.push(d);
+  setTimeout(()=>{
+    if(el.parentNode){
+      el.remove();
+      stars=stars.filter(s=>s!==d);
+      if(on&&!stars.some(s=>s.val===seq[si])){
+        spawnOne();
+      }
+    }
+  },dur*1000);
+}
+
+// ═══ CATCH ═══
+function doCatch(s,x,y){
+  if(!s.el.parentNode)return;
+  s.el.style.animation='none';s.el.style.transition='transform .25s,opacity .25s';
+  
+  const isCurrentTarget=(s.val===seq[si]);
+
+  if(isCurrentTarget){
+    s.el.style.transform='scale(1.6)';s.el.style.opacity='0';
+    setTimeout(()=>{if(s.el.parentNode)s.el.remove()},260);
+    stars=stars.filter(st=>st!==s);
+
+    OpusAudio.correct();
+    MascotCtrl.danceQuick();
+    pts(x,y,'#FFD700');
+    
+    const correctKeys = ['correct_1', 'correct_2', 'correct_3', 'correct_4'];
+    showVoiceBubble(correctKeys[Math.random()*correctKeys.length|0],2800);
+    
+    si++;updateNL();
+    if(si>=seq.length){
+      setTimeout(()=>advanceSequence(),600);
+    }else{
+      if(si%4===0)setTimeout(()=>showVoiceBubble('encouragement_'+(1+Math.random()*3|0)),2000);
+      spawnOne();
+    }
+    setTimeout(()=>MascotCtrl.idle(),800);
+  }else{
+    s.el.style.transform='scale(0)';s.el.style.opacity='0';
+    setTimeout(()=>{if(s.el.parentNode)s.el.remove()},260);
+    stars=stars.filter(st=>st!==s);
+    pts(x,y,'#FFFACD');
+  }
+}
+
+// ═══ ADVANCE SEQUENCE ═══
+function advanceSequence(){
+  on=false;
+  if(spI) { clearInterval(spI); spI=null; }
+  stars.forEach(s=>{if(s.el.parentNode)s.el.remove()});
+  stars=[];
+
+  OpusAudio.win();
+  MascotCtrl.celebrate(3000);
+  OpusMedia.cheer();
+  opusConfetti();
+
+  patternIdx++;
+  showVoiceBubble('win',4000);
+
+  setTimeout(()=>{
+    loadSequence();
+    on=true;
+    startRain();
+  },2500);
+}
+
+// ═══ NUMBER LINE ═══
+function buildNL(){
+  const w=document.getElementById('nw');let h='';
+  for(let i=0;i<seq.length;i++){
+    h+=`<div class="nc ${i<si?'done':i===si?'cur':'wait'}" id="n${i}">${seq[i]}</div>`;
+    if(i<seq.length-1)h+=`<span class="na ${i<si?'ok':''}">→</span>`;
+  }w.innerHTML=h;
+}
+function updateNL(){
+  for(let i=0;i<seq.length;i++){const e=document.getElementById('n'+i);if(e)e.className='nc '+(i<si?'done':i===si?'cur':'wait')}
+  const c=document.getElementById('n'+si);if(c)c.scrollIntoView({behavior:'smooth',block:'nearest',inline:'center'});
+  document.getElementById('ft').textContent=seq[si]||'?';
+}
+
+// ═══ EFFECTS ═══
+function pts(x,y,c){for(let i=0;i<8;i++){const p=document.createElement('div');p.className='pt';const a=Math.PI*2*i/8,d=20+Math.random()*30;p.style.cssText=`left:${x+Math.cos(a)*d}px;top:${y+Math.sin(a)*d}px;width:${3+Math.random()*5}px;height:${3+Math.random()*5}px;background:${c};animation-delay:${Math.random()*.1}s;`;document.body.appendChild(p);setTimeout(()=>p.remove(),700)}}
+function addTwinkles(c){for(let i=0;i<20;i++){const t=document.createElement('div');t.className='twinkle';t.style.left=Math.random()*100+'%';t.style.top=Math.random()*100+'%';t.style.animationDelay=Math.random()*3+'s';const s=(1+Math.random()*2)+'px';t.style.width=s;t.style.height=s;c.appendChild(t)}}
+</script>
+</body>
+</html>

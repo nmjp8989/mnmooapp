@@ -1,0 +1,119 @@
+{
+  "gameId": "identify_photos_opus",
+  "gameTitle": "Animal Photo Match",
+  "voiceGuide": "Guide Grade 1 children to drag the correct animal name onto a photo. Read the welcome, each question prompt, correct answers with the animal name, wrong-answer feedback, and end-game celebration aloud in a warm, encouraging tone.",
+  "phrases": {
+    "welcome": {
+      "text": "Welcome to Animal Photo Match! Look at the animal photo and drag the correct name on top of it. Let's go!",
+      "m4a": "identify_photos_audio/welcome.m4a"
+    },
+    "question": {
+      "text": "Which animal is in the picture? Drag the right name here!",
+      "m4a": "identify_photos_audio/question.m4a"
+    },
+    "wrong": {
+      "text": "Oops, that's not it. Try another name!",
+      "m4a": "identify_photos_audio/wrong.m4a"
+    },
+    "great_job": {
+      "text": "Great job! You know so many animals!",
+      "m4a": "identify_photos_audio/great_job.m4a"
+    },
+    "try_again": {
+      "text": "Good try! Keep practicing and you'll match them all!",
+      "m4a": "identify_photos_audio/try_again.m4a"
+    },
+    "all_done": {
+      "text": "Amazing! You matched every animal perfectly! You are an animal expert!",
+      "m4a": "identify_photos_audio/all_done.m4a"
+    },
+    "correct_alligator": {
+      "text": "Yes! That's an Alligator! Alligators have powerful jaws and live near water.",
+      "m4a": "identify_photos_audio/correct_alligator.m4a"
+    },
+    "correct_arcticfox": {
+      "text": "Yes! That's an Arctic Fox! Its thick white fur keeps it warm in the snowy Arctic.",
+      "m4a": "identify_photos_audio/correct_arcticfox.m4a"
+    },
+    "correct_camel": {
+      "text": "Yes! That's a Camel! Camels store fat in their humps to travel across hot deserts.",
+      "m4a": "identify_photos_audio/correct_camel.m4a"
+    },
+    "correct_cheetah": {
+      "text": "Yes! That's a Cheetah! Cheetahs are the fastest land animals on Earth.",
+      "m4a": "identify_photos_audio/correct_cheetah.m4a"
+    },
+    "correct_clownfish": {
+      "text": "Yes! That's a Clownfish! Clownfish live safely inside sea anemones.",
+      "m4a": "identify_photos_audio/correct_clownfish.m4a"
+    },
+    "correct_crocodile": {
+      "text": "Yes! That's a Crocodile! Crocodiles are big reptiles with strong tails for swimming.",
+      "m4a": "identify_photos_audio/correct_crocodile.m4a"
+    },
+    "correct_eagle": {
+      "text": "Yes! That's an Eagle! Eagles have sharp eyes and soar high in the sky.",
+      "m4a": "identify_photos_audio/correct_eagle.m4a"
+    },
+    "correct_elephant": {
+      "text": "Yes! That's an Elephant! Elephants use their long trunks to spray water and pick up food.",
+      "m4a": "identify_photos_audio/correct_elephant.m4a"
+    },
+    "correct_fennecfox": {
+      "text": "Yes! That's a Fennec Fox! Its huge ears help it stay cool in the desert.",
+      "m4a": "identify_photos_audio/correct_fennecfox.m4a"
+    },
+    "correct_giraffee": {
+      "text": "Yes! That's a Giraffe! Giraffes have very long necks to reach leaves on tall trees.",
+      "m4a": "identify_photos_audio/correct_giraffee.m4a"
+    },
+    "correct_koala": {
+      "text": "Yes! That's a Koala! Koalas sleep a lot and love eating eucalyptus leaves.",
+      "m4a": "identify_photos_audio/correct_koala.m4a"
+    },
+    "correct_leopard": {
+      "text": "Yes! That's a Leopard! Leopards have beautiful spots and are excellent climbers.",
+      "m4a": "identify_photos_audio/correct_leopard.m4a"
+    },
+    "correct_lion": {
+      "text": "Yes! That's a Lion! Lions are called the kings of the jungle and live in groups called prides.",
+      "m4a": "identify_photos_audio/correct_lion.m4a"
+    },
+    "correct_octopus": {
+      "text": "Yes! That's an Octopus! Octopuses have eight arms and can change color to hide.",
+      "m4a": "identify_photos_audio/correct_octopus.m4a"
+    },
+    "correct_panda": {
+      "text": "Yes! That's a Panda! Giant pandas love munching on bamboo all day long.",
+      "m4a": "identify_photos_audio/correct_panda.m4a"
+    },
+    "correct_parrot": {
+      "text": "Yes! That's a Parrot! Parrots are colorful birds that can mimic sounds and words.",
+      "m4a": "identify_photos_audio/correct_parrot.m4a"
+    },
+    "correct_polarbear": {
+      "text": "Yes! That's a Polar Bear! Polar bears have thick fur and fat to stay warm on the ice.",
+      "m4a": "identify_photos_audio/correct_polarbear.m4a"
+    },
+    "correct_racoon": {
+      "text": "Yes! That's a Raccoon! Raccoons have little black masks and wash their food before eating.",
+      "m4a": "identify_photos_audio/correct_racoon.m4a"
+    },
+    "correct_redfox": {
+      "text": "Yes! That's a Red Fox! Red foxes are clever animals with big fluffy tails.",
+      "m4a": "identify_photos_audio/correct_redfox.m4a"
+    },
+    "correct_snake": {
+      "text": "Yes! That's a Snake! Snakes slither on their bellies and smell with their tongues.",
+      "m4a": "identify_photos_audio/correct_snake.m4a"
+    },
+    "correct_tiger": {
+      "text": "Yes! That's a Tiger! Tigers have orange fur with black stripes and are strong swimmers.",
+      "m4a": "identify_photos_audio/correct_tiger.m4a"
+    },
+    "correct_toucan": {
+      "text": "Yes! That's a Toucan! Toucans have huge colorful beaks and live in rainforests.",
+      "m4a": "identify_photos_audio/correct_toucan.m4a"
+    }
+  }
+}

@@ -1,0 +1,82 @@
+{
+  "welcome": {
+    "text": "Welcome to the Word Finder game! Let's explore together and find some hidden words.",
+    "m4a": "audio/welcome.m4a"
+  },
+  "prompt_octopus": {
+    "text": "Can you find the orange octopus?",
+    "m4a": "audio/prompt_octopus.m4a"
+  },
+  "prompt_starfish": {
+    "text": "Where is the friendly yellow starfish?",
+    "m4a": "audio/prompt_starfish.m4a"
+  },
+  "prompt_chest": {
+    "text": "Find the gold treasure chest!",
+    "m4a": "audio/prompt_chest.m4a"
+  },
+  "prompt_bear": {
+    "text": "Where is the brown teddy bear sitting on the rug?",
+    "m4a": "audio/prompt_bear.m4a"
+  },
+  "prompt_clock": {
+    "text": "Can you find the clock on the wall?",
+    "m4a": "audio/prompt_clock.m4a"
+  },
+  "prompt_train": {
+    "text": "Find the colorful toy train on the floor.",
+    "m4a": "audio/prompt_train.m4a"
+  },
+  "prompt_cow": {
+    "text": "Where is the black and white spotted cow?",
+    "m4a": "audio/prompt_cow.m4a"
+  },
+  "prompt_frog": {
+    "text": "Can you spot the little green frog sitting on the rock?",
+    "m4a": "audio/prompt_frog.m4a"
+  },
+  "prompt_tractor": {
+    "text": "Find the green tractor on the farm.",
+    "m4a": "audio/prompt_tractor.m4a"
+  },
+  "prompt_dog": {
+    "text": "Where is the happy brown puppy dog?",
+    "m4a": "audio/prompt_dog.m4a"
+  },
+  "prompt_ball": {
+    "text": "Can you find the soccer ball on the grass?",
+    "m4a": "audio/prompt_ball.m4a"
+  },
+  "prompt_kite": {
+    "text": "Find the bright kite flying high in the sky.",
+    "m4a": "audio/prompt_kite.m4a"
+  },
+  "correct_generic_1": {
+    "text": "Great job! You found it!",
+    "m4a": "audio/correct_1.m4a"
+  },
+  "correct_generic_2": {
+    "text": "That is correct! Well done.",
+    "m4a": "audio/correct_2.m4a"
+  },
+  "correct_generic_3": {
+    "text": "You spotted it! Awesome job.",
+    "m4a": "audio/correct_3.m4a"
+  },
+  "wrong_generic_1": {
+    "text": "Not quite, try looking somewhere else!",
+    "m4a": "audio/wrong_1.m4a"
+  },
+  "wrong_generic_2": {
+    "text": "Give it another try! You can do it.",
+    "m4a": "audio/wrong_2.m4a"
+  },
+  "next_scene": {
+    "text": "Wonderful! Let's travel to our next place!",
+    "m4a": "audio/next_scene.m4a"
+  },
+  "win": {
+    "text": "Congratulations! You found all the words and completed the adventure!",
+    "m4a": "audio/win.m4a"
+  }
+}

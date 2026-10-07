@@ -1,0 +1,68 @@
+{
+  "missingThumbnails": [
+    {
+      "game": "Vocabulary Builder",
+      "topic": "Vocabulary",
+      "subject": "Language",
+      "file": "games/grade1_language/vocabulary/vocabulary.html",
+      "thumbFile": "games/thumbnails/vocabularybuilder.webp",
+      "prompt": "A colorful educational game thumbnail showing vocabulary words floating around a friendly cartoon character, with bright letters and icons representing words, vibrant purple and blue gradient background, mobile game style, kid-friendly illustration"
+    },
+    {
+      "game": "Word Train",
+      "topic": "Compound Words",
+      "subject": "Language",
+      "file": "games/grade1_language/compound_words/train_word_opus.html",
+      "thumbFile": "games/thumbnails/wordtrain.webp",
+      "prompt": "A fun cartoon train with word blocks on each train car, compound words being formed, colorful steam engine, cheerful educational game thumbnail for kids, bright yellow and orange colors, mobile game style illustration"
+    },
+    {
+      "game": "Contraction Clouds",
+      "topic": "Contractions",
+      "subject": "Language",
+      "file": "games/grade1_language/contractions/balloon_pop_opus.html",
+      "thumbFile": "games/thumbnails/contractionclouds.webp",
+      "prompt": "Fluffy white clouds with contraction words like don't can't won't floating in a bright blue sky, playful educational game thumbnail, soft pastel colors, kid-friendly cartoon style, mobile game illustration"
+    },
+    {
+      "game": "Whack-a-Word",
+      "topic": "Nouns & Adjectives",
+      "subject": "Language",
+      "file": "games/grade1_language/nouns_adjectives/whack_a_mole_opus.html",
+      "thumbFile": "games/thumbnails/whackaword.webp",
+      "prompt": "A whack-a-mole style game with words popping up from holes, a cartoon hammer, nouns and adjectives on colorful cards, exciting action pose, bright green and red colors, mobile game thumbnail for kids"
+    },
+    {
+      "game": "Ocean Plurals",
+      "topic": "Plurals",
+      "subject": "Language",
+      "file": "games/grade1_language/plurals/ocean_opus.html",
+      "thumbFile": "games/thumbnails/oceanplurals.webp",
+      "prompt": "An underwater ocean scene with fish and sea creatures, plural words like fish/fishes whales/whales floating in bubbles, colorful coral reef, educational game thumbnail, bright blue and teal colors, kid-friendly cartoon style"
+    },
+    {
+      "game": "Reading Stars",
+      "topic": "Reading Basics",
+      "subject": "Language",
+      "file": "games/grade1_language/reading_basics/readingbasic_opus.html",
+      "thumbFile": "games/thumbnails/readingstars.webp",
+      "prompt": "A night sky with shining stars containing letters and simple words, a book opening with stars flying out, magical reading theme, deep purple and gold colors, educational game thumbnail for kids, whimsical cartoon style"
+    },
+    {
+      "game": "Animal Homes",
+      "topic": "Geography",
+      "subject": "Science",
+      "file": "games/grade1_science/geography/geozones_opus.html",
+      "thumbFile": "games/thumbnails/animalhomes.webp",
+      "prompt": "A world map showing different habitats with cute cartoon animals in their homes - polar bear in arctic, camel in desert, monkey in jungle, educational geography game thumbnail, bright colorful continents, kid-friendly illustration style"
+    },
+    {
+      "game": "Number Line Jump",
+      "topic": "Skip Counting",
+      "subject": "Math",
+      "file": "games/grade1_math/skipcounting/numberlinejump_opus.html",
+      "thumbFile": "games/thumbnails/numberlinejump.webp",
+      "prompt": "A cute cartoon frog jumping across a number line with colorful numbered lily pads, skip counting pattern visible, bright blue pond background, educational math game thumbnail for kids, playful and colorful illustration style"
+    }
+  ]
+}

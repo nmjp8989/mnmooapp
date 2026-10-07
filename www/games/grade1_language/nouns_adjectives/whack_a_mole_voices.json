@@ -1,0 +1,46 @@
+{
+  "welcome": {
+    "text": "🔨 Welcome to Whack-a-Word!",
+    "m4a": "whack_a_mole_audio/welcome.m4a"
+  },
+  "instructions": {
+    "text": "Words pop up from holes. Whack the ones that match!",
+    "m4a": "whack_a_mole_audio/instructions.m4a"
+  },
+  "whack_noun": {
+    "text": "🔨 Tap all the NOUNS!",
+    "m4a": "whack_a_mole_audio/whack_noun.m4a"
+  },
+  "whack_adj": {
+    "text": "🎨 Tap all the ADJECTIVES!",
+    "m4a": "whack_a_mole_audio/whack_adj.m4a"
+  },
+  "correct_1": {
+    "text": "💥 BAM! Got it!",
+    "m4a": "whack_a_mole_audio/correct_1.m4a"
+  },
+  "correct_2": {
+    "text": "🎉 That's correct!",
+    "m4a": "whack_a_mole_audio/correct_2.m4a"
+  },
+  "wrong_1": {
+    "text": "🫣 Oops! That's not it!",
+    "m4a": "whack_a_mole_audio/wrong_1.m4a"
+  },
+  "wrong_2": {
+    "text": "👀 Try again!",
+    "m4a": "whack_a_mole_audio/wrong_2.m4a"
+  },
+  "round_done": {
+    "text": "⭐ Great whack!",
+    "m4a": "whack_a_mole_audio/round_done.m4a"
+  },
+  "win": {
+    "text": "🏆 Word Champion! You whacked them all!",
+    "m4a": "whack_a_mole_audio/win.m4a"
+  },
+  "try_again": {
+    "text": "🔨 Good effort! Try again?",
+    "m4a": "whack_a_mole_audio/try_again.m4a"
+  }
+}

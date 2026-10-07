@@ -1,0 +1,59 @@
+{
+  "gameId": "facebuilder_opus",
+  "gameTitle": "Face Builder Opus",
+  "voiceGuide": "Guide children to build a face by picking parts from colorful categories. Read the welcome aloud, prompt the current category when a tab is opened, give positive feedback when a part is placed, and celebrate when all parts are placed or the face is randomized.",
+  "phrases": {
+    "welcome": {
+      "text": "Let's build a face together!",
+      "m4a": "facebuilder_audio/welcome.m4a"
+    },
+    "pick_eyes": {
+      "text": "Pick some eyes!",
+      "m4a": "facebuilder_audio/pick_eyes.m4a"
+    },
+    "pick_nose": {
+      "text": "Now pick a nose!",
+      "m4a": "facebuilder_audio/pick_nose.m4a"
+    },
+    "pick_mouth": {
+      "text": "Choose a mouth!",
+      "m4a": "facebuilder_audio/pick_mouth.m4a"
+    },
+    "pick_hair": {
+      "text": "Pick some hair!",
+      "m4a": "facebuilder_audio/pick_hair.m4a"
+    },
+    "pick_ears": {
+      "text": "Finally, pick ears!",
+      "m4a": "facebuilder_audio/pick_ears.m4a"
+    },
+    "pick_eyebrows": {
+      "text": "Pick some eyebrows!",
+      "m4a": "facebuilder_audio/pick_eyebrows.m4a"
+    },
+    "pick_facialhair": {
+      "text": "Pick a beard or mustache!",
+      "m4a": "facebuilder_audio/pick_facialhair.m4a"
+    },
+    "pick_facedecor": {
+      "text": "Add some face marks!",
+      "m4a": "facebuilder_audio/pick_facedecor.m4a"
+    },
+    "pick_accessories": {
+      "text": "Pick a fun accessory!",
+      "m4a": "facebuilder_audio/pick_accessories.m4a"
+    },
+    "placed": {
+      "text": "Great! Keep going!",
+      "m4a": "facebuilder_audio/placed.m4a"
+    },
+    "all_placed": {
+      "text": "You built the whole face! Amazing!",
+      "m4a": "facebuilder_audio/all_placed.m4a"
+    },
+    "win": {
+      "text": "You built a complete face! You're an artist!",
+      "m4a": "facebuilder_audio/win.m4a"
+    }
+  }
+}

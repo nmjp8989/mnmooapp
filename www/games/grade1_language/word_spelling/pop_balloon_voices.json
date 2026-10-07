@@ -1,0 +1,314 @@
+{
+  "welcome": {
+    "text": "Welcome to spelling words!",
+    "mp3": "sight_words_audio/welcome.mp3"
+  },
+  "word_done": {
+    "text": "You spelled the word!",
+    "mp3": "sight_words_audio/word_done.mp3"
+  },
+  "letter_A": {
+    "text": "A",
+    "mp3": "sight_words_audio/letter_a.mp3"
+  },
+  "letter_B": {
+    "text": "B",
+    "mp3": "sight_words_audio/letter_b.mp3"
+  },
+  "letter_C": {
+    "text": "C",
+    "mp3": "sight_words_audio/letter_c.mp3"
+  },
+  "letter_D": {
+    "text": "D",
+    "mp3": "sight_words_audio/letter_d.mp3"
+  },
+  "letter_E": {
+    "text": "E",
+    "mp3": "sight_words_audio/letter_e.mp3"
+  },
+  "letter_F": {
+    "text": "F",
+    "mp3": "sight_words_audio/letter_f.mp3"
+  },
+  "letter_G": {
+    "text": "G",
+    "mp3": "sight_words_audio/letter_g.mp3"
+  },
+  "letter_H": {
+    "text": "H",
+    "mp3": "sight_words_audio/letter_h.mp3"
+  },
+  "letter_I": {
+    "text": "I",
+    "mp3": "sight_words_audio/letter_i.mp3"
+  },
+  "letter_J": {
+    "text": "J",
+    "mp3": "sight_words_audio/letter_j.mp3"
+  },
+  "letter_K": {
+    "text": "K",
+    "mp3": "sight_words_audio/letter_k.mp3"
+  },
+  "letter_L": {
+    "text": "L",
+    "mp3": "sight_words_audio/letter_l.mp3"
+  },
+  "letter_M": {
+    "text": "M",
+    "mp3": "sight_words_audio/letter_m.mp3"
+  },
+  "letter_N": {
+    "text": "N",
+    "mp3": "sight_words_audio/letter_n.mp3"
+  },
+  "letter_O": {
+    "text": "O",
+    "mp3": "sight_words_audio/letter_o.mp3"
+  },
+  "letter_P": {
+    "text": "P",
+    "mp3": "sight_words_audio/letter_p.mp3"
+  },
+  "letter_Q": {
+    "text": "Q",
+    "mp3": "sight_words_audio/letter_q.mp3"
+  },
+  "letter_R": {
+    "text": "R",
+    "mp3": "sight_words_audio/letter_r.mp3"
+  },
+  "letter_S": {
+    "text": "S",
+    "mp3": "sight_words_audio/letter_s.mp3"
+  },
+  "letter_T": {
+    "text": "T",
+    "mp3": "sight_words_audio/letter_t.mp3"
+  },
+  "letter_U": {
+    "text": "U",
+    "mp3": "sight_words_audio/letter_u.mp3"
+  },
+  "letter_V": {
+    "text": "V",
+    "mp3": "sight_words_audio/letter_v.mp3"
+  },
+  "letter_W": {
+    "text": "W",
+    "mp3": "sight_words_audio/letter_w.mp3"
+  },
+  "letter_X": {
+    "text": "X",
+    "mp3": "sight_words_audio/letter_x.mp3"
+  },
+  "letter_Y": {
+    "text": "Y",
+    "mp3": "sight_words_audio/letter_y.mp3"
+  },
+  "letter_Z": {
+    "text": "Z",
+    "mp3": "sight_words_audio/letter_z.mp3"
+  },
+  "word_THE": {
+    "text": "The",
+    "mp3": "sight_words_audio/word_the.mp3"
+  },
+  "word_OF": {
+    "text": "Of",
+    "mp3": "sight_words_audio/word_of.mp3"
+  },
+  "word_AND": {
+    "text": "And",
+    "mp3": "sight_words_audio/word_and.mp3"
+  },
+  "word_TO": {
+    "text": "To",
+    "mp3": "sight_words_audio/word_to.mp3"
+  },
+  "word_IN": {
+    "text": "In",
+    "mp3": "sight_words_audio/word_in.mp3"
+  },
+  "word_IS": {
+    "text": "Is",
+    "mp3": "sight_words_audio/word_is.mp3"
+  },
+  "word_YOU": {
+    "text": "You",
+    "mp3": "sight_words_audio/word_you.mp3"
+  },
+  "word_THAT": {
+    "text": "That",
+    "mp3": "sight_words_audio/word_that.mp3"
+  },
+  "word_IT": {
+    "text": "It",
+    "mp3": "sight_words_audio/word_it.mp3"
+  },
+  "word_HE": {
+    "text": "He",
+    "mp3": "sight_words_audio/word_he.mp3"
+  },
+  "word_WAS": {
+    "text": "Was",
+    "mp3": "sight_words_audio/word_was.mp3"
+  },
+  "word_FOR": {
+    "text": "For",
+    "mp3": "sight_words_audio/word_for.mp3"
+  },
+  "word_ON": {
+    "text": "On",
+    "mp3": "sight_words_audio/word_on.mp3"
+  },
+  "word_ARE": {
+    "text": "Are",
+    "mp3": "sight_words_audio/word_are.mp3"
+  },
+  "word_AS": {
+    "text": "As",
+    "mp3": "sight_words_audio/word_as.mp3"
+  },
+  "word_WITH": {
+    "text": "With",
+    "mp3": "sight_words_audio/word_with.mp3"
+  },
+  "word_HIS": {
+    "text": "His",
+    "mp3": "sight_words_audio/word_his.mp3"
+  },
+  "word_THEY": {
+    "text": "They",
+    "mp3": "sight_words_audio/word_they.mp3"
+  },
+  "word_AT": {
+    "text": "At",
+    "mp3": "sight_words_audio/word_at.mp3"
+  },
+  "word_BE": {
+    "text": "Be",
+    "mp3": "sight_words_audio/word_be.mp3"
+  },
+  "word_THIS": {
+    "text": "This",
+    "mp3": "sight_words_audio/word_this.mp3"
+  },
+  "word_HAVE": {
+    "text": "Have",
+    "mp3": "sight_words_audio/word_have.mp3"
+  },
+  "word_FROM": {
+    "text": "From",
+    "mp3": "sight_words_audio/word_from.mp3"
+  },
+  "word_OR": {
+    "text": "Or",
+    "mp3": "sight_words_audio/word_or.mp3"
+  },
+  "word_ONE": {
+    "text": "One",
+    "mp3": "sight_words_audio/word_one.mp3"
+  },
+  "word_HAD": {
+    "text": "Had",
+    "mp3": "sight_words_audio/word_had.mp3"
+  },
+  "word_WORD": {
+    "text": "Word",
+    "mp3": "sight_words_audio/word_word.mp3"
+  },
+  "word_BUT": {
+    "text": "But",
+    "mp3": "sight_words_audio/word_but.mp3"
+  },
+  "word_NOT": {
+    "text": "Not",
+    "mp3": "sight_words_audio/word_not.mp3"
+  },
+  "word_WHAT": {
+    "text": "What",
+    "mp3": "sight_words_audio/word_what.mp3"
+  },
+  "word_ALL": {
+    "text": "All",
+    "mp3": "sight_words_audio/word_all.mp3"
+  },
+  "word_WERE": {
+    "text": "Were",
+    "mp3": "sight_words_audio/word_were.mp3"
+  },
+  "word_WHEN": {
+    "text": "When",
+    "mp3": "sight_words_audio/word_when.mp3"
+  },
+  "word_YOUR": {
+    "text": "Your",
+    "mp3": "sight_words_audio/word_your.mp3"
+  },
+  "word_CAN": {
+    "text": "Can",
+    "mp3": "sight_words_audio/word_can.mp3"
+  },
+  "word_SAID": {
+    "text": "Said",
+    "mp3": "sight_words_audio/word_said.mp3"
+  },
+  "word_THERE": {
+    "text": "There",
+    "mp3": "sight_words_audio/word_there.mp3"
+  },
+  "word_USE": {
+    "text": "Use",
+    "mp3": "sight_words_audio/word_use.mp3"
+  },
+  "word_EACH": {
+    "text": "Each",
+    "mp3": "sight_words_audio/word_each.mp3"
+  },
+  "word_WHICH": {
+    "text": "Which",
+    "mp3": "sight_words_audio/word_which.mp3"
+  },
+  "word_SHE": {
+    "text": "She",
+    "mp3": "sight_words_audio/word_she.mp3"
+  },
+  "word_HOW": {
+    "text": "How",
+    "mp3": "sight_words_audio/word_how.mp3"
+  },
+  "word_THEIR": {
+    "text": "Their",
+    "mp3": "sight_words_audio/word_their.mp3"
+  },
+  "word_WILL": {
+    "text": "Will",
+    "mp3": "sight_words_audio/word_will.mp3"
+  },
+  "word_UP": {
+    "text": "Up",
+    "mp3": "sight_words_audio/word_up.mp3"
+  },
+  "word_OTHER": {
+    "text": "Other",
+    "mp3": "sight_words_audio/word_other.mp3"
+  },
+  "word_ABOUT": {
+    "text": "About",
+    "mp3": "sight_words_audio/word_about.mp3"
+  },
+  "word_OUT": {
+    "text": "Out",
+    "mp3": "sight_words_audio/word_out.mp3"
+  },
+  "word_MANY": {
+    "text": "Many",
+    "mp3": "sight_words_audio/word_many.mp3"
+  },
+  "word_THEN": {
+    "text": "Then",
+    "mp3": "sight_words_audio/word_then.mp3"
+  }
+}

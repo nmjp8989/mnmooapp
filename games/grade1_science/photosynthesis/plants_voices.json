@@ -1,0 +1,63 @@
+{
+  "gameId": "seed_journey",
+  "gameTitle": "The Seed's Big Journey",
+  "voiceGuide": "Instructs 1st graders to build a growing sequence step-by-step: Soil, Seed, Water, Sun, and Sprout. Reinforces botanical requirements through gameplay actions.",
+  "phrases": {
+    "welcome": {
+      "text": "Hello, Little Gardener! Let's help some plants grow up! Find the card to start.",
+      "m4a": "plant_audio/welcome.m4a"
+    },
+    "need_soil": {
+      "text": "First, we need a warm bed for our plant. What resource keeps the roots safe?",
+      "m4a": "plant_audio/need_soil.m4a"
+    },
+    "need_seed": {
+      "text": "Wonderful! Now we need something small to plant in the ground. What do we place inside the soil?",
+      "m4a": "plant_audio/need_seed.m4a"
+    },
+    "need_water": {
+      "text": "Our seed is tucked in! What drink makes the dry soil nice and moist?",
+      "m4a": "plant_audio/need_water.m4a"
+    },
+    "need_sun": {
+      "text": "Perfect! Now we need natural light to keep our growing seed warm. What shines high in the sky?",
+      "m4a": "plant_audio/need_sun.m4a"
+    },
+    "need_sprout": {
+      "text": "Look closely! What starts to pop up out of the earth when it gets warmth and moisture?",
+      "m4a": "plant_audio/need_sprout.m4a"
+    },
+    "soil_ok": {
+      "text": "Fantastic! Healthy soil holds our plant steady and holds water for the roots.",
+      "m4a": "plant_audio/soil_ok.m4a"
+    },
+    "seed_ok": {
+      "text": "That is right! Inside every small seed is a tiny baby plant waiting to wake up!",
+      "m4a": "plant_audio/seed_ok.m4a"
+    },
+    "water_ok": {
+      "text": "Yum! Soil drinks up the rain. Our little seed is absorbing water to grow!",
+      "m4a": "plant_audio/water_ok.m4a"
+    },
+    "sun_ok": {
+      "text": "Super! Sunlight gives plants the energy they need to make food!",
+      "m4a": "plant_audio/sun_ok.m4a"
+    },
+    "sprout_ok": {
+      "text": "Yes! The green sprout is growing big, tall, and strong!",
+      "m4a": "plant_audio/sprout_ok.m4a"
+    },
+    "wrong": {
+      "text": "Not quite yet! Think about what our little plant needs next.",
+      "m4a": "plant_audio/wrong.m4a"
+    },
+    "round_done": {
+      "text": "Wow! Look at that beautiful plant you helped grow!",
+      "m4a": "plant_audio/round_done.m4a"
+    },
+    "all_done": {
+      "text": "Outstanding work! You helped all of our seeds grow up. You are a real master gardener!",
+      "m4a": "plant_audio/all_done.m4a"
+    }
+  }
+}

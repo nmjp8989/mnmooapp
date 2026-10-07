@@ -1,0 +1,131 @@
+{
+  "gameId": "bodyparts2_opus",
+  "gameTitle": "My Body ",
+  "voiceGuide": "Two modes: Explore mode lets children tap body parts to learn names freely. Quiz mode tests their knowledge with 10 body parts to identify.",
+  "phrases": {
+    "welcome": {
+      "text": "Welcome back! Ready to explore your body?",
+      "m4a": "bodyparts2_audio/welcome.m4a"
+    },
+    "explore_mode": {
+      "text": "Explore mode! Tap any body part to learn its name.",
+      "m4a": "bodyparts2_audio/explore_mode.m4a"
+    },
+    "quiz_mode": {
+      "text": "Quiz time! Can you find all the body parts?",
+      "m4a": "bodyparts2_audio/quiz_mode.m4a"
+    },
+
+    "part_name_hair": {
+      "text": "Hair!",
+      "m4a": "bodyparts2_audio/part_name_hair.m4a"
+    },
+    "part_name_eyes": {
+      "text": "Eyes!",
+      "m4a": "bodyparts2_audio/part_name_eyes.m4a"
+    },
+    "part_name_nose": {
+      "text": "Nose!",
+      "m4a": "bodyparts2_audio/part_name_nose.m4a"
+    },
+    "part_name_mouth": {
+      "text": "Mouth!",
+      "m4a": "bodyparts2_audio/part_name_mouth.m4a"
+    },
+    "part_name_ears": {
+      "text": "Ears!",
+      "m4a": "bodyparts2_audio/part_name_ears.m4a"
+    },
+    "part_name_arms": {
+      "text": "Arms!",
+      "m4a": "bodyparts2_audio/part_name_arms.m4a"
+    },
+    "part_name_hands": {
+      "text": "Hands!",
+      "m4a": "bodyparts2_audio/part_name_hands.m4a"
+    },
+    "part_name_belly": {
+      "text": "Belly!",
+      "m4a": "bodyparts2_audio/part_name_belly.m4a"
+    },
+    "part_name_legs": {
+      "text": "Legs!",
+      "m4a": "bodyparts2_audio/part_name_legs.m4a"
+    },
+    "part_name_feet": {
+      "text": "Feet!",
+      "m4a": "bodyparts2_audio/part_name_feet.m4a"
+    },
+
+    "tap_learn": {
+      "text": "That's right! Tap another to learn more.",
+      "m4a": "bodyparts2_audio/tap_learn.m4a"
+    },
+
+    "quiz_find_hair": {
+      "text": "Can you find the hair?",
+      "m4a": "bodyparts2_audio/quiz_find_hair.m4a"
+    },
+    "quiz_find_eyes": {
+      "text": "Can you find the eyes?",
+      "m4a": "bodyparts2_audio/quiz_find_eyes.m4a"
+    },
+    "quiz_find_nose": {
+      "text": "Can you find the nose?",
+      "m4a": "bodyparts2_audio/quiz_find_nose.m4a"
+    },
+    "quiz_find_mouth": {
+      "text": "Can you find the mouth?",
+      "m4a": "bodyparts2_audio/quiz_find_mouth.m4a"
+    },
+    "quiz_find_ears": {
+      "text": "Can you find the ears?",
+      "m4a": "bodyparts2_audio/quiz_find_ears.m4a"
+    },
+    "quiz_find_arms": {
+      "text": "Can you find the arms?",
+      "m4a": "bodyparts2_audio/quiz_find_arms.m4a"
+    },
+    "quiz_find_hands": {
+      "text": "Can you find the hands?",
+      "m4a": "bodyparts2_audio/quiz_find_hands.m4a"
+    },
+    "quiz_find_belly": {
+      "text": "Can you find the belly?",
+      "m4a": "bodyparts2_audio/quiz_find_belly.m4a"
+    },
+    "quiz_find_legs": {
+      "text": "Can you find the legs?",
+      "m4a": "bodyparts2_audio/quiz_find_legs.m4a"
+    },
+    "quiz_find_feet": {
+      "text": "Can you find the feet?",
+      "m4a": "bodyparts2_audio/quiz_find_feet.m4a"
+    },
+
+    "correct_1": {
+      "text": "Yes! That's right!",
+      "m4a": "bodyparts2_audio/correct_1.m4a"
+    },
+    "correct_2": {
+      "text": "You got it! It's right there!",
+      "m4a": "bodyparts2_audio/correct_2.m4a"
+    },
+    "wrong_1": {
+      "text": "Not quite! That's not it.",
+      "m4a": "bodyparts2_audio/wrong_1.m4a"
+    },
+    "wrong_2": {
+      "text": "Try again! Look for it.",
+      "m4a": "bodyparts2_audio/wrong_2.m4a"
+    },
+    "win": {
+      "text": "Amazing! You found every body part! You're brilliant!",
+      "m4a": "bodyparts2_audio/win.m4a"
+    },
+    "try_again": {
+      "text": "Nice effort! Want to try again?",
+      "m4a": "bodyparts2_audio/try_again.m4a"
+    }
+  }
+}

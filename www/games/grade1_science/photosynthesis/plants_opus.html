@@ -1,0 +1,792 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no, orientation=landscape">
+  <title>The Little Seed's Journey</title>
+  <link rel="preconnect" href="https://fonts.googleapis.com">
+  <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+  <link href="https://fonts.googleapis.com/css2?family=Fredoka:wght@400;600;700&display=swap" rel="stylesheet">
+  
+  <style>
+    :root {
+      --font-primary: 'Fredoka', sans-serif;
+      --color-sky: #b3e5fc;
+      --color-grass: #81c784;
+      --color-pot: #ff8a65;
+      --color-card-bg: #ffffff;
+      --color-text: #2e7d32;
+    }
+
+    * {
+      box-sizing: border-box;
+      margin: 0;
+      padding: 0;
+      user-select: none;
+      -webkit-user-select: none;
+    }
+
+    body, html {
+      width: 100%;
+      height: 100%;
+      overflow: hidden;
+      font-family: var(--font-primary);
+      background-color: var(--color-sky);
+    }
+
+    /* Force landscape styling / Rotation notification */
+    #portrait-warning {
+      position: fixed;
+      top: 0;
+      left: 0;
+      width: 100%;
+      height: 100%;
+      background: #81c784;
+      color: white;
+      display: none;
+      flex-direction: column;
+      justify-content: center;
+      align-items: center;
+      text-align: center;
+      z-index: 9999;
+      padding: 20px;
+    }
+
+    #portrait-warning svg {
+      width: 80px;
+      height: 80px;
+      margin-bottom: 20px;
+      animation: rotate 2s ease-in-out infinite;
+    }
+
+    @keyframes rotate {
+      0% { transform: rotate(0deg); }
+      50% { transform: rotate(-90deg); }
+      100% { transform: rotate(-90deg); }
+    }
+
+    @media (orientation: portrait) {
+      #portrait-warning {
+        display: flex;
+      }
+      #game-container {
+        display: none !important;
+      }
+    }
+
+    /* Main Container */
+    #game-container {
+      width: 100%;
+      height: 100%;
+      display: grid;
+      grid-template-rows: auto 1fr auto;
+      background: linear-gradient(180deg, var(--color-sky) 60%, var(--color-grass) 100%);
+      position: relative;
+    }
+
+    /* Header styling */
+    header {
+      display: flex;
+      justify-content: space-between;
+      align-items: center;
+      padding: 10px 20px;
+      background: rgba(255, 255, 255, 0.4);
+      border-bottom: 3px solid rgba(255, 255, 255, 0.6);
+      z-index: 10;
+    }
+
+    h1 {
+      font-size: 1.5rem;
+      color: #1b5e20;
+    }
+
+    .round-indicator {
+      font-size: 1.2rem;
+      font-weight: 700;
+      color: #1b5e20;
+      background: white;
+      padding: 5px 15px;
+      border-radius: 20px;
+      box-shadow: 0 4px 6px rgba(0,0,0,0.1);
+    }
+
+    /* Main Area layout */
+    .game-play-area {
+      display: grid;
+      grid-template-columns: 1.2fr 1fr;
+      padding: 10px 20px;
+      gap: 20px;
+      align-items: center;
+    }
+
+    /* Left panel: Garden visual & speech bubble */
+    .visual-panel {
+      display: flex;
+      flex-direction: column;
+      align-items: center;
+      justify-content: space-between;
+      height: 100%;
+    }
+
+    .speech-bubble {
+      background: white;
+      border-radius: 20px;
+      padding: 12px 20px;
+      position: relative;
+      font-size: 1.1rem;
+      color: #2e7d32;
+      box-shadow: 0 6px 12px rgba(0,0,0,0.1);
+      width: 90%;
+      text-align: center;
+      min-height: 60px;
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      margin-bottom: 10px;
+      border: 3px solid #a5d6a7;
+    }
+
+    .speech-bubble::after {
+      content: '';
+      position: absolute;
+      bottom: -15px;
+      left: 50%;
+      transform: translateX(-50%);
+      border-width: 15px 15px 0;
+      border-style: solid;
+      border-color: white transparent;
+      display: block;
+      width: 0;
+    }
+
+    .visual-display {
+      flex-grow: 1;
+      width: 100%;
+      display: flex;
+      justify-content: center;
+      align-items: flex-end;
+      position: relative;
+      min-height: 150px;
+    }
+
+    /* SVGs for garden display */
+    .pot-svg {
+      width: 160px;
+      height: auto;
+      z-index: 2;
+    }
+
+    .stage-element {
+      position: absolute;
+      bottom: 20px;
+      transition: all 0.5s ease;
+      transform-origin: bottom center;
+    }
+
+    /* Cards panel (Right side) */
+    .cards-panel {
+      display: grid;
+      grid-template-columns: repeat(3, 1fr);
+      grid-template-rows: repeat(2, 1fr);
+      gap: 12px;
+      width: 100%;
+      height: 100%;
+      align-content: center;
+    }
+
+    /* Make center/bottom cards span or sit nicely */
+    .cards-panel > div:nth-child(5) {
+      grid-column: span 2;
+    }
+
+    .card {
+      background: var(--color-card-bg);
+      border: 4px solid #81c784;
+      border-radius: 16px;
+      display: flex;
+      flex-direction: column;
+      align-items: center;
+      justify-content: center;
+      padding: 8px;
+      cursor: pointer;
+      box-shadow: 0 6px 0px #66bb6a;
+      transition: transform 0.1s, box-shadow 0.1s;
+      position: relative;
+      height: 110px;
+    }
+
+    .card:active {
+      transform: translateY(4px);
+      box-shadow: 0 2px 0px #66bb6a;
+    }
+
+    .card.disabled {
+      opacity: 0.5;
+      pointer-events: none;
+      filter: grayscale(80%);
+    }
+
+    .card svg {
+      width: 50px;
+      height: 50px;
+      margin-bottom: 5px;
+    }
+
+    .card span {
+      font-size: 0.95rem;
+      font-weight: 700;
+      color: #388e3c;
+    }
+
+    /* Animations */
+    @keyframes shake {
+      0%, 100% { transform: translateX(0); }
+      20%, 60% { transform: translateX(-10px); }
+      40%, 80% { transform: translateX(10px); }
+    }
+
+    .shake {
+      animation: shake 0.5s ease-in-out;
+      border-color: #ef5350 !important;
+      box-shadow: 0 6px 0px #e53935 !important;
+    }
+
+    @keyframes bounceIn {
+      0% { transform: scale(0.3); opacity: 0; }
+      50% { transform: scale(1.1); }
+      70% { transform: scale(0.9); }
+      100% { transform: scale(1); opacity: 1; }
+    }
+
+    .bounce-in {
+      animation: bounceIn 0.8s ease forwards;
+    }
+
+    /* Overlay Screen styles */
+    .overlay-screen {
+      position: absolute;
+      top: 0;
+      left: 0;
+      width: 100%;
+      height: 100%;
+      background: rgba(129, 199, 132, 0.95);
+      display: flex;
+      flex-direction: column;
+      justify-content: center;
+      align-items: center;
+      z-index: 100;
+      color: white;
+      text-align: center;
+    }
+
+    .overlay-screen h2 {
+      font-size: 2.5rem;
+      margin-bottom: 20px;
+      text-shadow: 0 3px 6px rgba(0,0,0,0.2);
+    }
+
+    .btn-play {
+      background: #ffb74d;
+      color: white;
+      border: none;
+      padding: 15px 40px;
+      font-size: 1.8rem;
+      font-weight: 700;
+      border-radius: 30px;
+      cursor: pointer;
+      box-shadow: 0 8px 0 #f57c00, 0 10px 15px rgba(0,0,0,0.1);
+      font-family: var(--font-primary);
+      transition: transform 0.1s;
+    }
+
+    .btn-play:active {
+      transform: translateY(4px);
+      box-shadow: 0 4px 0 #f57c00, 0 5px 10px rgba(0,0,0,0.1);
+    }
+
+    /* Sound repeat button */
+    .btn-sound {
+      background: #81c784;
+      border: none;
+      border-radius: 50%;
+      width: 44px;
+      height: 44px;
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      cursor: pointer;
+      box-shadow: 0 4px 0px #388e3c;
+    }
+
+    .btn-sound:active {
+      transform: translateY(2px);
+      box-shadow: 0 2px 0px #388e3c;
+    }
+
+    .btn-sound svg {
+      width: 24px;
+      height: 24px;
+      fill: white;
+    }
+
+    /* Confetti animation for round completions */
+    .confetti {
+      position: absolute;
+      width: 10px;
+      height: 10px;
+      background-color: #ffd54f;
+      opacity: 0.8;
+      border-radius: 50%;
+      animation: fall 3s linear infinite;
+      z-index: 50;
+      pointer-events: none;
+    }
+
+    @keyframes fall {
+      0% { transform: translateY(-10px) rotate(0deg); opacity: 1; }
+      100% { transform: translateY(100vh) rotate(360deg); opacity: 0; }
+    }
+  </style>
+</head>
+<body>
+
+  <!-- Portrait Orientation Warning -->
+  <div id="portrait-warning">
+    <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
+      <rect x="5" y="2" width="14" height="20" rx="2" ry="2"/>
+      <path d="M12 18h.01"/>
+    </svg>
+    <h2>Please turn your screen to Landscape mode to play!</h2>
+  </div>
+
+  <!-- Main Game Container -->
+  <div id="game-container">
+    
+    <!-- Welcome/Splash Overlay -->
+    <div id="welcome-overlay" class="overlay-screen">
+      <h2 id="overlay-title">The Little Seed's Journey</h2>
+      <p style="font-size: 1.2rem; margin-bottom: 30px; max-width: 500px;">Help your seeds grow into beautiful flowers and yummy plants step-by-step!</p>
+      <button class="btn-play" onclick="startGame()">Start Growing!</button>
+    </div>
+
+    <!-- Complete/Success Overlay -->
+    <div id="success-overlay" class="overlay-screen" style="display: none;">
+      <h2 id="success-title">Master Gardener!</h2>
+      <p id="success-text" style="font-size: 1.3rem; margin-bottom: 30px; max-width: 500px;"></p>
+      <button class="btn-play" onclick="resetEntireGame()">Play Again</button>
+    </div>
+
+    <!-- Top Navigation Header -->
+    <header>
+      <h1 id="game-title">The Little Seed's Journey</h1>
+      <div style="display: flex; gap: 15px; align-items: center;">
+        <button class="btn-sound" id="btn-replay" onclick="replayAudio()" title="Hear instructions again">
+          <svg viewBox="0 0 24 24">
+            <path d="M3 9v6h4l5 5V4L7 9H3zm13.5 3c0-1.77-1.02-3.29-2.5-4.03v8.05c1.48-.73 2.5-2.25 2.5-4.02zM14 3.23v2.06c2.89.86 5 3.54 5 6.71s-2.11 5.85-5 6.71v2.06c4.01-.91 7-4.49 7-8.77s-2.99-7.86-7-8.77z"/>
+          </svg>
+        </button>
+        <div class="round-indicator" id="round-lbl">Round 1 / 3</div>
+      </div>
+    </header>
+
+    <!-- Main Content Grid -->
+    <main class="game-play-area">
+      
+      <!-- Interactive visual growth area -->
+      <section class="visual-panel">
+        <div class="speech-bubble" id="speech-bubble-text">
+          Let's get ready to grow our plants!
+        </div>
+        
+        <div class="visual-display">
+          <!-- Central Dynamic SVGs represent growth progression -->
+          <svg id="stage-svg" class="stage-element bounce-in" viewBox="0 0 200 200" style="width: 100%; max-height: 250px;">
+            <!-- Pot base always displayed -->
+            <path d="M 60 140 L 70 190 L 130 190 L 140 140 Z" fill="#d84315" stroke="#3e2723" stroke-width="3" />
+            <ellipse cx="100" cy="140" rx="40" ry="10" fill="#bf360c" stroke="#3e2723" stroke-width="3" />
+            
+            <!-- Soil overlay (starts hidden) -->
+            <ellipse id="soil-visual" cx="100" cy="140" rx="36" ry="8" fill="#5d4037" style="display: none;" />
+            
+            <!-- Seed overlay -->
+            <ellipse id="seed-visual" cx="100" cy="138" rx="5" ry="3" fill="#8d6e63" style="display: none;" />
+            
+            <!-- Sprout overlay -->
+            <path id="sprout-visual" d="M 100 135 Q 95 110 100 100 Q 105 110 100 135 M 100 115 Q 115 110 120 115 M 100 120 Q 85 115 80 120" stroke="#4caf50" stroke-width="4" fill="none" style="display: none;" />
+
+            <!-- Water droplets -->
+            <g id="water-drops" style="display: none;">
+              <path d="M 85 60 Q 85 70 90 70 Q 95 70 95 60 Z" fill="#29b6f6"/>
+              <path d="M 115 65 Q 115 75 120 75 Q 125 75 125 65 Z" fill="#29b6f6"/>
+            </g>
+
+            <!-- Sunshine rays -->
+            <g id="sun-rays" style="display: none;">
+              <circle cx="100" cy="30" r="15" fill="#ffd54f" />
+              <line x1="100" y1="10" x2="100" y2="5" stroke="#fbc02d" stroke-width="3" />
+              <line x1="120" y1="20" x2="125" y2="15" stroke="#fbc02d" stroke-width="3" />
+              <line x1="80" y1="20" x2="75" y2="15" stroke="#fbc02d" stroke-width="3" />
+            </g>
+            
+            <!-- Fully Grown Plants (dynamic final layers) -->
+            <g id="flower-sunflower" style="display: none;">
+              <!-- Sunflower stem & giant blossom -->
+              <path d="M 100 140 L 100 80" stroke="#4caf50" stroke-width="6"/>
+              <path d="M 100 90 Q 120 80 125 90" stroke="#4caf50" stroke-width="3" fill="none" />
+              <circle cx="100" cy="80" r="25" fill="#fbc02d" stroke="#f57c00" stroke-width="2"/>
+              <circle cx="100" cy="80" r="13" fill="#3e2723" />
+            </g>
+
+            <g id="flower-tomato" style="display: none;">
+              <!-- Vines with red tomatoes -->
+              <path d="M 100 140 L 100 90 Q 80 80 90 70 M 100 110 Q 120 100 110 90" stroke="#4caf50" stroke-width="5" fill="none"/>
+              <circle cx="85" cy="75" r="10" fill="#e53935" />
+              <circle cx="115" cy="95" r="10" fill="#e53935" />
+            </g>
+
+            <g id="flower-strawberry" style="display: none;">
+              <!-- Short wild bush with strawberries -->
+              <path d="M 100 140 Q 85 110 90 95 M 100 140 Q 115 115 110 105" stroke="#4caf50" stroke-width="5" fill="none"/>
+              <!-- Strawberry shape (simplified triangle) -->
+              <path d="M 85 105 Q 90 120 95 105 Z" fill="#e91e63" stroke="#880e4f" />
+              <path d="M 105 115 Q 110 130 115 115 Z" fill="#e91e63" stroke="#880e4f" />
+            </g>
+
+          </svg>
+        </div>
+      </section>
+
+      <!-- Interface Action Cards -->
+      <section class="cards-panel" id="cards-board">
+        <!-- Inside JS: Shuffled card elements injected here -->
+      </section>
+
+    </main>
+  </div>
+
+  <script>
+    /*
+      Structured Narrative Configuration (JSON)
+      Contains text instructions & feedback used dynamically by the TTS system.
+    */
+    const narrativeData = {
+      "gameId": "gardening_adventure",
+      "gameTitle": "The Seed's Big Journey",
+      "voiceGuide": "Instructs 1st graders to build a growing sequence step-by-step: Soil, Seed, Water, Sun, and Sprout. Reinforces botanical requirements through gameplay actions.",
+      "phrases": {
+        "welcome": {
+          "text": "Hello, Little Gardener! Let's help some plants grow up! Find the card to start."
+        },
+        "need_soil": {
+          "text": "First, we need a warm bed for our plant. What resource keeps the roots safe?"
+        },
+        "need_seed": {
+          "text": "Wonderful! Now we need something small to plant in the ground. What do we place inside the soil?"
+        },
+        "need_water": {
+          "text": "Our seed is tucked in! What drink makes the dry soil nice and moist?"
+        },
+        "need_sun": {
+          "text": "Perfect! Now we need natural light to keep our growing seed warm. What shines high in the sky?"
+        },
+        "need_sprout": {
+          "text": "Look closely! What starts to pop up out of the earth when it gets warmth and moisture?"
+        },
+        "soil_ok": {
+          "text": "Fantastic! Healthy soil holds our plant steady and holds water for the roots."
+        },
+        "seed_ok": {
+          "text": "That is right! Inside every small seed is a tiny baby plant waiting to wake up!"
+        },
+        "water_ok": {
+          "text": "Yum! Soil drinks up the rain. Our little seed is absorbing water to grow!"
+        },
+        "sun_ok": {
+          "text": "Super! Sunlight gives plants the energy they need to make food!"
+        },
+        "sprout_ok": {
+          "text": "Yes! The green sprout is growing big, tall, and strong!"
+        },
+        "wrong": {
+          "text": "Not quite yet! Think about what our little plant needs next."
+        },
+        "round_done": {
+          "text": "Wow! Look at that beautiful plant you helped grow!"
+        },
+        "all_done": {
+          "text": "Outstanding work! You helped all of our seeds grow up. You are a real master gardener!"
+        }
+      }
+    };
+
+    // Configuration of standard sequence steps
+    const sequenceOrder = ["soil", "seed", "water", "sun", "sprout"];
+
+    // Rounds details
+    const rounds = [
+      { name: "Sunflower", elementId: "flower-sunflower" },
+      { name: "Juicy Tomato", elementId: "flower-tomato" },
+      { name: "Wild Strawberry", elementId: "flower-strawberry" }
+    ];
+
+    // Card definitions with raw SVGs for easy offline standalone operation
+    const cardData = {
+      "soil": {
+        "label": "Soil",
+        "svg": `<svg viewBox="0 0 64 64"><ellipse cx="32" cy="45" rx="24" ry="12" fill="#795548"/><ellipse cx="32" cy="40" rx="16" ry="8" fill="#5d4037"/><path d="M 28 25 L 36 25" stroke="#4caf50" stroke-width="4" stroke-linecap="round"/></svg>`
+      },
+      "seed": {
+        "label": "Seed",
+        "svg": `<svg viewBox="0 0 64 64"><ellipse cx="32" cy="32" rx="14" ry="8" fill="#a1887f" transform="rotate(-30, 32, 32)"/><circle cx="28" cy="28" r="2" fill="#3e2723"/></svg>`
+      },
+      "water": {
+        "label": "Water",
+        "svg": `<svg viewBox="0 0 64 64"><path d="M32 12 C18 36 18 52 32 52 C46 52 46 36 32 12 Z" fill="#29b6f6"/><path d="M28 32 C22 40 25 46 32 46" fill="none" stroke="#e0f7fa" stroke-width="3" stroke-linecap="round"/></svg>`
+      },
+      "sun": {
+        "label": "Sun",
+        "svg": `<svg viewBox="0 0 64 64"><circle cx="32" cy="32" r="14" fill="#ffca28" stroke="#f57c00" stroke-width="2"/><circle cx="27" cy="29" r="2" fill="#3e2723"/><circle cx="37" cy="29" r="2" fill="#3e2723"/><path d="M 28 37 Q 32 41 36 37" stroke="#3e2723" stroke-width="2" fill="none"/><g stroke="#f57c00" stroke-width="3"><line x1="32" y1="8" x2="32" y2="14"/><line x1="32" y1="50" x2="32" y2="56"/><line x1="8" y1="32" x2="14" y2="32"/><line x1="50" y1="32" x2="56" y2="32"/></g></svg>`
+      },
+      "sprout": {
+        "label": "Sprout",
+        "svg": `<svg viewBox="0 0 64 64"><path d="M 32 50 C 32 30 22 25 20 22 M 32 45 C 32 32 42 28 44 26 M 32 58 L 32 35" stroke="#66bb6a" stroke-width="4" stroke-linecap="round" fill="none"/><path d="M 20 22 Q 12 25 15 32 Q 22 30 20 22 Z" fill="#81c784"/><path d="M 44 26 Q 52 23 49 16 Q 42 18 44 26 Z" fill="#81c784"/></svg>`
+      }
+    };
+
+    // Game state tracking
+    let currentRoundIndex = 0;
+    let currentSequenceStep = 0;
+    let currentlySpeaking = null;
+
+    // Initialize layout and state
+    function initGame() {
+      document.getElementById('game-title').innerText = narrativeData.gameTitle;
+      renderCards();
+      resetPlantVisuals();
+    }
+
+    // Render cards onto layout (shuffled order)
+    function renderCards() {
+      const cardsBoard = document.getElementById('cards-board');
+      cardsBoard.innerHTML = '';
+
+      // Create a copy and shuffle keys
+      const cardKeys = Object.keys(cardData);
+      const shuffledKeys = cardKeys.sort(() => Math.random() - 0.5);
+
+      shuffledKeys.forEach(key => {
+        const item = cardData[key];
+        const cardEl = document.createElement('div');
+        cardEl.className = 'card';
+        cardEl.id = `card-${key}`;
+        cardEl.innerHTML = `
+          ${item.svg}
+          <span>${item.label}</span>
+        `;
+        cardEl.onclick = () => handleCardClick(key);
+        cardsBoard.appendChild(cardEl);
+      });
+    }
+
+    // Process a child tapping a card
+    function handleCardClick(cardKey) {
+      const expectedKey = sequenceOrder[currentSequenceStep];
+      const cardElement = document.getElementById(`card-${cardKey}`);
+
+      if (cardKey === expectedKey) {
+        // Success selection logic
+        cardElement.classList.add('disabled');
+        currentSequenceStep++;
+        updateVisualProgress(cardKey);
+        
+        if (currentSequenceStep < sequenceOrder.length) {
+          // Play current step approval sound, then announce next prompt
+          speakNarrative(`${cardKey}_ok`, () => {
+            promptNextStep();
+          });
+        } else {
+          // End of sequencing round
+          handleRoundCompletion();
+        }
+      } else {
+        // Wrong card selection feedback
+        cardElement.classList.add('shake');
+        setTimeout(() => cardElement.classList.remove('shake'), 500);
+        speakNarrative('wrong');
+      }
+    }
+
+    // Update visuals based on sequence matching
+    function updateVisualProgress(stepKey) {
+      if (stepKey === 'soil') {
+        document.getElementById('soil-visual').style.display = 'block';
+      } else if (stepKey === 'seed') {
+        document.getElementById('seed-visual').style.display = 'block';
+      } else if (stepKey === 'water') {
+        const target = document.getElementById('water-drops');
+        target.style.display = 'block';
+        setTimeout(() => target.style.display = 'none', 1500);
+      } else if (stepKey === 'sun') {
+        document.getElementById('sun-rays').style.display = 'block';
+      } else if (stepKey === 'sprout') {
+        document.getElementById('sprout-visual').style.display = 'block';
+      }
+    }
+
+    // Prompts player for the next needed item
+    function promptNextStep() {
+      const neededStep = sequenceOrder[currentSequenceStep];
+      speakNarrative(`need_${neededStep}`);
+    }
+ 
+      let currentAudio = null;
+
+    // Play recorded audio files from the plant_audio folder
+    function speakNarrative(phraseKey, onEndCallback = null) {
+      const phraseObj = narrativeData.phrases[phraseKey];
+      if (!phraseObj) return;
+
+      // Update subtitle/bubble text
+      const bubble = document.getElementById('speech-bubble-text');
+      bubble.innerText = phraseObj.text;
+
+      // 1. Stop any currently playing audio
+      if (currentAudio) {
+        currentAudio.pause();
+        currentAudio.currentTime = 0;
+      }
+
+      // 2. Load the audio file from your folder (Assumes .m4a format)
+      // If your files are .wav or .m4a, change the extension below!
+      currentAudio = new Audio(`plant_audio/${phraseKey}.m4a`);
+
+      // 3. What to do when the audio finishes playing
+      currentAudio.onended = () => {
+        if (onEndCallback) onEndCallback();
+      };
+
+      // 4. Fallback just in case the file is missing or misspelled
+      currentAudio.onerror = () => {
+        console.error(`Could not find audio file: plant_audio/${phraseKey}.m4a`);
+        if (onEndCallback) setTimeout(onEndCallback, 3000); // Wait 3 seconds then move on
+      };
+
+      // 5. Play the audio
+      currentAudio.play().catch(error => {
+        console.warn("Browser blocked audio playback:", error);
+        if (onEndCallback) setTimeout(onEndCallback, 3000);
+      });
+    }
+    
+
+    // Triggered upon sequence completion
+    function handleRoundCompletion() {
+      // Reveal the mature target plant
+      const roundDetails = rounds[currentRoundIndex];
+      document.getElementById('sprout-visual').style.display = 'none';
+      document.getElementById(roundDetails.elementId).style.display = 'block';
+
+      createConfetti();
+
+      speakNarrative('round_done', () => {
+        setTimeout(() => {
+          currentRoundIndex++;
+          if (currentRoundIndex < rounds.length) {
+            startNextRound();
+          } else {
+            endEntireGame();
+          }
+        }, 1500);
+      });
+    }
+
+    // Set up state for next plant round
+    function startNextRound() {
+      currentSequenceStep = 0;
+      document.getElementById('round-lbl').innerText = `Round ${currentRoundIndex + 1} / ${rounds.length}`;
+      resetPlantVisuals();
+      renderCards();
+      speakNarrative('welcome', () => {
+        promptNextStep();
+      });
+    }
+
+    // Clear all SVGs for starting fresh
+    function resetPlantVisuals() {
+      document.getElementById('soil-visual').style.display = 'none';
+      document.getElementById('seed-visual').style.display = 'none';
+      document.getElementById('sprout-visual').style.display = 'none';
+      document.getElementById('water-drops').style.display = 'none';
+      document.getElementById('sun-rays').style.display = 'none';
+
+      // Hide all plant species elements
+      rounds.forEach(r => {
+        document.getElementById(r.elementId).style.display = 'none';
+      });
+    }
+
+    // Ending screen display
+    function endEntireGame() {
+      const modal = document.getElementById('success-overlay');
+      const textMsg = document.getElementById('success-text');
+      
+      textMsg.innerText = `You grew a Sunflower, a Juicy Tomato, and a Wild Strawberry! You took care of them all.`;
+      modal.style.display = 'flex';
+
+      speakNarrative('all_done');
+    }
+
+    // Entry state triggered by User gesture interaction
+    function startGame() {
+      document.getElementById('welcome-overlay').style.display = 'none';
+      currentRoundIndex = 0;
+      currentSequenceStep = 0;
+      document.getElementById('round-lbl').innerText = `Round 1 / ${rounds.length}`;
+      
+      resetPlantVisuals();
+      renderCards();
+
+      // Initiate game audio introduction
+      speakNarrative('welcome', () => {
+        promptNextStep();
+      });
+    }
+
+    // Replay speech triggers
+    function replayAudio() {
+      if (currentSequenceStep < sequenceOrder.length) {
+        promptNextStep();
+      } else {
+        speakNarrative('round_done');
+      }
+    }
+
+    // Complete Reset
+    function resetEntireGame() {
+      document.getElementById('success-overlay').style.display = 'none';
+      startGame();
+    }
+
+    // Confetti physics generator
+    function createConfetti() {
+      const container = document.getElementById('game-container');
+      const colors = ['#ffd54f', '#81c784', '#4fc3f7', '#ff8a65', '#f06292'];
+      
+      for (let i = 0; i < 35; i++) {
+        const piece = document.createElement('div');
+        piece.className = 'confetti';
+        piece.style.left = `${Math.random() * 100}%`;
+        piece.style.backgroundColor = colors[Math.floor(Math.random() * colors.length)];
+        piece.style.animationDelay = `${Math.random() * 2}s`;
+        piece.style.animationDuration = `${2 + Math.random() * 3}s`;
+        container.appendChild(piece);
+
+        // Cleanup
+        setTimeout(() => piece.remove(), 5000);
+      }
+    }
+
+    window.onload = initGame;
+  </script>
+</body>
+</html>

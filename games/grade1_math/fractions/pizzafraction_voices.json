@@ -1,0 +1,87 @@
+{
+  "gameId": "pizzafraction",
+  "gameTitle": "Pizza Fractions",
+  "voiceGuide": "Help children learn fractions by eating pizza slices. Target fraction is shown, and children eat slices until the correct fraction remains. Celebrate correct answers and guide when they eat too many or too few.",
+  "phrases": {
+    "welcome": {
+      "text": "Welcome to Pizza Fractions! Eat slices until the right fraction is left!",
+      "m4a": "pizzafraction_audio/welcome.m4a"
+    },
+    "instructions": {
+      "text": "Tap slices to eat them. Leave exactly the target fraction!",
+      "m4a": "pizzafraction_audio/instructions.m4a"
+    },
+    "correct_1": {
+      "text": "Perfect slicing!",
+      "m4a": "pizzafraction_audio/correct_1.m4a"
+    },
+    "correct_2": {
+      "text": "You got it exactly right!",
+      "m4a": "pizzafraction_audio/correct_2.m4a"
+    },
+    "correct_3": {
+      "text": "Amazing pizza skills!",
+      "m4a": "pizzafraction_audio/correct_3.m4a"
+    },
+    "correct_4": {
+      "text": "That's the perfect fraction!",
+      "m4a": "pizzafraction_audio/correct_4.m4a"
+    },
+    "correct_5": {
+      "text": "Wonderful! You nailed it!",
+      "m4a": "pizzafraction_audio/correct_5.m4a"
+    },
+    "wrong_1": {
+      "text": "Oops! You ate too many!",
+      "m4a": "pizzafraction_audio/wrong_1.m4a"
+    },
+    "wrong_2": {
+      "text": "Not quite right. Tap a slice to put it back!",
+      "m4a": "pizzafraction_audio/wrong_2.m4a"
+    },
+    "wrong_3": {
+      "text": "Careful! Count the slices again.",
+      "m4a": "pizzafraction_audio/wrong_3.m4a"
+    },
+    "wrong_4": {
+      "text": "Almost! Try tapping a slice to undo.",
+      "m4a": "pizzafraction_audio/wrong_4.m4a"
+    },
+    "encouragement_1": {
+      "text": "Great job! Keep eating!",
+      "m4a": "pizzafraction_audio/encouragement_1.m4a"
+    },
+    "encouragement_2": {
+      "text": "You're doing great!",
+      "m4a": "pizzafraction_audio/encouragement_2.m4a"
+    },
+    "encouragement_3": {
+      "text": "Almost there!",
+      "m4a": "pizzafraction_audio/encouragement_3.m4a"
+    },
+    "encouragement_4": {
+      "text": "What a great pizza chef!",
+      "m4a": "pizzafraction_audio/encouragement_4.m4a"
+    },
+    "win": {
+      "text": "You completed all 10 rounds! You're a pizza fraction master!",
+      "m4a": "pizzafraction_audio/win.m4a"
+    },
+    "try_again": {
+      "text": "Let's eat some more pizza!",
+      "m4a": "pizzafraction_audio/try_again.m4a"
+    },
+    "too_many": {
+      "text": "You ate too many! Tap a slice to put it back.",
+      "m4a": "pizzafraction_audio/too_many.m4a"
+    },
+    "keep_going": {
+      "text": "Keep going! Eat a few more slices!",
+      "m4a": "pizzafraction_audio/keep_going.m4a"
+    },
+    "perfect_score": {
+      "text": "Incredible! You got every fraction perfect! You're a pizza genius!",
+      "m4a": "pizzafraction_audio/perfect_score.m4a"
+    }
+  }
+}

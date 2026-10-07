@@ -1,0 +1,26 @@
+{
+  "welcome": {
+    "text": "Welcome to the Pattern Garden! Let's build a beautiful repeating chain!",
+    "m4a": "shapegarden_audio/garden_welcome.m4a"
+  },
+  "instructions": {
+    "text": "Look closely at the pattern groups. Find the matching shape that completes the next block!",
+    "m4a": "shapegarden_audio/garden_instructions.m4a"
+  },
+  "correct_1": {
+    "text": "Splendid! That matches the repetition rule perfectly!",
+    "m4a": "shapegarden_audio/garden_match.m4a"
+  },
+  "level_complete": {
+    "text": "Look at that! The whole pattern block is blooming in balance!",
+    "m4a": "shapegarden_audio/garden_bloom.m4a"
+  },
+  "level_up": {
+    "text": "Wonderful progress! Let's discover a more advanced pattern rhythm!",
+    "m4a": "shapegarden_audio/garden_next.m4a"
+  },
+  "wrong_1": {
+    "text": "Not quite! Look back at the first completed group to see the pattern sequence.",
+    "m4a": "shapegarden_audio/garden_hint.m4a"
+  }
+}

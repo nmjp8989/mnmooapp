@@ -1,0 +1,651 @@
+{
+  "welcome": {
+    "text": " Welcome to Ocean Plurals! Help Captain Ink find the right words!",
+    "m4a": "ocean_audio/welcome.m4a"
+  },
+  "instructions": {
+    "text": "Captain Ink shows you a singular word. Pick the correct plural from 3 bubbles!",
+    "m4a": "ocean_audio/instructions.m4a"
+  },
+  "find_plural": {
+    "text": "🫧 What is the plural?",
+    "m4a": "ocean_audio/find_plural.m4a"
+  },
+  "correct_1": {
+    "text": " That's correct!",
+    "m4a": "ocean_audio/correct_1.m4a"
+  },
+  "correct_2": {
+    "text": "That's right!",
+    "m4a": "ocean_audio/correct_2.m4a"
+  },
+  "wrong_1": {
+    "text": "Try again!",
+    "m4a": "ocean_audio/wrong_1.m4a"
+  },
+  "wrong_2": {
+    "text": "Listen to the correct answer.",
+    "m4a": "ocean_audio/wrong_2.m4a"
+  },
+  "round_done": {
+    "text": "Pearl earned!",
+    "m4a": "ocean_audio/round_done.m4a"
+  },
+  "win": {
+    "text": "Treasure found! You got all the pearls!",
+    "m4a": "ocean_audio/win.m4a"
+  },
+  "try_again": {
+    "text": "Good diving! Try again?",
+    "m4a": "ocean_audio/try_again.m4a"
+  },
+  "question_cat": {
+    "text": "What is the plural of cat?",
+    "m4a": "ocean_audio/question_cat.m4a"
+  },
+  "word_cat": {
+    "text": "Cat.",
+    "m4a": "ocean_audio/word_cat.m4a"
+  },
+  "plural_cats": {
+    "text": "Cats.",
+    "m4a": "ocean_audio/plural_cats.m4a"
+  },
+  "pair_cat_cats": {
+    "text": "One cat. Many cats.",
+    "m4a": "ocean_audio/pair_cat_cats.m4a"
+  },
+  "question_dog": {
+    "text": "What is the plural of dog?",
+    "m4a": "ocean_audio/question_dog.m4a"
+  },
+  "word_dog": {
+    "text": "Dog.",
+    "m4a": "ocean_audio/word_dog.m4a"
+  },
+  "plural_dogs": {
+    "text": "Dogs.",
+    "m4a": "ocean_audio/plural_dogs.m4a"
+  },
+  "pair_dog_dogs": {
+    "text": "One dog. Many dogs.",
+    "m4a": "ocean_audio/pair_dog_dogs.m4a"
+  },
+  "question_book": {
+    "text": "What is the plural of book?",
+    "m4a": "ocean_audio/question_book.m4a"
+  },
+  "word_book": {
+    "text": "Book.",
+    "m4a": "ocean_audio/word_book.m4a"
+  },
+  "plural_books": {
+    "text": "Books.",
+    "m4a": "ocean_audio/plural_books.m4a"
+  },
+  "pair_book_books": {
+    "text": "One book. Many books.",
+    "m4a": "ocean_audio/pair_book_books.m4a"
+  },
+  "question_star": {
+    "text": "What is the plural of star?",
+    "m4a": "ocean_audio/question_star.m4a"
+  },
+  "word_star": {
+    "text": "Star.",
+    "m4a": "ocean_audio/word_star.m4a"
+  },
+  "plural_stars": {
+    "text": "Stars.",
+    "m4a": "ocean_audio/plural_stars.m4a"
+  },
+  "pair_star_stars": {
+    "text": "One star. Many stars.",
+    "m4a": "ocean_audio/pair_star_stars.m4a"
+  },
+  "question_car": {
+    "text": "What is the plural of car?",
+    "m4a": "ocean_audio/question_car.m4a"
+  },
+  "word_car": {
+    "text": "Car.",
+    "m4a": "ocean_audio/word_car.m4a"
+  },
+  "plural_cars": {
+    "text": "Cars.",
+    "m4a": "ocean_audio/plural_cars.m4a"
+  },
+  "pair_car_cars": {
+    "text": "One car. Many cars.",
+    "m4a": "ocean_audio/pair_car_cars.m4a"
+  },
+  "question_tree": {
+    "text": "What is the plural of tree?",
+    "m4a": "ocean_audio/question_tree.m4a"
+  },
+  "word_tree": {
+    "text": "Tree.",
+    "m4a": "ocean_audio/word_tree.m4a"
+  },
+  "plural_trees": {
+    "text": "Trees.",
+    "m4a": "ocean_audio/plural_trees.m4a"
+  },
+  "pair_tree_trees": {
+    "text": "One tree. Many trees.",
+    "m4a": "ocean_audio/pair_tree_trees.m4a"
+  },
+  "question_shell": {
+    "text": "What is the plural of shell?",
+    "m4a": "ocean_audio/question_shell.m4a"
+  },
+  "word_shell": {
+    "text": "Shell.",
+    "m4a": "ocean_audio/word_shell.m4a"
+  },
+  "plural_shells": {
+    "text": "Shells.",
+    "m4a": "ocean_audio/plural_shells.m4a"
+  },
+  "pair_shell_shells": {
+    "text": "One shell. Many shells.",
+    "m4a": "ocean_audio/pair_shell_shells.m4a"
+  },
+  "question_crab": {
+    "text": "What is the plural of crab?",
+    "m4a": "ocean_audio/question_crab.m4a"
+  },
+  "word_crab": {
+    "text": "Crab.",
+    "m4a": "ocean_audio/word_crab.m4a"
+  },
+  "plural_crabs": {
+    "text": "Crabs.",
+    "m4a": "ocean_audio/plural_crabs.m4a"
+  },
+  "pair_crab_crabs": {
+    "text": "One crab. Many crabs.",
+    "m4a": "ocean_audio/pair_crab_crabs.m4a"
+  },
+  "question_cup": {
+    "text": "What is the plural of cup?",
+    "m4a": "ocean_audio/question_cup.m4a"
+  },
+  "word_cup": {
+    "text": "Cup.",
+    "m4a": "ocean_audio/word_cup.m4a"
+  },
+  "plural_cups": {
+    "text": "Cups.",
+    "m4a": "ocean_audio/plural_cups.m4a"
+  },
+  "pair_cup_cups": {
+    "text": "One cup. Many cups.",
+    "m4a": "ocean_audio/pair_cup_cups.m4a"
+  },
+  "question_frog": {
+    "text": "What is the plural of frog?",
+    "m4a": "ocean_audio/question_frog.m4a"
+  },
+  "word_frog": {
+    "text": "Frog.",
+    "m4a": "ocean_audio/word_frog.m4a"
+  },
+  "plural_frogs": {
+    "text": "Frogs.",
+    "m4a": "ocean_audio/plural_frogs.m4a"
+  },
+  "pair_frog_frogs": {
+    "text": "One frog. Many frogs.",
+    "m4a": "ocean_audio/pair_frog_frogs.m4a"
+  },
+  "question_bus": {
+    "text": "What is the plural of bus?",
+    "m4a": "ocean_audio/question_bus.m4a"
+  },
+  "word_bus": {
+    "text": "Bus.",
+    "m4a": "ocean_audio/word_bus.m4a"
+  },
+  "plural_buses": {
+    "text": "Buses.",
+    "m4a": "ocean_audio/plural_buses.m4a"
+  },
+  "pair_bus_buses": {
+    "text": "One bus. Many buses.",
+    "m4a": "ocean_audio/pair_bus_buses.m4a"
+  },
+  "question_box": {
+    "text": "What is the plural of box?",
+    "m4a": "ocean_audio/question_box.m4a"
+  },
+  "word_box": {
+    "text": "Box.",
+    "m4a": "ocean_audio/word_box.m4a"
+  },
+  "plural_boxes": {
+    "text": "Boxes.",
+    "m4a": "ocean_audio/plural_boxes.m4a"
+  },
+  "pair_box_boxes": {
+    "text": "One box. Many boxes.",
+    "m4a": "ocean_audio/pair_box_boxes.m4a"
+  },
+  "question_dish": {
+    "text": "What is the plural of dish?",
+    "m4a": "ocean_audio/question_dish.m4a"
+  },
+  "word_dish": {
+    "text": "Dish.",
+    "m4a": "ocean_audio/word_dish.m4a"
+  },
+  "plural_dishes": {
+    "text": "Dishes.",
+    "m4a": "ocean_audio/plural_dishes.m4a"
+  },
+  "pair_dish_dishes": {
+    "text": "One dish. Many dishes.",
+    "m4a": "ocean_audio/pair_dish_dishes.m4a"
+  },
+  "question_brush": {
+    "text": "What is the plural of brush?",
+    "m4a": "ocean_audio/question_brush.m4a"
+  },
+  "word_brush": {
+    "text": "Brush.",
+    "m4a": "ocean_audio/word_brush.m4a"
+  },
+  "plural_brushes": {
+    "text": "Brushes.",
+    "m4a": "ocean_audio/plural_brushes.m4a"
+  },
+  "pair_brush_brushes": {
+    "text": "One brush. Many brushes.",
+    "m4a": "ocean_audio/pair_brush_brushes.m4a"
+  },
+  "question_fox": {
+    "text": "What is the plural of fox?",
+    "m4a": "ocean_audio/question_fox.m4a"
+  },
+  "word_fox": {
+    "text": "Fox.",
+    "m4a": "ocean_audio/word_fox.m4a"
+  },
+  "plural_foxes": {
+    "text": "Foxes.",
+    "m4a": "ocean_audio/plural_foxes.m4a"
+  },
+  "pair_fox_foxes": {
+    "text": "One fox. Many foxes.",
+    "m4a": "ocean_audio/pair_fox_foxes.m4a"
+  },
+  "question_watch": {
+    "text": "What is the plural of watch?",
+    "m4a": "ocean_audio/question_watch.m4a"
+  },
+  "word_watch": {
+    "text": "Watch.",
+    "m4a": "ocean_audio/word_watch.m4a"
+  },
+  "plural_watches": {
+    "text": "Watches.",
+    "m4a": "ocean_audio/plural_watches.m4a"
+  },
+  "pair_watch_watches": {
+    "text": "One watch. Many watches.",
+    "m4a": "ocean_audio/pair_watch_watches.m4a"
+  },
+  "question_church": {
+    "text": "What is the plural of church?",
+    "m4a": "ocean_audio/question_church.m4a"
+  },
+  "word_church": {
+    "text": "Church.",
+    "m4a": "ocean_audio/word_church.m4a"
+  },
+  "plural_churches": {
+    "text": "Churches.",
+    "m4a": "ocean_audio/plural_churches.m4a"
+  },
+  "pair_church_churches": {
+    "text": "One church. Many churches.",
+    "m4a": "ocean_audio/pair_church_churches.m4a"
+  },
+  "question_tomato": {
+    "text": "What is the plural of tomato?",
+    "m4a": "ocean_audio/question_tomato.m4a"
+  },
+  "word_tomato": {
+    "text": "Tomato.",
+    "m4a": "ocean_audio/word_tomato.m4a"
+  },
+  "plural_tomatoes": {
+    "text": "Tomatoes.",
+    "m4a": "ocean_audio/plural_tomatoes.m4a"
+  },
+  "pair_tomato_tomatoes": {
+    "text": "One tomato. Many tomatoes.",
+    "m4a": "ocean_audio/pair_tomato_tomatoes.m4a"
+  },
+  "question_baby": {
+    "text": "What is the plural of baby?",
+    "m4a": "ocean_audio/question_baby.m4a"
+  },
+  "word_baby": {
+    "text": "Baby.",
+    "m4a": "ocean_audio/word_baby.m4a"
+  },
+  "plural_babies": {
+    "text": "Babies.",
+    "m4a": "ocean_audio/plural_babies.m4a"
+  },
+  "pair_baby_babies": {
+    "text": "One baby. Many babies.",
+    "m4a": "ocean_audio/pair_baby_babies.m4a"
+  },
+  "question_puppy": {
+    "text": "What is the plural of puppy?",
+    "m4a": "ocean_audio/question_puppy.m4a"
+  },
+  "word_puppy": {
+    "text": "Puppy.",
+    "m4a": "ocean_audio/word_puppy.m4a"
+  },
+  "plural_puppies": {
+    "text": "Puppies.",
+    "m4a": "ocean_audio/plural_puppies.m4a"
+  },
+  "pair_puppy_puppies": {
+    "text": "One puppy. Many puppies.",
+    "m4a": "ocean_audio/pair_puppy_puppies.m4a"
+  },
+  "question_butterfly": {
+    "text": "What is the plural of butterfly?",
+    "m4a": "ocean_audio/question_butterfly.m4a"
+  },
+  "word_butterfly": {
+    "text": "Butterfly.",
+    "m4a": "ocean_audio/word_butterfly.m4a"
+  },
+  "plural_butterflies": {
+    "text": "Butterflies.",
+    "m4a": "ocean_audio/plural_butterflies.m4a"
+  },
+  "pair_butterfly_butterflies": {
+    "text": "One butterfly. Many butterflies.",
+    "m4a": "ocean_audio/pair_butterfly_butterflies.m4a"
+  },
+  "question_berry": {
+    "text": "What is the plural of berry?",
+    "m4a": "ocean_audio/question_berry.m4a"
+  },
+  "word_berry": {
+    "text": "Berry.",
+    "m4a": "ocean_audio/word_berry.m4a"
+  },
+  "plural_berries": {
+    "text": "Berries.",
+    "m4a": "ocean_audio/plural_berries.m4a"
+  },
+  "pair_berry_berries": {
+    "text": "One berry. Many berries.",
+    "m4a": "ocean_audio/pair_berry_berries.m4a"
+  },
+  "question_city": {
+    "text": "What is the plural of city?",
+    "m4a": "ocean_audio/question_city.m4a"
+  },
+  "word_city": {
+    "text": "City.",
+    "m4a": "ocean_audio/word_city.m4a"
+  },
+  "plural_cities": {
+    "text": "Cities.",
+    "m4a": "ocean_audio/plural_cities.m4a"
+  },
+  "pair_city_cities": {
+    "text": "One city. Many cities.",
+    "m4a": "ocean_audio/pair_city_cities.m4a"
+  },
+  "question_lady": {
+    "text": "What is the plural of lady?",
+    "m4a": "ocean_audio/question_lady.m4a"
+  },
+  "word_lady": {
+    "text": "Lady.",
+    "m4a": "ocean_audio/word_lady.m4a"
+  },
+  "plural_ladies": {
+    "text": "Ladies.",
+    "m4a": "ocean_audio/plural_ladies.m4a"
+  },
+  "pair_lady_ladies": {
+    "text": "One lady. Many ladies.",
+    "m4a": "ocean_audio/pair_lady_ladies.m4a"
+  },
+  "question_story": {
+    "text": "What is the plural of story?",
+    "m4a": "ocean_audio/question_story.m4a"
+  },
+  "word_story": {
+    "text": "Story.",
+    "m4a": "ocean_audio/word_story.m4a"
+  },
+  "plural_stories": {
+    "text": "Stories.",
+    "m4a": "ocean_audio/plural_stories.m4a"
+  },
+  "pair_story_stories": {
+    "text": "One story. Many stories.",
+    "m4a": "ocean_audio/pair_story_stories.m4a"
+  },
+  "question_mouse": {
+    "text": "What is the plural of mouse?",
+    "m4a": "ocean_audio/question_mouse.m4a"
+  },
+  "word_mouse": {
+    "text": "Mouse.",
+    "m4a": "ocean_audio/word_mouse.m4a"
+  },
+  "plural_mice": {
+    "text": "Mice.",
+    "m4a": "ocean_audio/plural_mice.m4a"
+  },
+  "pair_mouse_mice": {
+    "text": "One mouse. Many mice.",
+    "m4a": "ocean_audio/pair_mouse_mice.m4a"
+  },
+  "question_child": {
+    "text": "What is the plural of child?",
+    "m4a": "ocean_audio/question_child.m4a"
+  },
+  "word_child": {
+    "text": "Child.",
+    "m4a": "ocean_audio/word_child.m4a"
+  },
+  "plural_children": {
+    "text": "Children.",
+    "m4a": "ocean_audio/plural_children.m4a"
+  },
+  "pair_child_children": {
+    "text": "One child. Many children.",
+    "m4a": "ocean_audio/pair_child_children.m4a"
+  },
+  "question_tooth": {
+    "text": "What is the plural of tooth?",
+    "m4a": "ocean_audio/question_tooth.m4a"
+  },
+  "word_tooth": {
+    "text": "Tooth.",
+    "m4a": "ocean_audio/word_tooth.m4a"
+  },
+  "plural_teeth": {
+    "text": "Teeth.",
+    "m4a": "ocean_audio/plural_teeth.m4a"
+  },
+  "pair_tooth_teeth": {
+    "text": "One tooth. Many teeth.",
+    "m4a": "ocean_audio/pair_tooth_teeth.m4a"
+  },
+  "question_foot": {
+    "text": "What is the plural of foot?",
+    "m4a": "ocean_audio/question_foot.m4a"
+  },
+  "word_foot": {
+    "text": "Foot.",
+    "m4a": "ocean_audio/word_foot.m4a"
+  },
+  "plural_feet": {
+    "text": "Feet.",
+    "m4a": "ocean_audio/plural_feet.m4a"
+  },
+  "pair_foot_feet": {
+    "text": "One foot. Many feet.",
+    "m4a": "ocean_audio/pair_foot_feet.m4a"
+  },
+  "question_person": {
+    "text": "What is the plural of person?",
+    "m4a": "ocean_audio/question_person.m4a"
+  },
+  "word_person": {
+    "text": "Person.",
+    "m4a": "ocean_audio/word_person.m4a"
+  },
+  "plural_people": {
+    "text": "People.",
+    "m4a": "ocean_audio/plural_people.m4a"
+  },
+  "pair_person_people": {
+    "text": "One person. Many people.",
+    "m4a": "ocean_audio/pair_person_people.m4a"
+  },
+  "question_goose": {
+    "text": "What is the plural of goose?",
+    "m4a": "ocean_audio/question_goose.m4a"
+  },
+  "word_goose": {
+    "text": "Goose.",
+    "m4a": "ocean_audio/word_goose.m4a"
+  },
+  "plural_geese": {
+    "text": "Geese.",
+    "m4a": "ocean_audio/plural_geese.m4a"
+  },
+  "pair_goose_geese": {
+    "text": "One goose. Many geese.",
+    "m4a": "ocean_audio/pair_goose_geese.m4a"
+  },
+  "question_man": {
+    "text": "What is the plural of man?",
+    "m4a": "ocean_audio/question_man.m4a"
+  },
+  "word_man": {
+    "text": "Man.",
+    "m4a": "ocean_audio/word_man.m4a"
+  },
+  "plural_men": {
+    "text": "Men.",
+    "m4a": "ocean_audio/plural_men.m4a"
+  },
+  "pair_man_men": {
+    "text": "One man. Many men.",
+    "m4a": "ocean_audio/pair_man_men.m4a"
+  },
+  "question_woman": {
+    "text": "What is the plural of woman?",
+    "m4a": "ocean_audio/question_woman.m4a"
+  },
+  "word_woman": {
+    "text": "Woman.",
+    "m4a": "ocean_audio/word_woman.m4a"
+  },
+  "plural_women": {
+    "text": "Women.",
+    "m4a": "ocean_audio/plural_women.m4a"
+  },
+  "pair_woman_women": {
+    "text": "One woman. Many women.",
+    "m4a": "ocean_audio/pair_woman_women.m4a"
+  },
+  "question_leaf": {
+    "text": "What is the plural of leaf?",
+    "m4a": "ocean_audio/question_leaf.m4a"
+  },
+  "word_leaf": {
+    "text": "Leaf.",
+    "m4a": "ocean_audio/word_leaf.m4a"
+  },
+  "plural_leaves": {
+    "text": "Leaves.",
+    "m4a": "ocean_audio/plural_leaves.m4a"
+  },
+  "pair_leaf_leaves": {
+    "text": "One leaf. Many leaves.",
+    "m4a": "ocean_audio/pair_leaf_leaves.m4a"
+  },
+  "question_wolf": {
+    "text": "What is the plural of wolf?",
+    "m4a": "ocean_audio/question_wolf.m4a"
+  },
+  "word_wolf": {
+    "text": "Wolf.",
+    "m4a": "ocean_audio/word_wolf.m4a"
+  },
+  "plural_wolves": {
+    "text": "Wolves.",
+    "m4a": "ocean_audio/plural_wolves.m4a"
+  },
+  "pair_wolf_wolves": {
+    "text": "One wolf. Many wolves.",
+    "m4a": "ocean_audio/pair_wolf_wolves.m4a"
+  },
+  "question_shelf": {
+    "text": "What is the plural of shelf?",
+    "m4a": "ocean_audio/question_shelf.m4a"
+  },
+  "word_shelf": {
+    "text": "Shelf.",
+    "m4a": "ocean_audio/word_shelf.m4a"
+  },
+  "plural_shelves": {
+    "text": "Shelves.",
+    "m4a": "ocean_audio/plural_shelves.m4a"
+  },
+  "pair_shelf_shelves": {
+    "text": "One shelf. Many shelves.",
+    "m4a": "ocean_audio/pair_shelf_shelves.m4a"
+  },
+  "question_sheep": {
+    "text": "What is the plural of sheep?",
+    "m4a": "ocean_audio/question_sheep.m4a"
+  },
+  "word_sheep": {
+    "text": "Sheep.",
+    "m4a": "ocean_audio/word_sheep.m4a"
+  },
+  "plural_sheep": {
+    "text": "Sheep.",
+    "m4a": "ocean_audio/plural_sheep.m4a"
+  },
+  "pair_sheep_sheep": {
+    "text": "One sheep. Many sheep.",
+    "m4a": "ocean_audio/pair_sheep_sheep.m4a"
+  },
+  "question_deer": {
+    "text": "What is the plural of deer?",
+    "m4a": "ocean_audio/question_deer.m4a"
+  },
+  "word_deer": {
+    "text": "Deer.",
+    "m4a": "ocean_audio/word_deer.m4a"
+  },
+  "plural_deer": {
+    "text": "Deer.",
+    "m4a": "ocean_audio/plural_deer.m4a"
+  },
+  "pair_deer_deer": {
+    "text": "One deer. Many deer.",
+    "m4a": "ocean_audio/pair_deer_deer.m4a"
+  }
+}
+

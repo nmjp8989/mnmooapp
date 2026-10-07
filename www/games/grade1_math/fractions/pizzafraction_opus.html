@@ -1,0 +1,465 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width,initial-scale=1,maximum-scale=1,user-scalable=no">
+<title>Pizza Fractions</title>
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link href="https://fonts.googleapis.com/css2?family=Fredoka:wght@400;600;700&family=Nunito:wght@400;600;700;800&display=swap" rel="stylesheet">
+<style>
+:root{
+  --p-orange:#FF6B35;--p-gold:#FFB800;--p-red:#EF476F;--p-green:#06D6A0;
+  --p-crust:#C25420;--p-cheese:#FFC107;--p-cheese-light:#FFE082;
+  --p-bg-warm:#FFF8F0;--p-bg-peach:#FFE8D6;--p-bg-cream:#FFF0E0;
+  --p-card:#FFFFFF;--p-card-warm:#FFFAF5;
+  --p-text:#3E2723;--p-text-mid:#6D4C41;--p-text-light:#A1887F;
+  --p-correct:#00C853;--p-wrong:#FF5252;
+  --p-font-h:'Fredoka',sans-serif;--p-font-b:'Nunito',sans-serif;
+  --p-radius:22px;
+}
+*,*::before,*::after{box-sizing:border-box;margin:0;padding:0}
+html,body{width:100vw;height:100dvh;overflow:hidden;font-family:var(--p-font-b);color:var(--p-text)}
+body{
+  background:
+    radial-gradient(ellipse at 20% 20%,rgba(255,107,53,.08) 0%,transparent 50%),
+    radial-gradient(ellipse at 80% 80%,rgba(255,184,0,.07) 0%,transparent 50%),
+    linear-gradient(160deg,var(--p-bg-warm) 0%,var(--p-bg-peach) 40%,var(--p-bg-cream) 100%);
+  display:flex;align-items:center;justify-content:center;
+}
+button{font-family:var(--p-font-b);border:none;cursor:pointer;-webkit-tap-highlight-color:transparent;touch-action:manipulation}
+button:active{transform:scale(.94)!important}
+
+.bg-deco{position:fixed;pointer-events:none;z-index:0;opacity:.06;font-size:48px;animation:decoFloat var(--dd,12s) ease-in-out infinite;animation-delay:var(--ds,0s)}
+@keyframes decoFloat{0%,100%{transform:translateY(0) rotate(0deg)}50%{transform:translateY(-18px) rotate(8deg)}}
+@keyframes confettiFall{0%{transform:translateY(0) rotate(0);opacity:1}100%{transform:translateY(-110vh) rotate(720deg);opacity:0}}
+@keyframes popIn{0%{transform:scale(0)}60%{transform:scale(1.12)}100%{transform:scale(1)}}
+@keyframes floatUp{0%{opacity:1;transform:translateY(0) scale(1)}100%{opacity:0;transform:translateY(-60px) scale(0.5)}}
+
+.screen{display:flex;flex-direction:column;align-items:center;justify-content:center;width:100%;height:100%;position:absolute;top:0;left:0;z-index:1}
+
+.game-screen{padding:10px;gap:8px}
+.game-area{display:flex;align-items:center;justify-content:center;gap:clamp(12px,3vw,28px);width:100%;max-width:800px;flex:1;min-height:0}
+.pizza-container{flex:1;display:flex;align-items:center;justify-content:center;gap:clamp(10px,2vw,22px);min-width:0;position:relative}
+.pizza-choice{background:rgba(255,255,255,.72);border:3px solid rgba(255,107,53,.14);border-radius:28px;padding:clamp(6px,1.5vw,14px);box-shadow:0 7px 20px rgba(0,0,0,.08);transition:transform .2s ease,border-color .2s ease,box-shadow .2s ease}
+.pizza-choice:hover{transform:translateY(-4px);border-color:var(--p-gold);box-shadow:0 11px 26px rgba(194,84,32,.18)}
+.pizza-choice.wrong{animation:choiceShake .38s ease;border-color:var(--p-wrong)}
+.pizza-choice.correct{border-color:var(--p-correct);box-shadow:0 0 0 5px rgba(0,200,83,.14),0 11px 26px rgba(0,0,0,.1)}
+.pizza-svg{display:block;width:clamp(170px,33vmin,310px);height:clamp(170px,33vmin,310px);filter:drop-shadow(0 6px 18px rgba(0,0,0,.15));transition:transform .3s ease}
+@keyframes choiceShake{0%,100%{transform:translateX(0)}25%{transform:translateX(-10px)}75%{transform:translateX(10px)}}
+
+.info-panel{flex:0 1 270px;display:flex;flex-direction:column;gap:14px;align-items:center;text-align:center}
+.fraction-display{
+  background:var(--p-card);border-radius:var(--p-radius);padding:22px 34px;
+  box-shadow:0 6px 20px rgba(0,0,0,.08);display:flex;flex-direction:column;align-items:center;gap:2px;
+  animation:popIn .4s ease-out;border:2px solid rgba(255,107,53,.1);position:relative;overflow:hidden;
+}
+.fraction-display::before{content:'';position:absolute;top:0;left:0;right:0;height:4px;background:linear-gradient(90deg,var(--p-orange),var(--p-gold),var(--p-red))}
+.fraction-label{font-size:clamp(14px,3vh,18px);color:var(--p-text-mid);font-weight:700;margin-bottom:6px;letter-spacing:.5px;text-transform:uppercase}
+.frac-num,.frac-den{font-family:var(--p-font-h);font-weight:700;line-height:1}
+.frac-num{font-size:clamp(28px,6vh,44px);color:var(--p-orange)}
+.frac-line{width:clamp(52px,9vw,80px);height:5px;background:linear-gradient(90deg,var(--p-orange),var(--p-gold));border-radius:3px;margin:5px 0}
+.frac-den{font-size:clamp(28px,6vh,44px);color:var(--p-orange)}
+.status-bar{background:var(--p-card-warm);border-radius:16px;padding:12px 22px;box-shadow:0 3px 12px rgba(0,0,0,.06);font-weight:700;font-family:var(--p-font-h);font-size:clamp(16px,3.5vh,22px);min-width:180px;border:2px solid rgba(255,184,0,.15);color:var(--p-text)}
+
+.slice-active{fill:var(--p-cheese);stroke:var(--p-crust);stroke-width:.04;cursor:pointer;transition:fill .15s;transform-origin:center}
+.slice-active:hover{fill:#FFCA28}
+.slice-active:active{fill:#FFB300}
+.slice-eaten{fill:rgba(255,193,7,.09);stroke:#C9BEB4;stroke-width:.035;stroke-dasharray:.09 .065}
+.missing-mark{fill:#A99587;font-family:var(--p-font-h);font-size:.22px;font-weight:700;text-anchor:middle;dominant-baseline:middle;opacity:.68}
+.crust-ring{fill:none;stroke:var(--p-crust);stroke-width:.1;stroke-linecap:round}
+.crust-inner{fill:none;stroke:#E08040;stroke-width:.03;opacity:.45}
+.bubble{fill:var(--p-cheese-light);opacity:.65}
+.slice-group{cursor:pointer}
+
+.mascot-float{position:absolute;top:8vh;left:2vw;z-index:35;pointer-events:none;opacity:0;transition:opacity .4s}
+.mascot-float.show{opacity:1}
+.mascot-container{transform:scale(1.1);transform-origin:center}
+.mascot-sprite{width:72px;height:128px;image-rendering:pixelated;transform:translateZ(0)}
+.mascot-sprite.idle{background-image:url('../../assets/cow/idle.webp');background-size:216px 128px;animation:spIdle .6s steps(3) infinite}
+@keyframes spIdle{100%{background-position:-216px 0}}
+.mascot-sprite.dancing{background-image:url('../../assets/cow/rhythm.webp');background-size:432px 128px}
+
+@media(max-aspect-ratio:1/1){
+  .game-area{flex-direction:column;gap:6px}
+  .pizza-container{flex:0 1 auto;gap:8px}
+  .pizza-choice{padding:5px;border-radius:20px}
+  .pizza-svg{width:min(39vmin,190px);height:min(39vmin,190px)}
+  .info-panel{flex:0 0 auto;flex-direction:row;flex-wrap:wrap;justify-content:center;gap:10px}
+  .fraction-display{padding:14px 22px}
+  .frac-num,.frac-den{font-size:28px}
+  .frac-line{width:44px;height:4px;margin:3px 0}
+}
+</style>
+</head>
+<body>
+
+<div class="bg-deco" style="top:8%;left:5%;--dd:14s;--ds:0s">🍕</div>
+<div class="bg-deco" style="top:70%;left:8%;--dd:11s;--ds:2s;font-size:32px">🧀</div>
+<div class="bg-deco" style="top:15%;right:8%;--dd:16s;--ds:1s;font-size:36px">⭐</div>
+<div class="bg-deco" style="bottom:12%;right:6%;--dd:13s;--ds:3s;font-size:40px">🍕</div>
+<div class="bg-deco" style="top:45%;left:3%;--dd:18s;--ds:4s;font-size:28px">🍅</div>
+<div class="bg-deco" style="top:50%;right:4%;--dd:15s;--ds:1.5s;font-size:34px">🌿</div>
+
+<div class="mascot-float" id="mascotFloat">
+  <div class="mascot-container">
+    <div class="mascot-sprite idle" id="mascotSprite" aria-hidden="true"></div>
+  </div>
+</div>
+
+<!-- Game Screen -->
+<div class="screen game-screen" id="gameScreen">
+  <div class="game-area">
+    <div class="pizza-container" id="pizzaChoices">
+      <button class="pizza-choice" id="pizzaChoice0" onclick="choosePizza(0)" aria-label="Choose the first pizza">
+        <svg class="pizza-svg" id="pizzaSvg0" viewBox="-1.2 -1.2 2.4 2.4" aria-hidden="true"></svg>
+      </button>
+      <button class="pizza-choice" id="pizzaChoice1" onclick="choosePizza(1)" aria-label="Choose the second pizza">
+        <svg class="pizza-svg" id="pizzaSvg1" viewBox="-1.2 -1.2 2.4 2.4" aria-hidden="true"></svg>
+      </button>
+    </div>
+    <div class="info-panel">
+      <div class="fraction-display">
+        <div class="fraction-label">Find the fraction gone</div>
+        <div class="frac-num" id="targetNum">1</div>
+        <div class="frac-line"></div>
+        <div class="frac-den" id="targetDen">3</div>
+      </div>
+      <div class="status-bar" id="statusBar">🍕 Count the × missing slices</div>
+    </div>
+  </div>
+</div>
+
+<audio id="opus-cheer" preload="auto" src="cheer.m4a"></audio>
+
+<script>
+const OpusAudio = (() => {
+  let ctx;
+  function getCtx() {
+    if (!ctx) ctx = new (window.AudioContext || window.webkitAudioContext)();
+    if (ctx.state === 'suspended') ctx.resume();
+    return ctx;
+  }
+  function tone(freq, dur, type = 'sine', vol = 0.3) {
+    const c = getCtx(), o = c.createOscillator(), g = c.createGain();
+    o.type = type; o.frequency.value = freq;
+    g.gain.setValueAtTime(vol, c.currentTime);
+    g.gain.exponentialRampToValueAtTime(0.001, c.currentTime + dur);
+    o.connect(g).connect(c.destination);
+    o.start(); o.stop(c.currentTime + dur);
+  }
+  return {
+    correct(){ tone(880, 0.1); setTimeout(() => tone(1100, 0.15), 100) },
+    pop()    { tone(600, 0.06, 'sine', 0.15) },
+    eat()    { tone(600, 0.08, 'sine', 0.15); setTimeout(() => tone(400, 0.1, 'sine', 0.1), 80) },
+  };
+})();
+
+const MascotCtrl=(()=>{
+  const FW=72;let st=null,ct=null;
+  function gEl(){return document.getElementById('mascotSprite')}
+  function clr(){clearTimeout(st);clearTimeout(ct)}
+  function setSp(el,state,fi){if(!el)return;el.className='mascot-sprite '+state;if(state==='dancing'&&fi!==undefined)el.style.backgroundPosition=`-${fi*FW}px 0px`;else el.style.backgroundPosition=''}
+  function idle(el){if(!el)return;clr();setSp(el,'idle')}
+  function danceQuick(el){if(!el)return;clr();const fr=[0,1,2,3,4,5];let i=0;(function n(){if(i>=fr.length){setSp(el,'idle');return}setSp(el,'dancing',fr[i]);i++;ct=setTimeout(n,100)})()}
+  return{
+    show(){const f=document.getElementById('mascotFloat');if(f)f.classList.add('show')},
+    idle(){idle(gEl())},
+    danceQuick(){danceQuick(gEl())}
+  };
+})();
+
+const OpusMedia = {
+  cheer() { const el = document.getElementById('opus-cheer'); if (el) { el.currentTime = 0; el.play().catch(()=>{}) } }
+};
+
+// ═══════════════════════════════════════
+//  VOICE NARRATION SYSTEM
+// ═══════════════════════════════════════
+const VoicePhrases = {
+  welcome: "pizzafraction_audio/welcome.m4a",
+  instructions: "pizzafraction_audio/instructions.m4a",
+  correct: [
+    "pizzafraction_audio/correct_1.m4a",
+    "pizzafraction_audio/correct_2.m4a",
+    "pizzafraction_audio/correct_3.m4a",
+    "pizzafraction_audio/correct_4.m4a",
+    "pizzafraction_audio/correct_5.m4a"
+  ],
+  wrong: [
+    "pizzafraction_audio/wrong_1.m4a",
+    "pizzafraction_audio/wrong_2.m4a",
+    "pizzafraction_audio/wrong_3.m4a",
+    "pizzafraction_audio/wrong_4.m4a",
+    "pizzafraction_audio/too_many.m4a"
+  ],
+  win: "pizzafraction_audio/win.m4a",
+  perfect: "pizzafraction_audio/perfect_score.m4a",
+  keep_going: "pizzafraction_audio/keep_going.m4a",
+  try_again: "pizzafraction_audio/try_again.m4a"
+};
+
+const VoicePlayer = {
+  currentAudio: null,
+  play(key) {
+    if (this.currentAudio) {
+      this.currentAudio.pause(); // Stop previous voice line
+    }
+    
+    let src = null;
+    if (Array.isArray(VoicePhrases[key])) {
+      src = VoicePhrases[key][Math.floor(Math.random() * VoicePhrases[key].length)];
+    } else {
+      src = VoicePhrases[key];
+    }
+
+    if (src) {
+      this.currentAudio = new Audio(src);
+      this.currentAudio.play().catch(e => console.log("Waiting for user interaction to play audio."));
+    }
+  }
+};
+
+function opusConfetti(count = 30) {
+  const colors = ['#FF6B35','#FFB800','#EF476F','#06D6A0','#FFD54F','#AB47BC','#42A5F5'];
+  for (let i = 0; i < count; i++) {
+    const el = document.createElement('div');
+    Object.assign(el.style, {
+      position:'fixed',width:(8+Math.random()*8)+'px',height:(8+Math.random()*8)+'px',
+      background:colors[i%colors.length],borderRadius:Math.random()>.5?'50%':'3px',
+      left:Math.random()*100+'vw',top:'100vh',pointerEvents:'none',zIndex:'9999',
+      animation:`confettiFall ${1.5+Math.random()}s ease-out ${Math.random()*.5}s forwards`
+    });
+    document.body.appendChild(el);
+    setTimeout(() => el.remove(), 2500);
+  }
+}
+
+function floatEmoji(emoji, x, y) {
+  const el = document.createElement('div');
+  el.textContent = emoji;
+  Object.assign(el.style, {
+    position:'fixed',left:x+'px',top:y+'px',fontSize:'32px',
+    pointerEvents:'none',zIndex:'9998',animation:'floatUp .8s ease-out forwards'
+  });
+  document.body.appendChild(el);
+  setTimeout(() => el.remove(), 900);
+}
+
+// ═══════════════════════════════════════
+//  GAME STATE
+// ═══════════════════════════════════════
+let state = {
+  denominator: 0, 
+  targetNum: 0, 
+  optionMissing: [],
+  optionDenominators: [],
+  correctIndex: 0,
+  missingByOption: [[], []],
+  locked: false,
+  round: 1,
+  hasStarted: false
+};
+
+window.onload = () => {
+  MascotCtrl.show(); 
+  MascotCtrl.idle();
+  
+  // Try to play welcome audio 
+  VoicePlayer.play('welcome');
+  
+  nextRound();
+};
+
+// ═══════════════════════════════════════
+//  NEXT ROUND
+// ═══════════════════════════════════════
+function nextRound() {
+  state.locked = false;
+
+  const denoms = [2, 3, 4, 5, 6, 8];
+  const den = denoms[Math.floor(Math.random() * denoms.length)];
+  const num = Math.floor(Math.random() * (den - 1)) + 1;
+
+  const distractors = [];
+  for (const wrongDen of denoms) {
+    for (let wrongMissing = 1; wrongMissing < wrongDen; wrongMissing++) {
+      const sameMissingFraction =
+        wrongMissing * den === num * wrongDen;
+      const remainingMatchesTarget =
+        (wrongDen - wrongMissing) * den === num * wrongDen;
+
+      if (!sameMissingFraction && !remainingMatchesTarget) {
+        distractors.push({den: wrongDen, missing: wrongMissing});
+      }
+    }
+  }
+  const wrong = distractors[Math.floor(Math.random() * distractors.length)];
+
+  state.denominator = den;
+  state.targetNum = num;
+  state.correctIndex = Math.random() < .5 ? 0 : 1;
+  state.optionMissing = state.correctIndex === 0
+    ? [num, wrong.missing]
+    : [wrong.missing, num];
+  state.optionDenominators = state.correctIndex === 0
+    ? [den, wrong.den]
+    : [wrong.den, den];
+  state.missingByOption = state.optionMissing.map((missingCount, optionIndex) => {
+    const optionDen = state.optionDenominators[optionIndex];
+    const indices = Array.from({length: optionDen}, (_, i) => i);
+    for (let i = indices.length - 1; i > 0; i--) {
+      const j = Math.floor(Math.random() * (i + 1));
+      [indices[i], indices[j]] = [indices[j], indices[i]];
+    }
+    return indices.slice(0, missingCount);
+  });
+
+  document.getElementById('targetNum').textContent = num;
+  document.getElementById('targetDen').textContent = den;
+  document.querySelectorAll('.pizza-choice').forEach(choice => {
+    choice.classList.remove('wrong', 'correct');
+    choice.disabled = false;
+  });
+
+  renderPizzas();
+  updateStatus();
+}
+
+function seededRandom(seed) {
+  let x = Math.sin(seed * 9301 + 49297) * 49297;
+  return x - Math.floor(x);
+}
+
+function renderPizzas() {
+  renderPizza(0);
+  renderPizza(1);
+}
+
+function renderPizza(optionIndex) {
+  const svg = document.getElementById(`pizzaSvg${optionIndex}`);
+  const den = state.optionDenominators[optionIndex];
+  const angleStep = (2 * Math.PI) / den;
+  const startOffset = -Math.PI / 2 + optionIndex * angleStep * .45;
+  const missing = new Set(state.missingByOption[optionIndex]);
+
+  const toppingSets = [
+    ['pepperoni','#C62828','#B71C1C'],['olive','#33691E','#1B5E20'],
+    ['pepperoni','#D32F2F','#B71C1C'],['mushroom','#795548','#5D4037'],
+    ['pepperoni','#C62828','#B71C1C'],['olive','#2E7D32','#1B5E20'],
+    ['pepperoni','#D32F2F','#C62828'],['pepper','#FF6F00','#E65100'],
+  ];
+
+  let html = '<defs>';
+  html += '<radialGradient id="boardGrad" cx="42%" cy="38%"><stop offset="0%" stop-color="#D4A06A"/><stop offset="70%" stop-color="#B8864E"/><stop offset="100%" stop-color="#9B6B3C"/></radialGradient>';
+  html += '<radialGradient id="plateGrad" cx="42%" cy="38%"><stop offset="0%" stop-color="#FAFAFA"/><stop offset="100%" stop-color="#E8E4E0"/></radialGradient>';
+  html += '</defs>';
+  html += '<ellipse cx="0.04" cy="0.06" rx="1.22" ry="1.18" fill="rgba(0,0,0,.08)"/>';
+  html += '<circle cx="0" cy="0" r="1.18" fill="url(#boardGrad)" stroke="#8B6B3C" stroke-width=".025"/>';
+  html += '<circle cx="0" cy="0" r="1.08" fill="none" stroke="rgba(139,107,60,.15)" stroke-width=".01"/>';
+  html += '<circle cx="0" cy="0" r="1.06" fill="url(#plateGrad)" stroke="#D0CCC8" stroke-width=".02"/>';
+
+  for (let i = 0; i < den; i++) {
+    const a1 = startOffset + i * angleStep;
+    const a2 = startOffset + (i + 1) * angleStep;
+    const x1 = Math.cos(a1), y1 = Math.sin(a1);
+    const x2 = Math.cos(a2), y2 = Math.sin(a2);
+    const largeArc = angleStep > Math.PI ? 1 : 0;
+    const d = `M 0 0 L ${x1} ${y1} A 1 1 0 ${largeArc} 1 ${x2} ${y2} Z`;
+    const midAngle = (a1 + a2) / 2;
+    const eaten = missing.has(i);
+    const cls = eaten ? 'slice-eaten' : 'slice-active';
+
+    html += `<g>`;
+    if (!eaten) {
+      html += `<path d="${d}" class="${cls}"/>`;
+      html += `<path d="M ${x1} ${y1} A 1 1 0 ${largeArc} 1 ${x2} ${y2}" fill="none" stroke="#C25420" stroke-width=".1" stroke-linecap="round"/>`;
+      html += `<path d="M ${x1*.97} ${y1*.97} A .97 .97 0 ${largeArc} 1 ${x2*.97} ${y2*.97}" fill="none" stroke="#E8A060" stroke-width=".025" opacity=".5"/>`;
+    } else {
+      const markX = Math.cos(midAngle) * .58;
+      const markY = Math.sin(midAngle) * .58;
+      html += `<path d="${d}" class="slice-eaten"/>`;
+      html += `<text x="${markX}" y="${markY}" class="missing-mark">×</text>`;
+    }
+
+    if (!eaten) {
+      const seed = i + optionIndex * 101;
+      const b1x = Math.cos(midAngle - angleStep*0.15)*(0.35+seededRandom(seed*7)*0.2);
+      const b1y = Math.sin(midAngle - angleStep*0.15)*(0.35+seededRandom(seed*7)*0.2);
+      const b2x = Math.cos(midAngle + angleStep*0.2)*(0.5+seededRandom(seed*13)*0.15);
+      const b2y = Math.sin(midAngle + angleStep*0.2)*(0.5+seededRandom(seed*13)*0.15);
+      html += `<circle cx="${b1x}" cy="${b1y}" r=".045" class="bubble"/>`;
+      html += `<circle cx="${b2x}" cy="${b2y}" r=".035" class="bubble"/>`;
+      if (den <= 5) {
+        html += `<circle cx="${Math.cos(midAngle+angleStep*.05)*(0.55+seededRandom(i*19)*.1)}" cy="${Math.sin(midAngle+angleStep*.05)*(0.55+seededRandom(i*19)*.1)}" r=".03" class="bubble"/>`;
+      }
+      const top = toppingSets[(i + optionIndex * 3) % toppingSets.length];
+      const tDist = 0.42 + seededRandom(seed*31)*0.18;
+      const tAngle = midAngle + (seededRandom(seed*37)-0.5)*angleStep*0.5;
+      const tx = Math.cos(tAngle)*tDist, ty = Math.sin(tAngle)*tDist;
+      if (top[0]==='pepperoni') {
+        html += `<circle cx="${tx}" cy="${ty}" r=".06" fill="${top[1]}" stroke="${top[2]}" stroke-width=".012"/>`;
+        html += `<circle cx="${tx-.015}" cy="${ty-.015}" r=".018" fill="rgba(255,255,255,.15)"/>`;
+      } else if (top[0]==='olive') {
+        html += `<circle cx="${tx}" cy="${ty}" r=".045" fill="${top[1]}" stroke="${top[2]}" stroke-width=".012"/>`;
+        html += `<circle cx="${tx}" cy="${ty}" r=".018" fill="#FFC107"/>`;
+      } else if (top[0]==='mushroom') {
+        html += `<ellipse cx="${tx}" cy="${ty}" rx=".05" ry=".032" fill="${top[1]}" stroke="${top[2]}" stroke-width=".01" transform="rotate(${(seededRandom(i*43)*40-20)|0} ${tx} ${ty})"/>`;
+      } else {
+        html += `<rect x="${tx-.03}" y="${ty-.012}" width=".06" height=".024" rx=".01" fill="${top[1]}" stroke="${top[2]}" stroke-width=".008" transform="rotate(${(seededRandom(i*47)*60-30)|0} ${tx} ${ty})"/>`;
+      }
+      if (den <= 4) {
+        const t2d=0.62+seededRandom(i*53)*.12, t2a=midAngle+(seededRandom(i*59)-.5)*angleStep*.3;
+        const top2=toppingSets[(i+3)%toppingSets.length];
+        html += `<circle cx="${Math.cos(t2a)*t2d}" cy="${Math.sin(t2a)*t2d}" r=".042" fill="${top2[1]}" stroke="${top2[2]}" stroke-width=".01"/>`;
+      }
+    }
+    html += '</g>';
+  }
+  svg.innerHTML = html;
+}
+
+// ═══════════════════════════════════════
+//  CHOOSE A PIZZA
+// ═══════════════════════════════════════
+window.choosePizza = function(optionIndex) {
+  if (state.locked) return;
+  state.hasStarted = true;
+
+  const choice = document.getElementById(`pizzaChoice${optionIndex}`);
+  if (optionIndex !== state.correctIndex) {
+    OpusAudio.pop();
+    choice.classList.remove('wrong');
+    void choice.offsetWidth;
+    choice.classList.add('wrong');
+    VoicePlayer.play('wrong');
+    return;
+  }
+
+  state.locked = true;
+  choice.classList.add('correct');
+  document.querySelectorAll('.pizza-choice').forEach(button => {
+    button.disabled = true;
+  });
+
+  OpusAudio.correct();
+  MascotCtrl.danceQuick();
+  OpusMedia.cheer();
+  opusConfetti(25);
+  
+  // Play random correct voice line
+  VoicePlayer.play('correct');
+
+  // Wait a little longer so the voice line finishes before resetting the screen
+  setTimeout(() => {
+    state.round++;
+    nextRound();
+  }, 2500); 
+};
+
+function updateStatus() {
+  document.getElementById('statusBar').textContent =
+    `🍕 Round ${state.round} • Count the × missing slices`;
+}
+</script>
+</body>
+</html>

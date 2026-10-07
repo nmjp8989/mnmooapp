@@ -1,0 +1,366 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width,initial-scale=1,maximum-scale=1,user-scalable=no">
+<title>Egg Basket Verbs</title>
+<link href="https://fonts.googleapis.com/css2?family=Fredoka:wght@400;600;700&family=Nunito:wght@400;600;700;800&display=swap" rel="stylesheet">
+<style>
+*{box-sizing:border-box;margin:0;padding:0}
+html,body{width:100vw;height:100dvh;overflow:hidden;margin:0;padding:0;touch-action:manipulation;user-select:none;overscroll-behavior:none;font-family:'Nunito',sans-serif;background:linear-gradient(135deg,#FFF5F0,#F0F4FF)}
+.screen{position:absolute;inset:0;display:flex;flex-direction:column;align-items:center;justify-content:center}.screen.hidden{display:none}
+.card{background:#fff;border-radius:20px;box-shadow:0 8px 32px rgba(0,0,0,0.10);padding:clamp(24px,4vh,40px) clamp(20px,4vw,32px);max-width:400px;width:90%;text-align:center}
+.title{font-family:'Fredoka',sans-serif;font-size:clamp(24px,6vh,40px);font-weight:700;color:#2E7D32;margin-bottom:8px}
+.subtitle{font-size:clamp(18px,4.5vh,28px);color:#555;margin-bottom:20px;line-height:1.5}
+.btn{display:inline-block;padding:clamp(14px,3vh,22px) clamp(28px,6vw,44px);border:none;border-radius:14px;font-family:'Fredoka',sans-serif;font-size:clamp(18px,4vh,26px);font-weight:600;color:#fff;background:var(--opus-accent,#42A5F5);cursor:pointer;min-height:44px;min-width:44px;touch-action:manipulation}
+.btn:active{opacity:0.85}
+#game-screen{background:linear-gradient(180deg,#87CEEB 0%,#B8E4FF 50%,#8BC34A 80%,#689F38 100%)}
+.hud{position:absolute;top:16px;left:50%;transform:translateX(-50%);background:rgba(255,255,255,0.9);border-radius:14px;padding:clamp(8px,1.5vh,14px) clamp(16px,3vw,28px);font-family:'Fredoka',sans-serif;font-size:clamp(18px,4vh,26px);font-weight:600;color:#2E7D32;box-shadow:0 2px 12px rgba(0,0,0,0.08);z-index:10}
+.game-area{display:flex;flex-direction:column;align-items:center;justify-content:center;gap:clamp(16px,3vh,28px);width:100%;height:100%;padding:clamp(60px,10vh,80px) 16px 24px}
+.prompt-word{font-family:'Fredoka',sans-serif;font-size:clamp(28px,7vh,48px);font-weight:700;color:#fff;text-shadow:0 3px 8px rgba(0,0,0,0.3);background:rgba(255,255,255,0.2);backdrop-filter:blur(4px);border-radius:16px;padding:clamp(12px,2vh,20px) clamp(24px,5vw,40px);animation:popIn 0.4s ease}
+@keyframes popIn{0%{transform:scale(0.5);opacity:0}60%{transform:scale(1.1)}100%{transform:scale(1);opacity:1}}
+.eggs-row{display:flex;justify-content:center;gap:clamp(16px,4vw,32px);width:100%;flex-wrap:nowrap}
+.egg-container{display:flex;flex-direction:column;align-items:center;gap:8px;cursor:pointer;touch-action:manipulation;transition:transform 0.2s}
+.egg-container:active{transform:scale(0.95)}
+.egg-svg{width:clamp(90px,22vw,140px);height:clamp(110px,26vh,170px);filter:drop-shadow(0 4px 12px rgba(0,0,0,0.15));transition:transform 0.3s}
+.egg-label{font-family:'Fredoka',sans-serif;font-size:clamp(22px,5vh,36px);font-weight:700;color:#fff;text-shadow:0 2px 6px rgba(0,0,0,0.3);background:rgba(255,255,255,0.25);border-radius:10px;padding:4px 16px}
+.egg-container.roll-right{animation:rollToBasket 0.8s cubic-bezier(0.25,0.46,0.45,0.94) forwards}
+.egg-container.wobble{animation:wobble 0.5s ease}
+@keyframes rollToBasket{0%{transform:translate(0,0) rotate(0deg);opacity:1}60%{transform:translate(0,60px) rotate(360deg);opacity:1}100%{transform:translate(0,120px) rotate(720deg);opacity:0;transform:scale(0.3)}}
+@keyframes wobble{0%,100%{transform:rotate(0deg)}20%{transform:rotate(-12deg)}40%{transform:rotate(12deg)}60%{transform:rotate(-8deg)}80%{transform:rotate(8deg)}}
+.basket-area{position:relative;display:flex;justify-content:center}
+.basket-svg{width:clamp(160px,40vw,260px);height:clamp(100px,16vh,150px)}
+.frog-area{position:absolute;bottom:clamp(10px,2vh,20px);right:clamp(16px,4vw,40px)}
+.frog-svg{width:clamp(60px,15vw,100px);height:clamp(50px,12vh,80px);transition:transform 0.3s}
+.frog-svg.celebrate{animation:frogJump 0.6s ease}
+@keyframes frogJump{0%,100%{transform:translateY(0)}50%{transform:translateY(-20px)}}
+.egg-in-basket{position:absolute;bottom:clamp(10px,2vh,16px);left:50%;transform:translateX(-50%);font-size:clamp(28px,6vh,44px);animation:basketPop 0.4s ease}
+@keyframes basketPop{0%{transform:translateX(-50%) scale(0)}60%{transform:translateX(-50%) scale(1.3)}100%{transform:translateX(-50%) scale(1)}}
+.end-emoji{font-size:clamp(48px,12vh,80px);margin-bottom:12px}
+.end-score{font-family:'Fredoka',sans-serif;font-size:clamp(22px,5vh,36px);color:#2E7D32;margin-bottom:6px}
+.end-msg{font-size:clamp(18px,4.5vh,28px);color:#555;margin-bottom:24px}
+.emoji-row{font-size:clamp(24px,5vh,36px);margin-bottom:16px}
+
+/* ═══ Mascot Cow ═══ */
+.mascot-float{
+  position:absolute;top:8vh;left:2vw;z-index:35;
+  pointer-events:none;opacity:0;transition:opacity .4s;
+}
+.mascot-float.show{opacity:1}
+.mascot-center{display:flex;justify-content:center;margin-bottom:8px}
+.mascot-container{transform:scale(1.1);transform-origin:center}
+.mascot-sprite{width:72px;height:128px;image-rendering:pixelated;transform:translateZ(0)}
+.mascot-sprite.idle{
+  background-image:url('../../assets/cow/idle.webp');
+  background-size:216px 128px;
+  animation:spIdle .6s steps(3) infinite;
+}
+@keyframes spIdle{100%{background-position:-216px 0}}
+.mascot-sprite.dancing{
+  background-image:url('../../assets/cow/rhythm.webp');
+  background-size:432px 128px;
+}
+.mascot-sprite.sad{
+  background-image:url('../../assets/cow/sadface.webp');
+  background-size:144px 128px;
+  animation:spSad .5s steps(2) infinite;
+}
+@keyframes spSad{100%{background-position:-144px 0}}
+
+</style>
+</head>
+<body>
+
+<div id="game-screen" class="screen hidden">
+  <div class="mascot-float" id="mascotFloat">
+    <div class="mascot-container">
+      <div class="mascot-sprite idle" id="mascotSprite" aria-hidden="true"></div>
+    </div>
+  </div>
+
+
+  <div class="hud" id="hud">Eggs: 0/10</div>
+  <div class="game-area">
+    <div class="prompt-word" id="prompt-word"></div>
+    <div class="eggs-row" id="eggs-row"></div>
+    <div class="basket-area">
+      <svg class="basket-svg" viewBox="0 0 260 150">
+        <ellipse cx="130" cy="140" rx="120" ry="15" fill="rgba(0,0,0,0.08)"/>
+        <path d="M30,60 Q20,60 15,80 L25,130 Q40,150 130,150 Q220,150 235,130 L245,80 Q240,60 230,60 Z" fill="#8D6E63" stroke="#6D4C41" stroke-width="3"/>
+        <path d="M30,60 Q130,40 230,60" fill="none" stroke="#6D4C41" stroke-width="3"/>
+        <line x1="60" y1="65" x2="50" y2="140" stroke="#6D4C41" stroke-width="2" opacity="0.4"/>
+        <line x1="100" y1="55" x2="95" y2="145" stroke="#6D4C41" stroke-width="2" opacity="0.4"/>
+        <line x1="160" y1="55" x2="165" y2="145" stroke="#6D4C41" stroke-width="2" opacity="0.4"/>
+        <line x1="200" y1="65" x2="210" y2="140" stroke="#6D4C41" stroke-width="2" opacity="0.4"/>
+        <path d="M10,60 Q5,40 15,35 Q20,50 25,60 Z" fill="#A1887F"/>
+        <path d="M250,60 Q255,40 245,35 Q240,50 235,60 Z" fill="#A1887F"/>
+      </svg>
+      <div id="egg-in-basket"></div>
+    </div>
+  </div>
+  <div class="frog-area">
+    <svg id="frog-svg" class="frog-svg" viewBox="0 0 100 80">
+      <ellipse cx="50" cy="52" rx="35" ry="24" fill="#4CAF50"/>
+      <ellipse cx="50" cy="48" rx="28" ry="18" fill="#66BB6A"/>
+      <circle cx="36" cy="34" r="12" fill="#fff"/>
+      <circle cx="64" cy="34" r="12" fill="#fff"/>
+      <circle cx="38" cy="33" r="6" fill="#222"/>
+      <circle cx="66" cy="33" r="6" fill="#222"/>
+      <circle cx="40" cy="30" r="2.5" fill="#fff"/>
+      <circle cx="68" cy="30" r="2.5" fill="#fff"/>
+      <path d="M40 54 Q50 64 60 54" stroke="#2E7D32" stroke-width="3" fill="none" stroke-linecap="round"/>
+    </svg>
+  </div>
+</div>
+
+<div id="end-screen" class="screen hidden">
+    <div class="mascot-center">
+      <div class="mascot-container">
+        <div class="mascot-sprite idle" id="endMascot" aria-hidden="true"></div>
+      </div>
+    </div>
+
+
+  <div class="card">
+    <div class="end-emoji">🏆</div>
+    <div class="end-score" id="end-score">10/10</div>
+    <div class="end-msg" id="end-msg">You know your verbs!</div>
+    <div class="emoji-row" id="emoji-row"></div>
+    <button class="btn" onclick="window.startGame()">Play Again</button>
+  </div>
+</div>
+
+<script>
+(function(){
+let VERBS=[];
+let NON_VERBS=[];
+let VOICES={};
+let GAME_DATA_LOADED=false;
+let GAME_DATA_PROMISE=null;
+
+function loadGameData(){
+  if(GAME_DATA_LOADED) return Promise.resolve();
+  if(GAME_DATA_PROMISE) return GAME_DATA_PROMISE;
+  GAME_DATA_PROMISE=fetch('frog_hopper_voices.json')
+    .then(r=>{if(!r.ok)throw new Error('frog hopper data load failed');return r.json();})
+    .then(data=>{
+      VERBS=data.verbs||[];
+      NON_VERBS=data.nonVerbs||[];
+      VOICES=data.phrases||{};
+      GAME_DATA_LOADED=true;
+    }).catch(e=>{
+      console.warn('frog hopper data load failed',e);
+      VERBS=VERBS.length?VERBS:[];
+      NON_VERBS=NON_VERBS.length?NON_VERBS:[];
+      VOICES=VOICES||{};
+    });
+  return GAME_DATA_PROMISE;
+}
+
+function getVoiceText(key){var v=VOICES[key];return typeof v==='string'?v:v?v.text:''}
+
+const AudioCtx=window.AudioContext||window.webkitAudioContext;
+let audioCtx;
+function ensureAudio(){if(!audioCtx)audioCtx=new AudioCtx()}
+
+const OpusAudio={
+  play(name){
+    ensureAudio();
+    const o=audioCtx.createOscillator();
+    const g=audioCtx.createGain();
+    o.connect(g);g.connect(audioCtx.destination);
+    g.gain.value=0.18;
+    const t=audioCtx.currentTime;
+    if(name==='click'){o.type='sine';o.frequency.setValueAtTime(600,t);o.frequency.linearRampToValueAtTime(800,t+0.08);g.gain.linearRampToValueAtTime(0,t+0.1);o.start(t);o.stop(t+0.1)}
+    else if(name==='correct'){o.type='sine';o.frequency.setValueAtTime(523,t);o.frequency.setValueAtTime(659,t+0.1);o.frequency.setValueAtTime(784,t+0.2);g.gain.linearRampToValueAtTime(0,t+0.35);o.start(t);o.stop(t+0.35)}
+    else if(name==='wrong'){o.type='sawtooth';o.frequency.setValueAtTime(200,t);o.frequency.linearRampToValueAtTime(120,t+0.25);g.gain.linearRampToValueAtTime(0,t+0.3);o.start(t);o.stop(t+0.3)}
+    else if(name==='win'){o.type='sine';o.frequency.setValueAtTime(523,t);o.frequency.setValueAtTime(659,t+0.12);o.frequency.setValueAtTime(784,t+0.24);o.frequency.setValueAtTime(1047,t+0.36);g.gain.linearRampToValueAtTime(0,t+0.6);o.start(t);o.stop(t+0.6)}
+    else if(name==='roll'){o.type='sine';o.frequency.setValueAtTime(300,t);o.frequency.exponentialRampToValueAtTime(600,t+0.3);g.gain.linearRampToValueAtTime(0,t+0.35);o.start(t);o.stop(t+0.35)}
+  }
+};
+
+const EGG_COLORS=['#FF6B6B','#FFD93D','#6BCB77','#4D96FF','#FF8FB1','#A78BFA'];
+function playVoice(key){
+  try{
+    var entry=VOICES[key];
+    if(entry&&entry.m4a){
+      if(window._pv){window._pv.pause();window._pv=null;}
+      var a=new Audio(entry.m4a);
+      window._pv=a;
+      a.play().catch(()=>{});
+    }
+  }catch(e){console.warn('playVoice failed',e)}
+}
+
+function shuffle(a){for(let i=a.length-1;i>0;i--){const j=Math.floor(Math.random()*(i+1));[a[i],a[j]]=[a[j],a[i]]}return a}
+
+let score=0;
+let round=0;
+const TOTAL=10;
+let usedVerbs=new Set();
+let usedNonVerbs=new Set();
+
+function pickWord(arr,used){
+  const available=arr.filter(w=>!used.has(w));
+  if(available.length===0){used.clear();return arr[Math.floor(Math.random()*arr.length)]}
+  const w=available[Math.floor(Math.random()*available.length)];
+  used.add(w);
+  return w;
+}
+
+function makeEggSVG(color){
+  return `<svg viewBox="0 0 100 130" xmlns="http://www.w3.org/2000/svg">
+    <ellipse cx="50" cy="65" rx="40" ry="55" fill="${color}"/>
+    <ellipse cx="50" cy="65" rx="40" ry="55" fill="rgba(255,255,255,0.2)" transform="translate(-6,-8)"/>
+    <ellipse cx="38" cy="45" rx="10" ry="16" fill="rgba(255,255,255,0.3)" transform="rotate(-15 38 45)"/>
+    <ellipse cx="50" cy="20" rx="20" ry="6" fill="rgba(255,255,255,0.15)"/>
+  </svg>`;
+}
+
+function renderRound(){
+  if(round>=TOTAL){endGame();return}
+  const row=document.getElementById('eggs-row');
+  row.innerHTML='';
+  const verb=pickWord(VERBS,usedVerbs);
+  const non1=pickWord(NON_VERBS,usedNonVerbs);
+  const non2=pickWord(NON_VERBS,usedNonVerbs);
+  const words=shuffle([verb,non1,non2]);
+  const promptEl=document.getElementById('prompt-word');
+  promptEl.textContent='🥚 Find the VERB';
+  promptEl.style.animation='none';
+  void promptEl.offsetWidth;
+  promptEl.style.animation='popIn 0.4s ease';
+  words.forEach((w,i)=>{
+    const container=document.createElement('div');
+    container.className='egg-container';
+    const color=EGG_COLORS[i%EGG_COLORS.length];
+    container.innerHTML=makeEggSVG(color)+`<span class="egg-label">${w}</span>`;
+    container.dataset.word=w;
+    container.dataset.isVerb=(w===verb)?'1':'0';
+    container.addEventListener('click',()=>handleChoice(container));
+    row.appendChild(container);
+  });
+  document.getElementById('hud').textContent=`Eggs: ${score}/${TOTAL}`;
+  playVoice('find_verb');
+}
+
+function handleChoice(container){
+  const isVerb=container.dataset.isVerb==='1';
+  const word=container.dataset.word;
+  if(isVerb){
+    OpusAudio.play('correct');
+    OpusAudio.play('roll');
+    container.classList.add('roll-right');
+    score++;
+    round++;
+    const pool=Math.random()>0.5?'correct_1':'correct_2';
+    playVoice(pool);
+    const frog=document.getElementById('frog-svg');
+    frog.classList.add('celebrate');
+    setTimeout(()=>frog.classList.remove('celebrate'),700);
+    const basketEgg=document.createElement('div');
+    basketEgg.className='egg-in-basket';
+    basketEgg.textContent='🥚';
+    document.getElementById('egg-in-basket').appendChild(basketEgg);
+    setTimeout(()=>basketEgg.remove(),1500);
+    if(score===5) setTimeout(()=>playVoice('halfway'),1200);
+    setTimeout(()=>renderRound(),900);
+  } else {
+    OpusAudio.play('wrong');
+    container.classList.add('wobble');
+    const pool=Math.random()>0.5?'wrong_1':'wrong_2';
+    playVoice(pool);
+    setTimeout(()=>container.classList.remove('wobble'),600);
+  }
+  document.getElementById('hud').textContent=`Eggs: ${score}/${TOTAL}`;
+}
+
+function endGame(){
+  document.getElementById('game-screen').classList.add('hidden');
+  document.getElementById('end-screen').classList.remove('hidden');
+  document.getElementById('end-score').textContent=`${score}/${TOTAL}`;
+  if(score>=8){
+    document.getElementById('end-msg').textContent=getVoiceText('win');
+    OpusAudio.play('win');
+    opusConfetti();
+    MascotCtrl.celebrate(3000);
+  } else {
+    document.getElementById('end-msg').textContent=getVoiceText('try_again');
+  }
+  let eggs='';
+  for(let i=0;i<score;i++) eggs+='🥚';
+  document.getElementById('emoji-row').textContent=eggs;
+}
+
+function opusConfetti(){
+  const colors=['#FF6B6B','#4ECDC4','#45B7D1','#FFA07A','#98D8C8','#FFD93D','#C9B1FF'];
+  for(let i=0;i<60;i++){
+    const c=document.createElement('div');
+    c.style.cssText=`position:fixed;width:${6+Math.random()*8}px;height:${6+Math.random()*8}px;background:${colors[i%colors.length]};border-radius:${Math.random()>0.5?'50%':'2px'};left:${Math.random()*100}vw;top:-20px;z-index:200;pointer-events:none;opacity:0.9`;
+    document.body.appendChild(c);
+    const dur=1500+Math.random()*2000;
+    const xDrift=(Math.random()-0.5)*200;
+    c.animate([{transform:'translate(0,0) rotate(0deg)',opacity:1},{transform:`translate(${xDrift}px,${window.innerHeight+40}px) rotate(${Math.random()*720}deg)`,opacity:0}],{duration:dur,easing:'cubic-bezier(0.25,0.46,0.45,0.94)',fill:'forwards'}).onfinish=()=>c.remove();
+  }
+}
+
+function resetState(){
+  score=0;
+  round=0;
+  usedVerbs.clear();
+  usedNonVerbs.clear();
+  document.getElementById('egg-in-basket').innerHTML='';
+}
+
+window.startGame=async function(){
+  await loadGameData();
+  ensureAudio();
+  OpusAudio.play('click');
+  resetState();
+  document.getElementById('end-screen').classList.add('hidden');
+  document.getElementById('game-screen').classList.remove('hidden');
+  renderRound();
+};
+
+window.addEventListener('DOMContentLoaded',()=>window.startGame());
+
+})();
+
+// ═══ Mascot Controller ═══
+const MascotCtrl=(()=>{
+  const FW=72;let st=null,ct=null;
+  function gEl(){return document.getElementById('mascotSprite')}
+  function eEl(){return document.getElementById('endMascot')}
+  function clr(){clearTimeout(st);clearTimeout(ct)}
+  function setSp(el,state,fi){
+    if(!el)return;
+    el.className='mascot-sprite '+state;
+    if(state==='dancing'&&fi!==undefined)el.style.backgroundPosition=`-${fi*FW}px 0px`;
+    else el.style.backgroundPosition='';
+  }
+  function idle(el){if(!el)return;clr();setSp(el,'idle')}
+  function sad(el,dur){if(!el)return;clr();setSp(el,'sad');st=setTimeout(()=>setSp(el,'idle'),dur)}
+  function danceQuick(el){
+    if(!el)return;clr();const fr=[0,1,2,3,4,5];let i=0;
+    (function n(){if(i>=fr.length){setSp(el,'idle');return}setSp(el,'dancing',fr[i]);i++;ct=setTimeout(n,100)})();
+  }
+  function celebrate(el,dur){
+    if(!el)return;clr();const af=[0,1,2,3,4,5];let i=0;const s=Date.now();
+    (function lp(){if(Date.now()-s>dur){setSp(el,'idle');return}setSp(el,'dancing',af[i%6]);i++;ct=setTimeout(lp,180)})();
+  }
+  return{
+    show(){const f=document.getElementById('mascotFloat');if(f)f.classList.add('show')},
+    hide(){const f=document.getElementById('mascotFloat');if(f)f.classList.remove('show')},
+    idle(){idle(gEl())},
+    sad(d=1800){sad(gEl(),d)},
+    danceQuick(){danceQuick(gEl())},
+    celebrate(d=2200){celebrate(gEl(),d)},
+    endIdle(){idle(eEl())},
+    endCelebrate(d=2000){celebrate(eEl(),d)},
+  };
+})();
+
+
+</script>
+</body>
+</html>

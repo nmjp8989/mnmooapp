@@ -1,0 +1,380 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width,initial-scale=1,maximum-scale=1,user-scalable=no">
+<title>Whack-a-Word</title>
+<link href="https://fonts.googleapis.com/css2?family=Fredoka:wght@400;600;700&family=Nunito:wght@400;600;700;800&display=swap" rel="stylesheet">
+<style>
+:root{--opus-accent:#42A5F5}
+*{box-sizing:border-box;margin:0;padding:0}
+html,body{width:100vw;height:100dvh;overflow:hidden;margin:0;padding:0;touch-action:manipulation;user-select:none;overscroll-behavior:none;font-family:'Nunito',sans-serif;background:linear-gradient(135deg,#FFF5F0,#F0F4FF)}
+.screen{position:absolute;inset:0;display:flex;flex-direction:column;align-items:center;justify-content:center}.screen.hidden{display:none}
+.card{background:#fff;border-radius:20px;box-shadow:0 8px 32px rgba(0,0,0,0.10);padding:clamp(24px,4vh,40px) clamp(20px,4vw,32px);text-align:center;max-width:400px;width:90%}
+.card h1{font-family:'Fredoka',sans-serif;font-size:clamp(24px,6vh,40px);margin-bottom:8px;color:#333}
+.card p{font-size:clamp(18px,4.5vh,28px);color:#555;margin:6px 0;line-height:1.5}
+.card .emoji-hero{font-size:clamp(48px,12vh,80px);margin-bottom:8px}
+.btn{display:inline-block;min-height:44px;min-width:44px;padding:clamp(14px,3vh,22px) clamp(28px,6vw,44px);border:none;border-radius:14px;font-family:'Fredoka',sans-serif;font-size:clamp(18px,4vh,26px);font-weight:600;color:#fff;background:var(--opus-accent);cursor:pointer;margin-top:16px;touch-action:manipulation}
+#startScreen{background:linear-gradient(135deg,#e8f5e9,#f1f8e9)}
+#gameScreen{background:linear-gradient(180deg,#87CEEB 0%,#B8E4FF 40%,#8BC34A 70%,#689F38 100%)}
+#endScreen{background:linear-gradient(135deg,#fff8e1,#fff3e0)}
+#scoreDisplay{position:absolute;top:16px;right:20px;font-family:'Fredoka',sans-serif;font-size:clamp(18px,4vh,26px);font-weight:700;color:#333;background:#fff;padding:clamp(8px,1.5vh,14px) clamp(14px,3vw,24px);border-radius:14px;box-shadow:0 4px 16px rgba(0,0,0,0.08);z-index:10}
+#roundDisplay{position:absolute;top:16px;left:20px;font-family:'Fredoka',sans-serif;font-size:clamp(16px,3.5vh,24px);font-weight:600;color:#666;background:#fff;padding:clamp(8px,1.5vh,14px) clamp(14px,3vw,24px);border-radius:14px;box-shadow:0 4px 16px rgba(0,0,0,0.08);z-index:10}
+#promptText{font-family:'Fredoka',sans-serif;font-size:clamp(22px,5.5vh,38px);font-weight:700;color:#fff;text-shadow:0 3px 8px rgba(0,0,0,0.3);margin:clamp(60px,10vh,80px) 0 clamp(16px,3vh,24px);text-align:center;padding:0 16px;background:rgba(255,255,255,0.2);backdrop-filter:blur(4px);border-radius:14px;display:inline-block;padding:clamp(10px,2vh,16px) clamp(20px,4vw,32px)}
+.garden{display:grid;grid-template-columns:repeat(3,1fr);gap:clamp(12px,2vw,24px);justify-items:center;align-items:end;padding:0 clamp(12px,3vw,24px);width:100%;max-width:500px}
+.hole{position:relative;width:clamp(80px,22vw,130px);height:clamp(120px,22vh,170px);display:flex;align-items:flex-end;justify-content:center;cursor:pointer;touch-action:manipulation}
+.hole-bg{position:absolute;bottom:0;left:50%;transform:translateX(-50%);width:100%;height:clamp(30px,5vh,44px);background:#6D4C41;border-radius:50%;z-index:2}
+.mole-wrap{position:absolute;bottom:clamp(12px,2vh,18px);left:50%;transform:translateX(-50%) translateY(100%);transition:transform 0.6s cubic-bezier(0.34,1.56,0.64,1);z-index:1;width:clamp(70px,18vw,110px)}
+.mole-wrap.up{transform:translateX(-50%) translateY(0)}
+.mole-wrap.whacked{animation:whackSpin 0.5s ease forwards}
+@keyframes whackSpin{0%{transform:translateX(-50%) translateY(0) rotate(0deg) scale(1)}50%{transform:translateX(-50%) translateY(0) rotate(180deg) scale(0.8)}100%{transform:translateX(-50%) translateY(100%) rotate(360deg) scale(0.5);opacity:0}}
+.mole-wrap.wrong-shake{animation:moleShake 0.4s ease}
+@keyframes moleShake{0%,100%{transform:translateX(-50%) translateY(0)}20%{transform:translateX(calc(-50% + 10px)) translateY(0)}40%{transform:translateX(calc(-50% - 10px)) translateY(0)}60%{transform:translateX(calc(-50% + 6px)) translateY(0)}80%{transform:translateX(calc(-50% - 6px)) translateY(0)}}
+.mole-sign{position:absolute;top:clamp(-14px,-2vh,-10px);left:50%;transform:translateX(-50%);background:#F5DEB3;border:2px solid #D2B48C;border-radius:10px;padding:clamp(4px,0.8vh,8px) clamp(10px,2vw,16px);font-family:'Fredoka',sans-serif;font-size:clamp(18px,4.5vh,30px);font-weight:700;color:#5D4037;white-space:nowrap;z-index:3;box-shadow:0 2px 8px rgba(0,0,0,0.12)}
+.voice-bubble{position:fixed;top:50%;left:50%;transform:translate(-50%,-50%);background:#fff;border-radius:18px;padding:clamp(14px,3vh,22px) clamp(20px,4vw,32px);font-size:clamp(18px,4.5vh,28px);font-weight:600;color:#333;box-shadow:0 8px 32px rgba(0,0,0,0.15);z-index:100;opacity:0;transition:opacity 0.3s;pointer-events:none;max-width:85%;text-align:center}
+.voice-bubble.show{opacity:1}
+.bam-effect{position:fixed;pointer-events:none;z-index:200;animation:bamPop 0.6s ease forwards}
+@keyframes bamPop{0%{transform:scale(0);opacity:1}40%{transform:scale(1.3);opacity:1}100%{transform:scale(1.8);opacity:0}}
+.bam-text{position:fixed;pointer-events:none;z-index:201;font-family:'Fredoka',sans-serif;font-size:clamp(28px,6vh,44px);font-weight:700;color:#FF6D00;text-shadow:0 2px 8px rgba(0,0,0,0.2);animation:bamTextPop 0.7s ease forwards}
+@keyframes bamTextPop{0%{transform:scale(0) rotate(-10deg);opacity:1}30%{transform:scale(1.2) rotate(5deg);opacity:1}100%{transform:scale(0.5) translateY(-40px);opacity:0}}
+.confetti-piece{position:fixed;pointer-events:none;z-index:300;width:10px;height:10px;border-radius:2px;animation:confettiFall 1.5s ease forwards}
+@keyframes confettiFall{0%{opacity:1;transform:translateY(0) rotate(0deg)}100%{opacity:0;transform:translateY(100vh) rotate(720deg)}}
+.garden-ground{position:absolute;bottom:0;left:0;right:0;height:clamp(60px,10vh,90px);background:linear-gradient(180deg,#8BC34A 0%,#689F38 100%);border-radius:50% 50% 0 0 / 30px 30px 0 0;z-index:0}
+
+/* ═══ Mascot Cow ═══ */
+.mascot-float{
+  position:absolute;top:8vh;left:2vw;z-index:35;
+  pointer-events:none;opacity:0;transition:opacity .4s;
+}
+.mascot-float.show{opacity:1}
+.mascot-center{display:flex;justify-content:center;margin-bottom:8px}
+.mascot-container{transform:scale(1.1);transform-origin:center}
+.mascot-sprite{width:72px;height:128px;image-rendering:pixelated;transform:translateZ(0)}
+.mascot-sprite.idle{
+  background-image:url('../../assets/cow/idle.webp');
+  background-size:216px 128px;
+  animation:spIdle .6s steps(3) infinite;
+}
+@keyframes spIdle{100%{background-position:-216px 0}}
+.mascot-sprite.dancing{
+  background-image:url('../../assets/cow/rhythm.webp');
+  background-size:432px 128px;
+}
+.mascot-sprite.sad{
+  background-image:url('../../assets/cow/sadface.webp');
+  background-size:144px 128px;
+  animation:spSad .5s steps(2) infinite;
+}
+@keyframes spSad{100%{background-position:-144px 0}}
+
+</style>
+</head>
+<body>
+
+<div class="mascot-float" id="mascotFloat">
+    <div class="mascot-container">
+      <div class="mascot-sprite idle" id="mascotSprite" aria-hidden="true"></div>
+    </div>
+  </div>
+
+
+<div id="gameScreen" class="screen hidden">
+
+  <div id="scoreDisplay">Score: 0</div>
+  <div id="roundDisplay">Round 1/10</div>
+  <div id="promptText"></div>
+  <div class="garden" id="garden"></div>
+  <div class="garden-ground"></div>
+</div>
+
+<div id="endScreen" class="screen hidden">
+    <div class="mascot-center">
+      <div class="mascot-container">
+        <div class="mascot-sprite idle" id="endMascot" aria-hidden="true"></div>
+      </div>
+    </div>
+
+  <div class="card">
+    <div class="emoji-hero">🏆</div>
+    <h1 id="endTitle">Word Champion!</h1>
+    <p id="endMsg"></p>
+    <button class="btn" onclick="window.startGame()">Play Again</button>
+  </div>
+</div>
+
+<div class="voice-bubble" id="voiceBubble"></div>
+
+<script>
+(function(){
+  var VOICES={"welcome":{"text":"🔨 Welcome to Whack-a-Word!","m4a":"welcome.m4a"},"instructions":{"text":"Words pop up from holes. Whack the ones that match!","m4a":"instructions.m4a"},"whack_noun":{"text":"🔨 Tap all the NOUNS!","m4a":"whack_noun.m4a"},"whack_adj":{"text":"🎨 Tap all the ADJECTIVES!","m4a":"whack_adj.m4a"},"correct_1":{"text":"💥 BAM! Got it!","m4a":"correct_1.m4a"},"correct_2":{"text":"🎉 That's correct!","m4a":"correct_2.m4a"},"wrong_1":{"text":"🫣 Oops! {word} is not a {type}!","m4a":"wrong_1.m4a"},"wrong_2":{"text":"👀 Try again!","m4a":"wrong_2.m4a"},"round_done":{"text":"⭐ Great whack! Score: {score}","m4a":"round_done.m4a"},"win":{"text":"🏆 Word Champion! You whacked them all!","m4a":"win.m4a"},"try_again":{"text":"🔨 Good effort! Try again?","m4a":"try_again.m4a"}};
+
+  function getVoiceText(key){var v=VOICES[key];return typeof v==='string'?v:v?v.text:''}
+
+  var NOUNS=["cat","dog","bird","fish","pig","cow","tree","flower","house","car","boat","train","apple","banana","cookie","shirt","shoe","hat","star","moon","sun","book","pen","desk","chair","boy","girl","baby","mom","dad"];
+  var ADJS=["red","blue","green","tall","short","big","small","fast","slow","hot","cold","loud","quiet","soft","hard","happy","sad","mad","funny","silly","sweet","sour","brave","shy","new","old","bright","dark","shiny","fuzzy"];
+
+  var TOTAL_ROUNDS=10;
+  var score=0,round=0,roundType="",locked=false;
+  var correctWords=[];
+  var moleStates=[false,false,false,false,false,false];
+
+  var OpusAudio=(function(){
+    var ctx;
+    function getCtx(){if(!ctx)ctx=new(window.AudioContext||window.webkitAudioContext)();return ctx}
+    function play(type){
+      try{
+        var c=getCtx(),o=c.createOscillator(),g=c.createGain();
+        o.connect(g);g.connect(c.destination);
+        if(type==="click"){o.frequency.setValueAtTime(600,c.currentTime);o.frequency.linearRampToValueAtTime(800,c.currentTime+0.08);g.gain.setValueAtTime(0.15,c.currentTime);g.gain.linearRampToValueAtTime(0,c.currentTime+0.1);o.start(c.currentTime);o.stop(c.currentTime+0.1)}
+        else if(type==="correct"){o.frequency.setValueAtTime(523,c.currentTime);o.frequency.setValueAtTime(659,c.currentTime+0.1);o.frequency.setValueAtTime(784,c.currentTime+0.2);g.gain.setValueAtTime(0.2,c.currentTime);g.gain.linearRampToValueAtTime(0,c.currentTime+0.35);o.start(c.currentTime);o.stop(c.currentTime+0.35)}
+        else if(type==="wrong"){o.type="sawtooth";o.frequency.setValueAtTime(200,c.currentTime);o.frequency.linearRampToValueAtTime(100,c.currentTime+0.25);g.gain.setValueAtTime(0.12,c.currentTime);g.gain.linearRampToValueAtTime(0,c.currentTime+0.25);o.start(c.currentTime);o.stop(c.currentTime+0.25)}
+        else if(type==="win"){o.frequency.setValueAtTime(523,c.currentTime);o.frequency.setValueAtTime(659,c.currentTime+0.12);o.frequency.setValueAtTime(784,c.currentTime+0.24);o.frequency.setValueAtTime(1047,c.currentTime+0.36);g.gain.setValueAtTime(0.2,c.currentTime);g.gain.linearRampToValueAtTime(0,c.currentTime+0.5);o.start(c.currentTime);o.stop(c.currentTime+0.5)}
+        else if(type==="whack"){o.type="square";o.frequency.setValueAtTime(300,c.currentTime);o.frequency.linearRampToValueAtTime(100,c.currentTime+0.08);g.gain.setValueAtTime(0.2,c.currentTime);g.gain.linearRampToValueAtTime(0,c.currentTime+0.1);o.start(c.currentTime);o.stop(c.currentTime+0.1)}
+      }catch(e){}
+    }
+    return{play:play}
+  })();
+
+// ═══ Mascot Controller ═══
+const MascotCtrl=(()=>{
+  const FW=72;let st=null,ct=null;
+  function gEl(){return document.getElementById('mascotSprite')}
+  function eEl(){return document.getElementById('endMascot')}
+  function clr(){clearTimeout(st);clearTimeout(ct)}
+  function setSp(el,state,fi){
+    if(!el)return;
+    el.className='mascot-sprite '+state;
+    if(state==='dancing'&&fi!==undefined)el.style.backgroundPosition=`-${fi*FW}px 0px`;
+    else el.style.backgroundPosition='';
+  }
+  function idle(el){if(!el)return;clr();setSp(el,'idle')}
+  function sad(el,dur){if(!el)return;clr();setSp(el,'sad');st=setTimeout(()=>setSp(el,'idle'),dur)}
+  function danceQuick(el){
+    if(!el)return;clr();const fr=[0,1,2,3,4,5];let i=0;
+    (function n(){if(i>=fr.length){setSp(el,'idle');return}setSp(el,'dancing',fr[i]);i++;ct=setTimeout(n,100)})();
+  }
+  function celebrate(el,dur){
+    if(!el)return;clr();const af=[0,1,2,3,4,5];let i=0;const s=Date.now();
+    (function lp(){if(Date.now()-s>dur){setSp(el,'idle');return}setSp(el,'dancing',af[i%6]);i++;ct=setTimeout(lp,180)})();
+  }
+  return{
+    show(){const f=document.getElementById('mascotFloat');if(f)f.classList.add('show')},
+    hide(){const f=document.getElementById('mascotFloat');if(f)f.classList.remove('show')},
+    idle(){idle(gEl())},
+    sad(d=1800){sad(gEl(),d)},
+    danceQuick(){danceQuick(gEl())},
+    celebrate(d=2200){celebrate(gEl(),d)},
+    endIdle(){idle(eEl())},
+    endCelebrate(d=2000){celebrate(eEl(),d)},
+  };
+})();
+
+
+
+  function opusConfetti(){
+    var colors=["#FF6B6B","#4ECDC4","#45B7D1","#FFA07A","#98D8C8","#FFD93D","#C9B1FF","#FF85A2"];
+    for(var i=0;i<60;i++){
+      var el=document.createElement("div");
+      el.className="confetti-piece";
+      el.style.left=Math.random()*100+"vw";
+      el.style.top="-10px";
+      el.style.background=colors[Math.floor(Math.random()*colors.length)];
+      el.style.width=(6+Math.random()*8)+"px";
+      el.style.height=(6+Math.random()*8)+"px";
+      el.style.animationDelay=(Math.random()*0.8)+"s";
+      el.style.animationDuration=(1+Math.random()*1)+"s";
+      document.body.appendChild(el);
+      setTimeout((function(e){return function(){e.remove()}})(el),2500);
+    }
+  }
+
+  var bubbleTimer=null;
+  function playVoice(key){
+    try{var entry=VOICES[key];if(entry&&entry.m4a){if(window._pv){window._pv.pause();window._pv=null;}var a=new Audio(''+entry.m4a);window._pv=a;a.play().catch(()=>{})}}catch(e){}
+  }
+  function showVoiceBubble(msg,dur,key){
+    var el=document.getElementById("voiceBubble");
+    el.textContent=msg;
+    el.classList.add("show");
+    clearTimeout(bubbleTimer);
+    bubbleTimer=setTimeout(function(){el.classList.remove("show")},dur||2500);
+    if(key)playVoice(key);
+  }
+
+  function shuffle(a){var arr=a.slice();for(var i=arr.length-1;i>0;i--){var j=Math.floor(Math.random()*(i+1));var t=arr[i];arr[i]=arr[j];arr[j]=t}return arr}
+  function pick(arr){return arr[Math.floor(Math.random()*arr.length)]}
+
+  function showScreen(id){
+    ["gameScreen","endScreen"].forEach(function(s){
+      document.getElementById(s).classList.toggle("hidden",s!==id);
+    });
+  }
+
+  function showBAM(x,y){
+    var burst=document.createElement("div");
+    burst.className="bam-effect";
+    burst.innerHTML='<svg width="80" height="80" viewBox="0 0 80 80"><polygon points="40,0 48,28 80,28 54,46 62,76 40,58 18,76 26,46 0,28 32,28" fill="#FFD600" stroke="#FF6D00" stroke-width="2"/></svg>';
+    burst.style.left=(x-40)+"px";
+    burst.style.top=(y-40)+"px";
+    document.body.appendChild(burst);
+    setTimeout(function(){burst.remove()},700);
+    var txt=document.createElement("div");
+    txt.className="bam-text";
+    txt.textContent="BAM!";
+    txt.style.left=(x-40)+"px";
+    txt.style.top=(y-60)+"px";
+    document.body.appendChild(txt);
+    setTimeout(function(){txt.remove()},800);
+  }
+
+  function buildGarden(){
+    var garden=document.getElementById("garden");
+    garden.innerHTML="";
+    for(var i=0;i<6;i++){
+      var hole=document.createElement("div");
+      hole.className="hole";
+      hole.id="hole"+i;
+      hole.innerHTML='<div class="mole-sign" id="sign'+i+'"></div><div class="mole-wrap" id="mole'+i+'"><svg viewBox="0 0 110 120" width="100%" height="100%"><ellipse cx="55" cy="90" rx="42" ry="30" fill="#8D6E63"/><ellipse cx="55" cy="65" rx="35" ry="35" fill="#A1887F"/><ellipse cx="35" cy="38" rx="12" ry="16" fill="#A1887F" stroke="#8D6E63" stroke-width="2"/><ellipse cx="75" cy="38" rx="12" ry="16" fill="#A1887F" stroke="#8D6E63" stroke-width="2"/><ellipse cx="35" cy="38" rx="7" ry="10" fill="#FFCCBC"/><ellipse cx="75" cy="38" rx="7" ry="10" fill="#FFCCBC"/><ellipse cx="45" cy="60" rx="10" ry="11" fill="#fff"/><ellipse cx="65" cy="60" rx="10" ry="11" fill="#fff"/><circle cx="47" cy="59" r="5" fill="#222"/><circle cx="67" cy="59" r="5" fill="#222"/><circle cx="49" cy="57" r="2" fill="#fff"/><circle cx="69" cy="57" r="2" fill="#fff"/><ellipse cx="55" cy="74" rx="6" ry="4" fill="#6D4C41"/><rect x="47" y="78" width="7" height="10" rx="2" fill="#fff"/><rect x="56" y="78" width="7" height="10" rx="2" fill="#fff"/><circle cx="55" cy="68" r="3" fill="#FFAB91"/></svg></div><div class="hole-bg"></div>';
+      (function(idx){
+        hole.addEventListener("click",function(e){handleWhack(idx,e)});
+      })(i);
+      garden.appendChild(hole);
+    }
+  }
+
+  function hideAllMoles(){
+    for(var i=0;i<6;i++){
+      document.getElementById("mole"+i).classList.remove("up","whacked","wrong-shake");
+      document.getElementById("sign"+i).textContent="";
+      moleStates[i]=false;
+    }
+  }
+
+  function spawnRound(){
+    locked=false;
+    round++;
+    document.getElementById("roundDisplay").textContent="Round "+round+"/"+TOTAL_ROUNDS;
+    hideAllMoles();
+
+    roundType=Math.random()<0.5?"noun":"adj";
+    var prompt=roundType==="noun"?getVoiceText("whack_noun"):getVoiceText("whack_adj");
+    document.getElementById("promptText").textContent=prompt;
+
+    var targetPool=roundType==="noun"?NOUNS:ADJS;
+    var distractorPool=roundType==="noun"?ADJS:NOUNS;
+    correctWords=[];
+
+    var numCorrect=2+Math.floor(Math.random()*2);
+    var shuffledTargets=shuffle(targetPool.slice());
+    var shuffledDistractors=shuffle(distractorPool.slice());
+
+    var words=[];
+    for(var i=0;i<numCorrect&&i<shuffledTargets.length;i++){
+      words.push({word:shuffledTargets[i],isCorrect:true});
+    }
+    while(words.length<6){
+      var d=shuffledDistractors.pop();
+      if(d) words.push({word:d,isCorrect:false});
+    }
+    words=shuffle(words);
+
+    for(var i=0;i<6;i++){
+      document.getElementById("sign"+i).textContent=words[i].word;
+      moleStates[i]=words[i].isCorrect;
+      if(words[i].isCorrect) correctWords.push(words[i].word);
+    }
+
+    setTimeout(function(){
+      for(var i=0;i<6;i++){
+        document.getElementById("mole"+i).classList.add("up");
+      }
+    },1000);
+  }
+
+  var whackedCount=0;
+
+  function handleWhack(idx,e){
+    if(locked)return;
+    if(!moleStates[idx])return;
+
+    var mole=document.getElementById("mole"+idx);
+    if(mole.classList.contains("whacked"))return;
+
+    var isCorrect=moleStates[idx];
+    var word=document.getElementById("sign"+idx).textContent;
+
+    if(isCorrect){
+      locked=true;
+      OpusAudio.play("whack");
+      mole.classList.add("whacked");
+      whackedCount++;
+
+      var x=e.clientX||e.touches&&e.touches[0].clientX||window.innerWidth/2;
+      var y=e.clientY||e.touches&&e.touches[0].clientY||window.innerHeight/2;
+      showBAM(x,y);
+
+      score++;
+      document.getElementById("scoreDisplay").textContent="Score: "+score;
+      OpusAudio.play("correct");
+
+      var msgs=[getVoiceText("correct_1"),getVoiceText("correct_2")];
+      showVoiceBubble(pick(msgs),1200,"correct_1");
+
+      var remainingCorrect=0;
+      for(var i=0;i<6;i++){
+        var m=document.getElementById("mole"+i);
+        if(moleStates[i]&&!m.classList.contains("whacked")) remainingCorrect++;
+      }
+
+      if(remainingCorrect===0){
+        setTimeout(function(){
+          hideAllMoles();
+          if(round>=TOTAL_ROUNDS){
+            endGame();
+          }else{
+            showVoiceBubble(getVoiceText("round_done").replace("{score}",score),1000,"round_done");
+            setTimeout(function(){spawnRound()},1200);
+          }
+        },800);
+      }else{
+        setTimeout(function(){locked=false},400);
+      }
+    }
+  }
+
+  function endGame(){
+    var isWin=score>=7;
+    if(isWin){
+      document.getElementById("endTitle").textContent="Word Champion!";
+      document.getElementById("endMsg").textContent=getVoiceText("win")+" Score: "+score+"/"+TOTAL_ROUNDS;
+      OpusAudio.play("win");
+      opusConfetti();
+      MascotCtrl.celebrate(3000);
+    }else{
+      document.getElementById("endTitle").textContent="Good Effort!";
+      document.getElementById("endMsg").textContent=getVoiceText("try_again")+" Score: "+score+"/"+TOTAL_ROUNDS;
+    }
+    showScreen("endScreen");
+    MascotCtrl.hide();
+    }
+
+  window.startGame=function(){
+    OpusAudio.play("click");
+    score=0;round=0;whackedCount=0;
+    document.getElementById("scoreDisplay").textContent="Score: 0";
+    showScreen("gameScreen");
+    MascotCtrl.show();
+    MascotCtrl.idle();
+    buildGarden();
+    showVoiceBubble(getVoiceText("welcome"),2000,"welcome");
+    setTimeout(function(){spawnRound()},800);
+  };
+
+  // Start immediately — no opening/start screen.
+  window.addEventListener("DOMContentLoaded", function(){
+    window.startGame();
+  });
+})();
+</script>
+</body>
+</html>

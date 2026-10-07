@@ -1,0 +1,610 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no, viewport-fit=cover">
+    <title>Grade 1 Language Explorer</title>
+    <style>
+        * {
+            box-sizing: border-box;
+        }
+
+        body {
+            background-color: #e3effa;
+            margin: 0;
+            padding: 0;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            width: 100vw;
+            height: 100vh;
+            overflow: hidden;
+            font-family: 'Comic Sans MS', 'Chalkboard SE', 'sans-serif';
+            user-select: none;
+            -webkit-user-select: none;
+        }
+
+        /* Portrait Warning Screen */
+        .portrait-warning {
+            display: none;
+            position: fixed;
+            top: 0;
+            left: 0;
+            width: 100%;
+            height: 100%;
+            background-color: #3b5998;
+            color: white;
+            z-index: 200;
+            flex-direction: column;
+            align-items: center;
+            justify-content: center;
+            text-align: center;
+            padding: 20px;
+        }
+
+        .portrait-warning svg {
+            width: 80px;
+            height: 80px;
+            fill: white;
+            margin-bottom: 20px;
+            animation: rotateDevice 2s ease-in-out infinite;
+        }
+
+        @keyframes rotateDevice {
+            0% { transform: rotate(0deg); }
+            50% { transform: rotate(-90deg); }
+            100% { transform: rotate(0deg); }
+        }
+
+        @media (orientation: portrait) {
+            .portrait-warning {
+                display: flex;
+            }
+        }
+/* Full screen game container */
+        .game-container {
+            position: relative;
+            width: 100vw;
+            height: 100vh;
+            background-size: 100% 100%;
+            background-repeat: no-repeat;
+            background-position: center;
+            overflow: hidden;
+            transition: background-image 0.5s ease-in-out;
+        }
+
+        /* Prominent Instruction Display Banner */
+        .instruction-banner {
+            position: absolute;
+            top: 3%;
+            left: 50%;
+            transform: translateX(-50%);
+            background-color: rgba(255, 255, 255, 0.95);
+            border: 5px solid #ffaa00;
+            border-radius: 30px;
+            padding: 10px 30px;
+            font-size: 1.8rem;
+            color: #2c3e50;
+            text-align: center;
+            box-shadow: 0 8px 20px rgba(0,0,0,0.15);
+            z-index: 10;
+            display: flex;
+            align-items: center;
+            gap: 15px;
+        }
+
+        .instruction-banner span.target-word {
+            color: #e67e22;
+            font-weight: bold;
+            text-transform: uppercase;
+            text-shadow: 2px 2px 0px rgba(0,0,0,0.05);
+            font-size: 2.2rem;
+            animation: slightBounce 2s infinite ease-in-out;
+            display: inline-block;
+        }
+
+        @keyframes slightBounce {
+            0%, 100% { transform: translateY(0); }
+            50% { transform: translateY(-4px); }
+        }
+
+        /* Interactive hot zones */
+        .hotspot {
+            position: absolute;
+            cursor: pointer;
+            border: 4px solid transparent;
+            border-radius: 30px;
+            background-color: rgba(255, 255, 255, 0);
+            transition: transform 0.2s ease, border-color 0.2s;
+            -webkit-tap-highlight-color: transparent;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+        }
+
+        /* Found state: Shows the star stamp */
+        .hotspot.found {
+            pointer-events: none; /* Prevent clicking again */
+        }
+
+        .stamp {
+            font-size: clamp(3rem, 8vw, 6rem);
+            pointer-events: none;
+            transform: scale(0);
+            animation: stampDrop 0.6s cubic-bezier(0.175, 0.885, 0.32, 1.275) forwards;
+            filter: drop-shadow(0 5px 5px rgba(0,0,0,0.4));
+            z-index: 5;
+        }
+
+        @keyframes stampDrop {
+            0% { transform: scale(0) rotate(-45deg); opacity: 0; }
+            50% { transform: scale(1.2) rotate(10deg); opacity: 1; }
+            100% { transform: scale(1) rotate(0deg); opacity: 1; }
+        }
+
+        /* Error Feedback */
+        .hotspot.wrong-flash {
+            animation: shake 0.4s ease;
+            border-color: #e74c3c;
+            background-color: rgba(231, 76, 60, 0.2);
+        }
+
+        @keyframes shake {
+            0%, 100% { transform: translateX(0); }
+            20%, 60% { transform: translateX(-8px); }
+            40%, 80% { transform: translateX(8px); }
+        }
+
+        /* Particle System for happy feedback */
+        .particle {
+            position: absolute;
+            pointer-events: none;
+            font-size: 2.5rem;
+            z-index: 20;
+            animation: floatUp 1s ease-out forwards;
+            filter: drop-shadow(0px 3px 3px rgba(0,0,0,0.3));
+        }
+
+        @keyframes floatUp {
+            0% { transform: translate(-50%, -50%) scale(0.5); opacity: 1; }
+            50% { transform: translate(-50%, -80px) scale(1.2); opacity: 1; }
+            100% { transform: translate(-50%, -120px) scale(1); opacity: 0; }
+        }
+
+        /* Interactive audio-replayer button */
+        .audio-btn {
+            background: #ffaa00;
+            border: none;
+            border-radius: 50%;
+            width: 50px;
+            height: 50px;
+            cursor: pointer;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            pointer-events: auto;
+            box-shadow: 0 4px 10px rgba(0,0,0,0.2);
+            transition: transform 0.1s;
+            animation: heartbeat 2s infinite; /* Gentle pulse to attract attention */
+        }
+
+        .audio-btn:active {
+            transform: scale(0.85);
+            animation: none;
+        }
+
+        .audio-btn svg {
+            width: 28px;
+            height: 28px;
+            fill: white;
+        }
+
+        @keyframes heartbeat {
+            0%, 100% { transform: scale(1); }
+            15% { transform: scale(1.15); box-shadow: 0 6px 15px rgba(255, 170, 0, 0.4); }
+            30% { transform: scale(1); }
+            45% { transform: scale(1.15); box-shadow: 0 6px 15px rgba(255, 170, 0, 0.4); }
+            60% { transform: scale(1); }
+        }
+
+        /* Scene progress indicator dots */
+        .progress-dots {
+            position: absolute;
+            bottom: 3%;
+            right: 3%;
+            display: flex;
+            gap: 12px;
+            background: rgba(255, 255, 255, 0.9);
+            padding: 10px 20px;
+            border-radius: 20px;
+            z-index: 10;
+            box-shadow: 0 4px 10px rgba(0,0,0,0.1);
+        }
+
+        .dot {
+            width: 16px;
+            height: 16px;
+            border-radius: 50%;
+            background-color: #bdc3c7;
+            transition: background-color 0.4s, transform 0.4s;
+        }
+
+        .dot.active {
+            background-color: #2ecc71;
+            transform: scale(1.3);
+            box-shadow: 0 0 8px #2ecc71;
+        }
+
+        /* Success Modals */
+        .modal {
+            display: none;
+            position: fixed;
+            top: 0; left: 0; width: 100%; height: 100%;
+            background: rgba(0,0,0,0.7);
+            align-items: center;
+            justify-content: center;
+            z-index: 150;
+            backdrop-filter: blur(5px);
+        }
+
+        .modal-content {
+            background: white;
+            padding: 40px;
+            border-radius: 30px;
+            text-align: center;
+            box-shadow: 0 15px 50px rgba(0,0,0,0.4);
+            max-width: 500px;
+            width: 90%;
+            border: 8px solid #ffaa00;
+            animation: bounceIn 0.8s cubic-bezier(0.34, 1.56, 0.64, 1);
+        }
+
+        @keyframes bounceIn {
+            0% { transform: scale(0.3); opacity: 0; }
+            100% { transform: scale(1); opacity: 1; }
+        }
+
+        .modal-content h2 {
+            color: #2c3e50;
+            font-size: 2.5rem;
+            margin-top: 0;
+            margin-bottom: 10px;
+        }
+
+        .modal-content p {
+            color: #555;
+            font-size: 1.3rem;
+            margin-bottom: 30px;
+        }
+
+        .btn {
+            background-color: #ffaa00;
+            color: white;
+            border: none;
+            padding: 15px 45px;
+            font-size: 1.6rem;
+            font-weight: bold;
+            border-radius: 40px;
+            cursor: pointer;
+            box-shadow: 0 6px 0 #d68f00, 0 10px 20px rgba(0,0,0,0.2);
+            transition: transform 0.1s, box-shadow 0.1s;
+        }
+
+        .btn:active {
+            transform: translateY(6px);
+            box-shadow: 0 0 0 #d68f00, 0 4px 10px rgba(0,0,0,0.2);
+        }
+
+        /* Confetti Fullscreen */
+        .confetti-piece {
+            position: fixed;
+            width: 15px; height: 15px;
+            z-index: 140;
+            animation: confettiFall linear forwards;
+        }
+
+        @keyframes confettiFall {
+            0% { transform: translateY(-20px) rotate(0deg); opacity: 1;}
+            100% { transform: translateY(110vh) rotate(720deg); opacity: 0;}
+        }
+    </style>
+</head>
+<body>
+
+    <!-- Device Rotation Guard -->
+    <div class="portrait-warning">
+        <svg viewBox="0 0 24 24">
+            <path d="M16,1H8C6.9,1,6,1.9,6,3v18c0,1.1,0.9,2,2,2h8c1.1,0,2-0.9,2-2V3C18,1.9,17.1,1,16,1z M16,19H8V5h8V19z"/>
+        </svg>
+        <h2>Please Rotate Your Device</h2>
+        <p>This game is designed to be played in landscape mode.</p>
+    </div>
+<!-- Main Game Board Container -->
+    <div class="game-container" id="game-board">
+        
+        <!-- Game Instruction Display -->
+        <div class="instruction-banner">
+            <button class="audio-btn" onclick="repeatInstruction(event)" aria-label="Repeat Audio instruction">
+                <svg viewBox="0 0 24 24">
+                    <path d="M3 9v6h4l5 5V4L7 9H3zm13.5 3c0-1.77-1.02-3.29-2.5-4.03v8.05c1.48-.73 2.5-2.25 2.5-4.02zM14 3.23v2.06c2.89.86 5 3.54 5 6.71s-2.11 5.85-5 6.71v2.06c4.01-.91 7-4.49 7-8.77s-2.99-7.86-7-8.77z"/>
+                </svg>
+            </button>
+            <div>Find the: <span class="target-word" id="word-target">---</span></div>
+        </div>
+
+        <!-- Progress dots indicator -->
+        <div class="progress-dots" id="dots-container"></div>
+    </div>
+
+    <!-- Winner End Modal Screen -->
+    <div class="modal" id="win-modal">
+        <div class="modal-content">
+            <h2>🏆 Awesome! 🏆</h2>
+            <p>You searched all four environments and identified every object correctly!</p>
+            <button class="btn" onclick="resetGame()">Play Again</button>
+        </div>
+    </div>
+
+    <script>
+        // Narrative audio structure
+        const audioAssets = {
+            "welcome": "audio/welcome.m4a",
+            "prompt_octopus": "audio/prompt_octopus.m4a",
+            "prompt_starfish": "audio/prompt_starfish.m4a",
+            "prompt_chest": "audio/prompt_chest.m4a",
+            "prompt_bear": "audio/prompt_bear.m4a",
+            "prompt_clock": "audio/prompt_clock.m4a",
+            "prompt_train": "audio/prompt_train.m4a",
+            "prompt_cow": "audio/prompt_cow.m4a",
+            "prompt_frog": "audio/prompt_frog.m4a",
+            "prompt_tractor": "audio/prompt_tractor.m4a",
+            "prompt_dog": "audio/prompt_dog.m4a",
+            "prompt_ball": "audio/prompt_ball.m4a",
+            "prompt_kite": "audio/prompt_kite.m4a",
+            "correct_1": "audio/correct_1.m4a",
+            "correct_2": "audio/correct_2.m4a",
+            "correct_3": "audio/correct_3.m4a",
+            "wrong_1": "audio/wrong_1.m4a",
+            "wrong_2": "audio/wrong_2.m4a",
+            "next_scene": "audio/next_scene.m4a",
+            "win": "audio/win.m4a"
+        };
+
+        // Game Configuration
+        const gameLevels = [
+            {
+                sceneName: "Ocean",
+                image: "ocean.jpg",
+                targets: [
+                    { name: "Octopus", key: "prompt_octopus", top: "18%", left: "11%", width: "21%", height: "36%" },
+                    { name: "Starfish", key: "prompt_starfish", top: "60%", left: "7.5%", width: "14%", height: "25%" },
+                    { name: "Treasure Chest", key: "prompt_chest", top: "65%", left: "64%", width: "13%", height: "21%" }
+                ]
+            },
+            {
+                sceneName: "Playroom",
+                image: "playroom.jpg",
+                targets: [
+                    { name: "Teddy Bear", key: "prompt_bear", top: "38%", left: "21%", width: "20%", height: "46%" },
+                    { name: "Clock", key: "prompt_clock", top: "9%", left: "59%", width: "12%", height: "22%" },
+                    { name: "Toy Train", key: "prompt_train", top: "79%", left: "57%", width: "31%", height: "14%" }
+                ]
+            },
+            {
+                sceneName: "Farm",
+                image: "farm.jpg",
+                targets: [
+                    { name: "Cow", key: "prompt_cow", top: "48%", left: "25%", width: "21%", height: "22%" },
+                    { name: "Frog", key: "prompt_frog", top: "68%", left: "11%", width: "9%", height: "16%" },
+                    { name: "Tractor", key: "prompt_tractor", top: "34%", left: "44%", width: "11%", height: "14%" }
+                ]
+            },
+            {
+                sceneName: "Park",
+                image: "park.jpg",
+                targets: [
+                    { name: "Dog", key: "prompt_dog", top: "65%", left: "29%", width: "12%", height: "26%" },
+                    { name: "Soccer Ball", key: "prompt_ball", top: "78%", left: "63.5%", width: "8%", height: "14%" },
+                    { name: "Kite", key: "prompt_kite", top: "8.5%", left: "47.5%", width: "29%", height: "56%" }
+                ]
+            }
+        ];
+
+        let currentLevelIndex = 0;
+        let currentTargetIndex = 0;
+        let activeAudio = null;
+
+        function playAudio(key, onEndedCallback = null) {
+            if (activeAudio) {
+                activeAudio.pause();
+                activeAudio.currentTime = 0;
+            }
+            if (audioAssets[key]) {
+                activeAudio = new Audio(audioAssets[key]);
+                if (onEndedCallback) {
+                    activeAudio.onended = onEndedCallback;
+                    activeAudio.onerror = onEndedCallback; // Fallback if file missing
+                }
+                activeAudio.play().catch(err => {
+                    console.log("Audio block: ", err);
+                    if (onEndedCallback) setTimeout(onEndedCallback, 1500);
+                });
+            } else if (onEndedCallback) {
+                setTimeout(onEndedCallback, 1000);
+            }
+        }
+
+        // Start the game immediately
+        function startGame() {
+            loadLevel(0);
+
+            // Try the welcome narration. Some browsers may block autoplay
+            // until the player taps the screen; the game itself still loads.
+            playAudio('welcome', () => {
+                setupActiveTarget();
+            });
+        }
+
+        function loadLevel(levelIndex) {
+            currentLevelIndex = levelIndex;
+            currentTargetIndex = 0;
+            
+            const levelData = gameLevels[levelIndex];
+            const board = document.getElementById('game-board');
+            
+            // Set level background image
+            board.style.backgroundImage = `url('${levelData.image}')`;
+
+            // Clean existing interactive overlays
+            const existingHotspots = board.querySelectorAll('.hotspot');
+            existingHotspots.forEach(node => node.remove());
+
+            // Render interactive overlays dynamically
+            levelData.targets.forEach((target, index) => {
+                const element = document.createElement('div');
+                element.className = 'hotspot';
+                element.style.top = target.top;
+                element.style.left = target.left;
+                element.style.width = target.width;
+                element.style.height = target.height;
+                
+                element.addEventListener('click', () => handleSelection(index, element));
+                board.appendChild(element);
+            });
+
+            updateProgressDots();
+            if (levelIndex > 0) { // On levels > 0, welcome audio doesn't play, so just prompt target
+                setupActiveTarget();
+            }
+        }
+
+        function setupActiveTarget(shouldPlaySound = true) {
+            const currentTarget = gameLevels[currentLevelIndex].targets[currentTargetIndex];
+            document.getElementById('word-target').innerText = currentTarget.name;
+            
+            // Reset animation on target word to draw eye
+            const targetText = document.getElementById('word-target');
+            targetText.style.animation = 'none';
+            void targetText.offsetWidth; // trigger reflow
+            targetText.style.animation = 'slightBounce 2s infinite ease-in-out';
+
+            if (shouldPlaySound) {
+                playAudio(currentTarget.key);
+            }
+        }
+
+        // Particle generator for magical feedback
+        function spawnParticles(element) {
+            const icons = ['✨', '⭐', '🌟'];
+            for (let i = 0; i < 4; i++) {
+                const particle = document.createElement('div');
+                particle.className = 'particle';
+                particle.innerText = icons[Math.floor(Math.random() * icons.length)];
+                
+                // Keep particles centered in the hotspot bounds
+                particle.style.left = '50%';
+                particle.style.top = '50%';
+                
+                // Randomize slightly
+                const offsetX = (Math.random() * 40) - 20;
+                const offsetY = (Math.random() * 40) - 20;
+                particle.style.transform = `translate(calc(-50% + ${offsetX}px), calc(-50% + ${offsetY}px)) scale(0.5)`;
+                
+                particle.style.animationDuration = (0.8 + Math.random() * 0.5) + 's';
+
+                element.appendChild(particle);
+                setTimeout(() => particle.remove(), 1500);
+            }
+        }
+
+        // Confetti for winning the game
+        function triggerConfetti() {
+            const colors = ['#f44336', '#e91e63', '#9c27b0', '#3f51b5', '#2196f3', '#4caf50', '#ffeb3b', '#ff9800'];
+            for(let i = 0; i < 75; i++) {
+                const conf = document.createElement('div');
+                conf.className = 'confetti-piece';
+                conf.style.left = Math.random() * 100 + 'vw';
+                conf.style.backgroundColor = colors[Math.floor(Math.random() * colors.length)];
+                if (Math.random() > 0.5) conf.style.borderRadius = '50%';
+                conf.style.animationDuration = (2 + Math.random() * 3) + 's';
+                conf.style.animationDelay = (Math.random() * 0.5) + 's';
+                document.body.appendChild(conf);
+                setTimeout(() => conf.remove(), 5000);
+            }
+        }
+
+        function handleSelection(clickedIndex, element) {
+            // Ignore if they click an already found object
+            if (element.classList.contains('found')) return;
+
+            if (clickedIndex === currentTargetIndex) {
+                
+                // MAGIC SUCCESS EFFECTS
+                element.classList.add('found');
+                element.innerHTML = '<div class="stamp">⭐</div>';
+                spawnParticles(element);
+
+                currentTargetIndex++;
+                
+                if (currentTargetIndex >= gameLevels[currentLevelIndex].targets.length) {
+                    
+                    // Finished this scene
+                    if (currentLevelIndex + 1 < gameLevels.length) {
+                        playAudio('next_scene', () => {
+                            loadLevel(currentLevelIndex + 1);
+                        });
+                    } else {
+                        // WON THE WHOLE GAME
+                        setTimeout(() => {
+                            document.getElementById('win-modal').style.display = 'flex';
+                            triggerConfetti();
+                            playAudio('win');
+                        }, 1000);
+                    }
+                } else {
+                    // Correct, but more to find in this scene!
+                    const correctAudios = ['correct_1', 'correct_2', 'correct_3'];
+                    const randomCorrect = correctAudios[Math.floor(Math.random() * correctAudios.length)];
+                    playAudio(randomCorrect, () => {
+                        setupActiveTarget(true);
+                    });
+                }
+            } else {
+                // Wrong item clicked
+                element.classList.add('wrong-flash');
+                setTimeout(() => element.classList.remove('wrong-flash'), 400);
+                
+                const wrongAudios = ['wrong_1', 'wrong_2'];
+                const randomWrong = wrongAudios[Math.floor(Math.random() * wrongAudios.length)];
+                playAudio(randomWrong);
+            }
+        }
+
+        function repeatInstruction(event) {
+            if (event) event.stopPropagation();
+            const currentTarget = gameLevels[currentLevelIndex].targets[currentTargetIndex];
+            if (currentTarget) {
+                playAudio(currentTarget.key);
+            }
+        }
+
+        function updateProgressDots() {
+            const container = document.getElementById('dots-container');
+            container.innerHTML = '';
+            gameLevels.forEach((_, idx) => {
+                const dot = document.createElement('div');
+                dot.className = `dot ${idx === currentLevelIndex ? 'active' : ''}`;
+                container.appendChild(dot);
+            });
+        }
+
+        function resetGame() {
+            document.getElementById('win-modal').style.display = 'none';
+            startGame();
+        }
+
+        // Load the first scene as soon as the page is ready.
+        window.addEventListener('DOMContentLoaded', startGame);
+    </script>
+</body>
+</html>
