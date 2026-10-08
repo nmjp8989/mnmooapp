@@ -953,10 +953,11 @@ async function doPurchase() {
       updateProUI(); 
     }
   } catch (e) {
-    if (e.code === 6 || (e.message && e.message.includes('ITEM_ALREADY_OWNED'))) {
+    const errorCode = Number(e.code);
+    if (errorCode === 6 || (e.message && e.message.includes('ITEM_ALREADY_OWNED'))) {
       logDebug('Item already owned! Auto-restoring...');
       await doRestore();
-    } else if (e.code !== 1) { 
+    } else if (errorCode !== 1) { 
       logDebug('Purchase failed: ' + JSON.stringify(e));
       alert('Purchase failed. Please try again.');
     }

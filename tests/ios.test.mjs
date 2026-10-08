@@ -75,3 +75,22 @@ test('signed asset build refuses missing Apple key before copying files', () => 
 test('all inline app JavaScript parses', () => {
   for (const match of html.matchAll(/<script\b[^>]*>([\s\S]*?)<\/script>/g)) new vm.Script(match[1]);
 });
+
+test('purchase errors accept string and numeric cancellation and ownership codes', async () => {
+  const purchase = html.slice(html.indexOf('async function doPurchase()'), html.indexOf('async function doRestore()'));
+  for (const code of [1, '1', 6, '6', 2, '2']) {
+    const alerts = [];
+    let restores = 0;
+    const context = vm.createContext({
+      rcReady: true, rcOfferings: {}, selectedPlan: 'monthly',
+      getPackageForPlan: () => ({ identifier: '$rc_monthly' }),
+      logDebug() {}, alert: message => alerts.push(message),
+      doRestore: async () => { restores++; },
+      Capacitor: { Plugins: { Purchases: { purchasePackage: async () => { throw { code }; } } } },
+    });
+    vm.runInContext(purchase, context);
+    await context.doPurchase();
+    assert.equal(restores, Number(code) === 6 ? 1 : 0);
+    assert.equal(alerts.length, Number(code) === 2 ? 1 : 0);
+  }
+});
